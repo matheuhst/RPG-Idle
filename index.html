@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idle RPG - Dungeon Infinita</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="app-header">
+      <div>
+        <span class="eyebrow">HTML • CSS • JavaScript</span>
+        <h1>Idle RPG: Dungeon Infinita</h1>
+        <p>Derrote monstros, suba de nível, encontre equipamentos e deixe o herói evoluindo no automático.</p>
+      </div>
+
+      <div class="status-line">
+        <span class="badge" id="hero-level">Nível 1</span>
+        <span class="coin-balance">💰 <strong id="coin-display">0</strong> moedas</span>
+        <span class="badge" id="stage-display">Andar 1</span>
+        <span class="badge" id="prestige-title">Sem Prestígio</span>
+        <span class="badge">🔮 <strong id="prestige-points">0</strong> essências</span>
+      </div>
+    </header>
+
+    <section class="action-panel">
+      <div class="action-buttons">
+        <button id="attack-button" type="button">⚔️ Atacar</button>
+        <button id="auto-button" type="button">▶️ Iniciar Auto</button>
+        <button id="next-button" type="button">🔎 Procurar Monstro</button>
+        <button id="boss-button" type="button">👑 Boss</button>
+        <button id="continue-button" type="button" disabled>❤️ Continuar</button>
+        <button id="prestige-button" type="button" class="prestige-button">✨ Prestígio</button>
+      </div>
+
+      <div class="info-strip">
+        <span id="turn-display">🛡️ Turno: Jogador</span>
+        <span id="auto-status">Auto: desligado</span>
+        <span id="offline-message">Progresso salvo automaticamente.</span>
+      </div>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="card hero-card">
+        <div class="card-title">
+          <div>
+            <h2>Herói</h2>
+            <p class="card-subtitle">Status, vida, XP e poder total.</p>
+          </div>
+          <span class="power-badge" id="player-power">Poder 0</span>
+        </div>
+
+        <div class="bar-group">
+          <div class="bar-label">Vida</div>
+          <div class="progress-bar">
+            <div id="player-hp-bar" class="progress-fill hp-fill"></div>
+          </div>
+          <div class="bar-status">
+            <span>HP</span>
+            <strong id="player-hp-text">120 / 120</strong>
+          </div>
+
+          <div class="bar-label small">Experiência</div>
+          <div class="progress-bar small">
+            <div id="player-xp-bar" class="progress-fill xp-fill"></div>
+          </div>
+          <div class="bar-status">
+            <span>XP</span>
+            <strong id="player-xp-text">0 / 100</strong>
+          </div>
+        </div>
+
+        <div class="stat-cards" id="player-stats"></div>
+      </article>
+
+      <article class="card equipment-card">
+        <div class="card-title">
+          <div>
+            <h3>Equipamentos</h3>
+            <p class="card-subtitle">Armas, armaduras, utilitários e magias equipadas.</p>
+          </div>
+          <span class="badge">Slots</span>
+        </div>
+
+        <div id="equipment-summary" class="equipment-summary"></div>
+      </article>
+
+      <article class="card monster-card">
+        <div class="card-title">
+          <div>
+            <h2 id="monster-name">—</h2>
+            <p class="card-subtitle" id="monster-type-badge">Aguardando inimigo...</p>
+          </div>
+          <span class="badge" id="monster-level">Nv. 1</span>
+        </div>
+
+        <div class="monster-portrait" id="monster-portrait">👹</div>
+
+        <div class="bar-group">
+          <div class="bar-label">Vida do inimigo</div>
+          <div class="progress-bar">
+            <div id="monster-hp-bar" class="progress-fill danger-fill"></div>
+          </div>
+          <div class="bar-status">
+            <span>HP</span>
+            <strong id="monster-hp-text">0 / 0</strong>
+          </div>
+        </div>
+
+        <div class="stat-cards" id="monster-stats"></div>
+      </article>
+
+      <article class="card shop-card">
+        <div class="card-title">
+          <div>
+            <h3>Loja</h3>
+            <p class="card-subtitle" id="shop-status">Nenhuma loja</p>
+          </div>
+          <span class="badge">Itens</span>
+        </div>
+
+        <p id="shop-message" class="shop-message">Derrote monstros para encontrar uma loja aleatória.</p>
+        <div id="shop-items" class="shop-items">
+          <div class="empty-state">Nenhuma loja aberta no momento.</div>
+        </div>
+      </article>
+
+      <article class="card skill-card">
+        <div class="card-title">
+          <div>
+            <h3>Habilidades</h3>
+            <p class="card-subtitle">Gaste pontos para evoluir.</p>
+          </div>
+          <span id="skill-points" class="badge">0 pontos</span>
+        </div>
+
+        <div class="skill-grid">
+          <button class="skill-button" type="button" data-stat="attack">+ Ataque</button>
+          <button class="skill-button" type="button" data-stat="defense">+ Defesa</button>
+          <button class="skill-button" type="button" data-stat="agility">+ Agilidade</button>
+          <button class="skill-button" type="button" data-stat="hp">+ Vida</button>
+          <button class="skill-button" type="button" data-stat="magic">+ Magia</button>
+        </div>
+      </article>
+
+      <article class="card inventory-card">
+        <div class="card-title">
+          <div>
+            <h3>Inventário</h3>
+            <p class="card-subtitle">Poções, equipamentos e drops.</p>
+          </div>
+          <span class="badge" id="inventory-count">0 itens</span>
+        </div>
+
+        <div class="inventory-tabs">
+          <button type="button" class="tab-button active" data-tab="items">Itens</button>
+          <button type="button" class="tab-button" data-tab="gear">Equipamentos</button>
+        </div>
+
+        <div id="inventory-items" class="inventory-items"></div>
+      </article>
+    </section>
+  <div id="gear-modal" class="modal-backdrop" hidden>
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2>Equipamentos encontrados</h2>
+          <p>Veja, equipe ou venda seus equipamentos sem aumentar a página.</p>
+        </div>
+        <button id="close-gear-modal-button" type="button" class="mini-button">Fechar</button>
+      </div>
+
+      <div id="gear-modal-list" class="modal-list"></div>
+    </div>
+  </div>
+  <div id="prestige-modal" class="modal-backdrop" hidden>
+    <div class="modal-card prestige-modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">Renascimento</span>
+          <h2>Prestígio</h2>
+          <p>Volte ao andar 1 e transforme sua jornada atual em bônus permanentes.</p>
+        </div>
+
+        <button id="close-prestige-modal-button" type="button" class="mini-button">Fechar</button>
+      </div>
+
+      <div id="prestige-summary" class="prestige-summary"></div>
+
+      <div class="relic-section">
+        <div class="modal-header small-header">
+          <div>
+            <h3>Relíquias Permanentes</h3>
+            <p>Gaste essências de prestígio para melhorar características específicas.</p>
+          </div>
+        </div>
+
+        <div id="relic-list" class="relic-list"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="confirm-prestige-button" type="button" class="prestige-button">
+          Confirmar Prestígio
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="offline-modal" class="modal-backdrop" hidden>
+    <div class="modal-card offline-modal-card">
+      <div class="modal-header">
+        <div>
+          <span class="eyebrow">Progresso Offline</span>
+          <h2>Enquanto você estava fora...</h2>
+          <p>Seu herói continuou avançando pela masmorra sem risco de morrer.</p>
+        </div>
+
+        <button id="close-offline-modal-button" type="button" class="mini-button">
+          Continuar
+        </button>
+      </div>
+
+      <div id="offline-summary" class="offline-summary"></div>
+    </div>
+  </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,1650 @@
+:root {
+  --bg: #090813;
+  --bg-2: #151022;
+  --surface: rgba(255, 255, 255, 0.065);
+  --surface-strong: rgba(255, 255, 255, 0.105);
+  --border: rgba(255, 255, 255, 0.11);
+  --text: #f8f5ff;
+  --muted: rgba(248, 245, 255, 0.72);
+  --accent: #f7c955;
+  --accent-2: #f29a4a;
+  --danger: #ff5d67;
+  --success: #63dc91;
+  --blue: #52b9ff;
+  --purple: #9b77ff;
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(155, 119, 255, 0.22), transparent 28%),
+    radial-gradient(circle at top right, rgba(247, 201, 85, 0.12), transparent 22%),
+    linear-gradient(180deg, var(--bg-2), var(--bg));
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 13px 18px;
+  font-size: 0.98rem;
+  font-weight: 800;
+  cursor: pointer;
+  color: #17111f;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 16px 34px rgba(247, 201, 85, 0.18);
+  transition: transform 0.15s ease, filter 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 20px 45px rgba(247, 201, 85, 0.24);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  box-shadow: none;
+}
+
+.app-shell {
+  width: min(1480px, 100%);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  display: inline-flex;
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: clamp(2rem, 3.4vw, 3.8rem);
+  line-height: 1;
+}
+
+.app-header p {
+  max-width: 650px;
+  margin: 10px 0 0;
+  color: var(--muted);
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.badge,
+.coin-balance,
+.power-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.power-badge {
+  background: linear-gradient(135deg, rgba(155, 119, 255, 0.28), rgba(82, 185, 255, 0.18));
+}
+
+.action-panel {
+  padding: 16px;
+  border-radius: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.info-strip {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(250px, 1fr) minmax(250px, 0.9fr) minmax(270px, 1fr);
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "hero monster shop skill"
+    "equipment equipment inventory inventory";
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+}
+
+.card {
+  min-height: 0;
+  padding: 18px;
+  border-radius: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.equipment-card {
+  grid-area: equipment;
+}
+
+.hero-card {
+  grid-area: hero;
+}
+
+.monster-card {
+  grid-area: monster;
+}
+
+.shop-card {
+  grid-area: shop;
+}
+
+.skill-card {
+  grid-area: skill;
+}
+
+.inventory-card {
+  grid-area: inventory;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.card-title h2,
+.card-title h3 {
+  margin: 0;
+}
+
+.card-subtitle {
+  margin: 7px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.bar-group {
+  margin: 18px 0 14px;
+}
+
+.bar-label {
+  display: block;
+  margin-bottom: 8px;
+  color: rgba(248, 245, 255, 0.86);
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.bar-label.small {
+  margin-top: 14px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.progress-bar.small {
+  height: 12px;
+}
+
+.progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.hp-fill {
+  background: linear-gradient(90deg, var(--success), #32bf73);
+}
+
+.xp-fill {
+  background: linear-gradient(90deg, var(--blue), var(--purple));
+}
+
+.danger-fill {
+  background: linear-gradient(90deg, var(--danger), #ff966d);
+}
+
+.bar-status {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.stat-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.065);
+}
+
+.stat-card span {
+  color: var(--muted);
+}
+
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.monster-portrait {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  min-height: 190px;
+  margin: 18px 0;
+  border-radius: 24px;
+  font-size: 4rem;
+  background:
+    radial-gradient(circle at center, rgba(255, 93, 103, 0.16), transparent 50%),
+    rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.monster-image {
+  width: min(210px, 92%);
+  max-height: 210px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.28));
+}
+
+.equipment-box {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.equipment-box h3 {
+  margin: 0 0 12px;
+}
+
+.equipment-summary,
+.shop-items,
+.inventory-items {
+  display: grid;
+  gap: 10px;
+}
+
+.equipment-slot,
+.shop-item,
+.inventory-item,
+.empty-state {
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.equipment-slot {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.shop-message {
+  min-height: 42px;
+  margin: 14px 0;
+  color: var(--muted);
+}
+
+.shop-item,
+.inventory-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.shop-item strong,
+.inventory-item strong {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.shop-item p,
+.inventory-item p,
+.empty-state {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.item-text {
+  min-width: 0;
+}
+
+.item-thumb {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.25));
+}
+.item-fallback-icon {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.item-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-left: 8px;
+  flex: 0 0 auto;
+}
+
+.shop-item > button,
+.item-actions button {
+  flex: 0 0 auto;
+  padding: 11px 18px;
+  min-width: 74px;
+}
+
+.item-actions button,
+.shop-item button,
+.mini-button,
+.tab-button {
+  padding: 9px 12px;
+  font-size: 0.86rem;
+}
+
+.mini-button,
+.tab-button {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.tab-button.active {
+  color: #17111f;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.danger-button {
+  color: #fff;
+  background: linear-gradient(135deg, #ff5d67, #c92d40);
+}
+
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.skill-button {
+  width: 100%;
+}
+
+.inventory-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.inventory-items {
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.log-entry::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  margin-top: 5px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.log-entry.damage::before {
+  background: var(--danger);
+}
+
+.log-entry.reward::before {
+  background: var(--success);
+}
+
+.log-entry.shop::before {
+  background: var(--blue);
+}
+
+.log-entry.system::before {
+  background: var(--purple);
+}
+
+.log-entry.important {
+  background: rgba(247, 201, 85, 0.12);
+  border-color: rgba(247, 201, 85, 0.34);
+}
+
+.rarity-common {
+  color: #d8d8e4;
+}
+
+.rarity-uncommon {
+  color: #65e09b;
+}
+
+.rarity-rare {
+  color: #62bdff;
+}
+
+.rarity-epic {
+  color: #bd82ff;
+}
+
+.rarity-legendary {
+  color: #ffd15f;
+}
+
+@media (max-width: 1180px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+    grid-template-areas:
+      "hero monster"
+      "shop skill"
+      "equipment equipment"
+      "inventory inventory";
+  }
+}
+
+@media (max-width: 720px) {
+  .app-shell {
+    padding: 14px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "hero"
+      "monster"
+      "shop"
+      "skill"
+      "equipment"
+      "inventory";
+  }
+
+  .action-buttons,
+  .skill-grid,
+  .shop-item,
+  .inventory-item {
+    grid-template-columns: 1fr;
+  }
+
+  .item-content {
+    align-items: flex-start;
+  }
+
+  .item-thumb {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  .action-buttons {
+    display: grid;
+  }
+
+  .shop-item,
+  .inventory-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
+    min-height: 92px;
+  }
+
+  .item-actions {
+    justify-content: stretch;
+  }
+
+  .item-actions button,
+  .shop-item button {
+    width: 100%;
+  }
+}
+
+.item-name-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.item-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 999px;
+  color: #17111f;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  font-size: 0.78rem;
+  font-weight: 900;
+  cursor: help;
+  box-shadow: 0 8px 18px rgba(82, 185, 255, 0.18);
+}
+
+.item-info:hover {
+  filter: brightness(1.15);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(8px);
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.modal-card {
+  width: min(920px, 100%);
+  max-height: min(720px, 88vh);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 26px;
+  background: #151022;
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.modal-list {
+  display: grid;
+  gap: 10px;
+  overflow: auto;
+  padding-right: 6px;
+}
+
+.gear-preview {
+  display: grid;
+  gap: 10px;
+}
+
+.equipment-slot {
+  align-items: center;
+}
+
+.equipment-slot small {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.prestige-button {
+  color: #17111f;
+  background: linear-gradient(135deg, #d8b4ff, #f7c955);
+  box-shadow: 0 16px 34px rgba(216, 180, 255, 0.22);
+}
+
+.prestige-button:hover:not(:disabled) {
+  box-shadow: 0 20px 46px rgba(216, 180, 255, 0.32);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(8px);
+}
+
+.modal-backdrop[hidden] {
+  display: none;
+}
+
+.modal-card {
+  width: min(980px, 100%);
+  max-height: min(760px, 90vh);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  border-radius: 28px;
+  background: #151022;
+  border: 1px solid var(--border);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+  overflow: auto;
+}
+
+.prestige-modal-card {
+  background:
+    radial-gradient(circle at top left, rgba(216, 180, 255, 0.16), transparent 34%),
+    #151022;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.modal-header h2,
+.modal-header h3 {
+  margin: 0;
+}
+
+.modal-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.small-header {
+  margin-top: 6px;
+}
+
+.prestige-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.prestige-card,
+.relic-card {
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+}
+
+.prestige-card strong,
+.relic-card strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.prestige-card span,
+.relic-card span,
+.relic-card p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.prestige-warning {
+  grid-column: 1 / -1;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 93, 103, 0.12);
+  border: 1px solid rgba(255, 93, 103, 0.28);
+  color: #ffd7db;
+}
+
+.relic-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 10px;
+}
+
+.relic-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.relic-card p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.relic-card footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.relic-level {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 720px) {
+  .modal-card {
+    padding: 16px;
+  }
+
+  .modal-header,
+  .modal-actions,
+  .relic-card footer {
+    flex-direction: column;
+  }
+
+  .modal-actions button,
+  .relic-card button {
+    width: 100%;
+  }
+}
+
+.offline-modal-card {
+  background:
+    radial-gradient(circle at top left, rgba(82, 185, 255, 0.15), transparent 34%),
+    #151022;
+}
+
+.offline-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+.offline-card {
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+}
+
+.offline-card strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.offline-card span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.offline-card.highlight {
+  background: rgba(247, 201, 85, 0.12);
+  border-color: rgba(247, 201, 85, 0.34);
+}
+
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+
+.item-text {
+  min-width: 0;
+}
+
+.item-name-line {
+  display: flex;
+  align-items: center;
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.item-tooltip {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 10px);
+  z-index: 20;
+  min-width: 210px;
+  max-width: 260px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(17, 12, 27, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8f5ff;
+  font-size: 0.84rem;
+  line-height: 1.35;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+  pointer-events: none;
+}
+
+.item-tooltip::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  background: rgba(17, 12, 27, 0.96);
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  transform: rotate(45deg);
+}
+
+.inventory-item:hover .item-tooltip,
+.inventory-item:focus-within .item-tooltip,
+.shop-item:hover .item-tooltip,
+.shop-item:focus-within .item-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#floating-item-tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 260px;
+  padding: 11px 13px;
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at top left, rgba(247, 201, 85, 0.16), transparent 45%),
+    rgba(18, 13, 28, 0.98);
+  border: 1px solid rgba(247, 201, 85, 0.22);
+  color: #f8f5ff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.35;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.48);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px) scale(0.98);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s ease;
+}
+
+#floating-item-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* ================================
+   AJUSTE FINAL: LOJA + INVENTÁRIO
+   ================================ */
+
+/* Remove o tooltip antigo, porque agora o tooltip é flutuante via JS */
+.item-tooltip {
+  display: none !important;
+}
+
+/* Base da imagem: sem borda, sem fundo */
+.item-thumb {
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.item-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 7px 11px rgba(0, 0, 0, 0.28));
+}
+
+.item-fallback-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* ================================
+   INVENTÁRIO: cards maiores
+   ================================ */
+
+.inventory-card .inventory-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  padding: 20px 22px;
+  min-height: 108px;
+}
+
+.inventory-card .inventory-item .item-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.inventory-card .inventory-item .item-thumb {
+  width: 72px;
+  height: 72px;
+  flex: 0 0 72px;
+}
+
+.inventory-card .inventory-item .item-text {
+  min-width: 0;
+}
+
+.inventory-card .inventory-item .item-name-line {
+  display: block;
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 900;
+  line-height: 1.15;
+  white-space: normal;
+}
+
+.inventory-card .inventory-item .item-actions {
+  display: flex;
+  align-items: center;
+  margin-left: 6px;
+  flex: 0 0 auto;
+}
+
+.inventory-card .inventory-item .item-actions button {
+  width: auto;
+  min-width: 76px;
+  padding: 11px 18px;
+  white-space: nowrap;
+}
+
+/* ================================
+   LOJA: compacta para não quebrar
+   ================================ */
+
+.shop-card .shop-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px;
+  min-height: 86px;
+}
+
+.shop-card .shop-item .item-content {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.shop-card .shop-item .item-thumb {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+}
+
+.shop-card .shop-item .item-text {
+  min-width: 0;
+}
+
+.shop-card .shop-item .item-name-line {
+  display: block;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 900;
+  line-height: 1.12;
+  white-space: normal;
+  overflow-wrap: normal;
+}
+
+.shop-card .shop-item > button {
+  width: auto;
+  min-width: 96px;
+  padding: 9px 12px;
+  font-size: 0.86rem;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+/* Tooltip flutuante */
+#floating-item-tooltip {
+  position: fixed;
+  z-index: 9999;
+  max-width: 260px;
+  padding: 11px 13px;
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at top left, rgba(247, 201, 85, 0.16), transparent 45%),
+    rgba(18, 13, 28, 0.98);
+  border: 1px solid rgba(247, 201, 85, 0.22);
+  color: #f8f5ff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.35;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.48);
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px) scale(0.98);
+  transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s ease;
+}
+
+#floating-item-tooltip.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Responsivo */
+@media (max-width: 720px) {
+  .shop-card .shop-item {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 12px;
+  }
+
+  .shop-card .shop-item > button {
+    justify-self: start;
+    width: auto;
+    min-width: 110px;
+  }
+
+  .inventory-card .inventory-item {
+    gap: 12px;
+    padding: 16px;
+    min-height: 92px;
+  }
+
+  .inventory-card .inventory-item .item-thumb {
+    width: 60px;
+    height: 60px;
+    flex-basis: 60px;
+  }
+
+  .inventory-card .inventory-item .item-name-line {
+    font-size: 1rem;
+  }
+
+  .inventory-card .inventory-item .item-actions button {
+    width: auto;
+    min-width: 70px;
+  }
+}
+
+.shop-card .shop-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.shop-card .shop-item .item-content {
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.shop-card .shop-item .item-thumb {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+}
+
+.shop-card .shop-item .item-name-line {
+  font-size: 0.9rem;
+  line-height: 1.05;
+}
+
+.shop-card .shop-item > button {
+  min-width: 92px;
+  padding: 9px 10px;
+  font-size: 0.82rem;
+}
+
+/* Botão "Usar" no canto direito do inventário */
+.inventory-card .inventory-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.inventory-card .inventory-item .item-content {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.inventory-card .inventory-item .item-actions {
+  margin-left: auto;
+  justify-content: flex-end;
+  flex: 0 0 auto;
+}
+
+.inventory-card .inventory-item .item-actions button {
+  width: auto;
+  min-width: 76px;
+  padding: 11px 18px;
+  white-space: nowrap;
+}
+
+/* ================================
+   INDICADORES VISUAIS DE COMBATE
+   ================================ */
+
+.hero-card,
+.monster-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.combat-indicator {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  z-index: 40;
+  pointer-events: none;
+  font-size: 4rem;
+  line-height: 1;
+  transform: translate(-50%, -50%) scale(0.7);
+  filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.45));
+  animation: combat-pop 0.72s ease forwards;
+}
+
+.combat-indicator.playerHit {
+  font-size: 4.1rem;
+}
+
+.combat-indicator.playerMiss,
+.combat-indicator.playerDodge {
+  font-size: 4.2rem;
+  animation: combat-dodge-pop 0.72s ease forwards;
+}
+
+.combat-indicator.enemyHit {
+  font-size: 4rem;
+}
+
+.combat-indicator.critical {
+  font-size: 4.7rem;
+  animation: combat-critical-pop 0.72s ease forwards;
+}
+
+.combat-target-hit {
+  animation: combat-hit-flash 0.42s ease;
+}
+
+.combat-target-dodge {
+  animation: combat-dodge-flash 0.42s ease;
+}
+
+.combat-target-critical {
+  animation: combat-critical-flash 0.55s ease;
+}
+
+@keyframes combat-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.45) rotate(-10deg);
+  }
+
+  25% {
+    opacity: 1;
+    transform: translate(-50%, -60%) scale(1.08) rotate(4deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -92%) scale(0.92) rotate(0deg);
+  }
+}
+
+@keyframes combat-dodge-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translate(-18%, -58%) scale(1.08);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(18%, -78%) scale(0.88);
+  }
+}
+
+@keyframes combat-critical-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(-18deg);
+  }
+
+  22% {
+    opacity: 1;
+    transform: translate(-50%, -62%) scale(1.22) rotate(8deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -98%) scale(0.95) rotate(0deg);
+  }
+}
+
+@keyframes combat-hit-flash {
+  0% {
+    box-shadow: var(--shadow);
+  }
+
+  35% {
+    box-shadow:
+      0 0 0 2px rgba(255, 93, 103, 0.35),
+      0 0 34px rgba(255, 93, 103, 0.35),
+      var(--shadow);
+    transform: translateX(-2px);
+  }
+
+  65% {
+    transform: translateX(2px);
+  }
+
+  100% {
+    box-shadow: var(--shadow);
+    transform: translateX(0);
+  }
+}
+
+@keyframes combat-dodge-flash {
+  0% {
+    box-shadow: var(--shadow);
+    transform: translateX(0);
+  }
+
+  35% {
+    box-shadow:
+      0 0 0 2px rgba(82, 185, 255, 0.35),
+      0 0 34px rgba(82, 185, 255, 0.28),
+      var(--shadow);
+    transform: translateX(6px);
+  }
+
+  100% {
+    box-shadow: var(--shadow);
+    transform: translateX(0);
+  }
+}
+
+@keyframes combat-critical-flash {
+  0% {
+    box-shadow: var(--shadow);
+  }
+
+  35% {
+    box-shadow:
+      0 0 0 2px rgba(247, 201, 85, 0.42),
+      0 0 46px rgba(247, 201, 85, 0.42),
+      var(--shadow);
+    transform: scale(1.012);
+  }
+
+  100% {
+    box-shadow: var(--shadow);
+    transform: scale(1);
+  }
+}
+
+.equipment-group {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.065);
+}
+
+.equipment-group h4 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.biome-badge {
+  color: var(--accent);
+}
+
+.equipment-slot .item-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ================================
+   LAYOUT NOVO — EQUIPAMENTOS
+   ================================ */
+
+.hero-card,
+.monster-card {
+  align-self: start;
+}
+
+.hero-card .bar-group,
+.monster-card .bar-group {
+  margin: 12px 0;
+}
+
+.monster-portrait {
+  min-height: 130px;
+  margin: 12px 0;
+}
+
+.monster-image {
+  max-height: 130px;
+}
+
+.hero-card .stat-cards,
+.monster-card .stat-cards {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hero-card .stat-card,
+.monster-card .stat-card {
+  padding: 10px 12px;
+}
+
+.equipment-card {
+  grid-area: equipment;
+}
+
+.equipment-card .card-title {
+  margin-bottom: 14px;
+}
+
+.equipment-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.equipment-group {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.equipment-group h4 {
+  margin: 0;
+  color: var(--accent);
+  font-size: 0.88rem;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.equipment-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 12px;
+}
+
+.equipment-slot {
+  min-height: 112px;
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-areas:
+    "image body"
+    "image actions";
+  align-items: center;
+  gap: 10px 12px;
+  padding: 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+}
+
+.equipment-slot.has-item {
+  background:
+    radial-gradient(circle at top left, rgba(247, 201, 85, 0.08), transparent 42%),
+    rgba(255, 255, 255, 0.045);
+}
+
+.equipment-slot.active-weapon {
+  border-color: rgba(247, 201, 85, 0.35);
+  box-shadow: 0 0 0 1px rgba(247, 201, 85, 0.12);
+}
+
+.gear-image-frame {
+  grid-area: image;
+  width: 76px;
+  height: 76px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.1), transparent 65%),
+    rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.095);
+}
+
+.gear-image-frame.empty {
+  opacity: 0.68;
+}
+
+.gear-image {
+  width: 86%;
+  height: 86%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35));
+}
+
+.gear-fallback-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.gear-card-body {
+  grid-area: body;
+  min-width: 0;
+}
+
+.gear-slot-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.gear-item-name,
+.gear-empty-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.18;
+}
+
+.gear-item-name span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gear-item-meta {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.gear-actions {
+  grid-area: actions;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gear-actions button {
+  min-width: 82px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+.equipment-slot .item-info {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 720px) {
+  .equipment-slots-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .equipment-slot {
+    grid-template-columns: 70px minmax(0, 1fr);
+    min-height: 104px;
+  }
+
+  .gear-image-frame {
+    width: 70px;
+    height: 70px;
+  }
+
+  .hero-card .stat-cards,
+  .monster-card .stat-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+#stage-display {
+  max-width: none;
+  white-space: nowrap;
+}
