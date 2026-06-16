@@ -3714,3 +3714,240 @@ body.biome-infiniteVoid {
     filter: brightness(1);
   }
 }
+
+
+/* ================================
+   FIX FINAL — BRILHO NA BORDA DO CARD QUE RECEBE
+   Mantém movimento + devolve box-shadow/brilho bonito.
+   Só aparece no card que recebeu a ação.
+   ================================ */
+
+.hero-card,
+.monster-card {
+  transform-origin: center center;
+  will-change: transform, filter, box-shadow, border-color;
+}
+
+.combat-card-hit {
+  animation: receiverCardHitMove 0.58s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+}
+
+.combat-card-dodge {
+  animation: receiverCardDodgeMove 0.66s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+}
+
+.combat-card-critical {
+  animation: receiverCardCriticalMove 0.72s cubic-bezier(0.18, 0.95, 0.25, 1) both !important;
+}
+
+.combat-card-magic,
+.monster-card.spell-target-glow.combat-card-magic {
+  animation: receiverCardMagicMove 0.82s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+}
+
+.monster-card.spell-target-glow {
+  border-color: var(--spell-color, rgba(247, 201, 85, 0.85)) !important;
+  box-shadow:
+    0 0 0 1px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
+    0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
+    inset 0 0 24px var(--spell-color-soft, rgba(247, 201, 85, 0.16)),
+    var(--shadow) !important;
+}
+
+@keyframes receiverCardHitMove {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  16% {
+    transform: translate3d(-7px, 0, 0) rotate(-0.55deg);
+    filter: brightness(1.14);
+    border-color: rgba(255, 93, 103, 0.82);
+    box-shadow:
+      0 0 0 1px rgba(255, 93, 103, 0.38),
+      0 0 28px rgba(255, 93, 103, 0.28),
+      inset 0 0 24px rgba(255, 93, 103, 0.16),
+      var(--shadow);
+  }
+
+  34% {
+    transform: translate3d(6px, 0, 0) rotate(0.45deg);
+    border-color: rgba(255, 93, 103, 0.62);
+    box-shadow:
+      0 0 0 1px rgba(255, 93, 103, 0.30),
+      0 0 22px rgba(255, 93, 103, 0.20),
+      inset 0 0 18px rgba(255, 93, 103, 0.12),
+      var(--shadow);
+  }
+
+  56% {
+    transform: translate3d(-4px, 0, 0) rotate(-0.25deg);
+    border-color: rgba(255, 93, 103, 0.42);
+    box-shadow:
+      0 0 0 1px rgba(255, 93, 103, 0.20),
+      0 0 16px rgba(255, 93, 103, 0.14),
+      var(--shadow);
+  }
+
+  78% {
+    transform: translate3d(2px, 0, 0) rotate(0.12deg);
+    box-shadow: var(--shadow);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes receiverCardDodgeMove {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  22% {
+    transform: translate3d(18px, -2px, 0) rotate(0.8deg);
+    filter: brightness(1.13);
+    border-color: rgba(82, 185, 255, 0.82);
+    box-shadow:
+      0 0 0 1px rgba(82, 185, 255, 0.40),
+      0 0 30px rgba(82, 185, 255, 0.26),
+      inset 0 0 24px rgba(82, 185, 255, 0.15),
+      var(--shadow);
+  }
+
+  48% {
+    transform: translate3d(-8px, 1px, 0) rotate(-0.45deg);
+    border-color: rgba(82, 185, 255, 0.55);
+    box-shadow:
+      0 0 0 1px rgba(82, 185, 255, 0.26),
+      0 0 20px rgba(82, 185, 255, 0.16),
+      var(--shadow);
+  }
+
+  72% {
+    transform: translate3d(4px, 0, 0) rotate(0.22deg);
+    box-shadow: var(--shadow);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes receiverCardCriticalMove {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  14% {
+    transform: translate3d(-11px, 0, 0) scale(1.008) rotate(-0.85deg);
+    filter: brightness(1.24);
+    border-color: rgba(247, 201, 85, 0.92);
+    box-shadow:
+      0 0 0 1px rgba(247, 201, 85, 0.48),
+      0 0 36px rgba(247, 201, 85, 0.34),
+      inset 0 0 30px rgba(247, 201, 85, 0.20),
+      var(--shadow);
+  }
+
+  30% {
+    transform: translate3d(10px, 0, 0) scale(1.006) rotate(0.75deg);
+    border-color: rgba(247, 201, 85, 0.78);
+    box-shadow:
+      0 0 0 1px rgba(247, 201, 85, 0.38),
+      0 0 30px rgba(247, 201, 85, 0.26),
+      inset 0 0 24px rgba(247, 201, 85, 0.16),
+      var(--shadow);
+  }
+
+  48% {
+    transform: translate3d(-7px, 0, 0) scale(1.004) rotate(-0.45deg);
+    border-color: rgba(247, 201, 85, 0.52);
+    box-shadow:
+      0 0 0 1px rgba(247, 201, 85, 0.24),
+      0 0 20px rgba(247, 201, 85, 0.16),
+      var(--shadow);
+  }
+
+  68% {
+    transform: translate3d(4px, 0, 0) scale(1.002) rotate(0.25deg);
+    box-shadow: var(--shadow);
+  }
+
+  86% {
+    transform: translate3d(-2px, 0, 0) scale(1.001) rotate(-0.1deg);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes receiverCardMagicMove {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  16% {
+    transform: translate3d(0, -7px, 0) scale(1.008);
+    filter: brightness(1.24);
+    border-color: var(--spell-color, rgba(155, 119, 255, 0.9));
+    box-shadow:
+      0 0 0 1px var(--spell-color-soft, rgba(155, 119, 255, 0.40)),
+      0 0 38px var(--spell-color-soft, rgba(155, 119, 255, 0.34)),
+      inset 0 0 32px var(--spell-color-soft, rgba(155, 119, 255, 0.20)),
+      var(--shadow);
+  }
+
+  36% {
+    transform: translate3d(-7px, 2px, 0) scale(1.005);
+    border-color: var(--spell-color, rgba(155, 119, 255, 0.72));
+    box-shadow:
+      0 0 0 1px var(--spell-color-soft, rgba(155, 119, 255, 0.32)),
+      0 0 28px var(--spell-color-soft, rgba(155, 119, 255, 0.24)),
+      inset 0 0 24px var(--spell-color-soft, rgba(155, 119, 255, 0.16)),
+      var(--shadow);
+  }
+
+  56% {
+    transform: translate3d(7px, 0, 0) scale(1.004);
+    border-color: var(--spell-color, rgba(155, 119, 255, 0.56));
+    box-shadow:
+      0 0 0 1px var(--spell-color-soft, rgba(155, 119, 255, 0.22)),
+      0 0 20px var(--spell-color-soft, rgba(155, 119, 255, 0.16)),
+      var(--shadow);
+  }
+
+  76% {
+    transform: translate3d(0, 2px, 0) scale(1.002);
+    box-shadow: var(--shadow);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+}
