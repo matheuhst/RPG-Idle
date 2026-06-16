@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Idle RPG - Dungeon Infinita</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <main class="app-shell">
     <header class="app-header">
@@ -19,6 +21,7 @@
         <span class="badge" id="hero-level">Nível 1</span>
         <span class="coin-balance">💰 <strong id="coin-display">0</strong> moedas</span>
         <span class="badge" id="stage-display">Andar 1</span>
+        <span class="biome-badge" id="biome-display"><span>Bioma atual</span><strong>Catacumbas Úmidas</strong></span>
         <span class="badge" id="prestige-title">Sem Prestígio</span>
         <span class="badge">🔮 <strong id="prestige-points">0</strong> essências</span>
       </div>
@@ -72,6 +75,7 @@
         </div>
 
         <div class="stat-cards" id="player-stats"></div>
+        <div id="hero-automation" class="hero-automation"></div>
       </article>
 
       <article class="card equipment-card">
@@ -135,13 +139,12 @@
           <span id="skill-points" class="badge">0 pontos</span>
         </div>
 
-        <div class="skill-grid">
-          <button class="skill-button" type="button" data-stat="attack">+ Ataque</button>
-          <button class="skill-button" type="button" data-stat="defense">+ Defesa</button>
-          <button class="skill-button" type="button" data-stat="agility">+ Agilidade</button>
-          <button class="skill-button" type="button" data-stat="hp">+ Vida</button>
-          <button class="skill-button" type="button" data-stat="magic">+ Magia</button>
+        <div class="skill-toolbar">
+          <span class="skill-toolbar-label">Gastar por clique</span>
+          <div id="skill-amount-buttons" class="amount-chip-group"></div>
         </div>
+
+        <div id="skill-list" class="skill-list"></div>
       </article>
 
       <article class="card inventory-card">
@@ -161,70 +164,79 @@
         <div id="inventory-items" class="inventory-items"></div>
       </article>
     </section>
-  <div id="gear-modal" class="modal-backdrop" hidden>
-    <div class="modal-card">
-      <div class="modal-header">
-        <div>
-          <h2>Equipamentos encontrados</h2>
-          <p>Veja, equipe ou venda seus equipamentos sem aumentar a página.</p>
-        </div>
-        <button id="close-gear-modal-button" type="button" class="mini-button">Fechar</button>
-      </div>
-
-      <div id="gear-modal-list" class="modal-list"></div>
-    </div>
-  </div>
-  <div id="prestige-modal" class="modal-backdrop" hidden>
-    <div class="modal-card prestige-modal-card">
-      <div class="modal-header">
-        <div>
-          <span class="eyebrow">Renascimento</span>
-          <h2>Prestígio</h2>
-          <p>Volte ao andar 1 e transforme sua jornada atual em bônus permanentes.</p>
-        </div>
-
-        <button id="close-prestige-modal-button" type="button" class="mini-button">Fechar</button>
-      </div>
-
-      <div id="prestige-summary" class="prestige-summary"></div>
-
-      <div class="relic-section">
-        <div class="modal-header small-header">
+    <div id="gear-modal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
           <div>
-            <h3>Relíquias Permanentes</h3>
-            <p>Gaste essências de prestígio para melhorar características específicas.</p>
+            <h2>Equipamentos encontrados</h2>
+            <p>Veja, equipe ou venda seus equipamentos sem aumentar a página.</p>
+          </div>
+          <div class="modal-header-actions">
+            <button id="sell-unequipped-gear-button" type="button" class="danger-button mini-button">
+              Vender não equipados
+            </button>
+
+            <button id="close-gear-modal-button" type="button" class="mini-button">
+              Fechar
+            </button>
           </div>
         </div>
 
-        <div id="relic-list" class="relic-list"></div>
-      </div>
-
-      <div class="modal-actions">
-        <button id="confirm-prestige-button" type="button" class="prestige-button">
-          Confirmar Prestígio
-        </button>
+        <div id="gear-modal-list" class="modal-list"></div>
       </div>
     </div>
-  </div>
-  <div id="offline-modal" class="modal-backdrop" hidden>
-    <div class="modal-card offline-modal-card">
-      <div class="modal-header">
-        <div>
-          <span class="eyebrow">Progresso Offline</span>
-          <h2>Enquanto você estava fora...</h2>
-          <p>Seu herói continuou avançando pela masmorra sem risco de morrer.</p>
+    <div id="prestige-modal" class="modal-backdrop" hidden>
+      <div class="modal-card prestige-modal-card">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">Renascimento</span>
+            <h2>Prestígio</h2>
+            <p>Volte ao andar 1 e transforme sua jornada atual em bônus permanentes.</p>
+          </div>
+
+          <button id="close-prestige-modal-button" type="button" class="mini-button">Fechar</button>
         </div>
 
-        <button id="close-offline-modal-button" type="button" class="mini-button">
-          Continuar
-        </button>
-      </div>
+        <div id="prestige-summary" class="prestige-summary"></div>
 
-      <div id="offline-summary" class="offline-summary"></div>
+        <div class="relic-section">
+          <div class="modal-header small-header">
+            <div>
+              <h3>Relíquias Permanentes</h3>
+              <p>Gaste essências de prestígio para melhorar características específicas.</p>
+            </div>
+          </div>
+
+          <div id="relic-list" class="relic-list"></div>
+        </div>
+
+        <div class="modal-actions">
+          <button id="confirm-prestige-button" type="button" class="prestige-button">
+            Confirmar Prestígio
+          </button>
+        </div>
+      </div>
     </div>
-  </div>
+    <div id="offline-modal" class="modal-backdrop" hidden>
+      <div class="modal-card offline-modal-card">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">Progresso Offline</span>
+            <h2>Enquanto você estava fora...</h2>
+            <p>Seu herói continuou avançando pela masmorra sem risco de morrer.</p>
+          </div>
+
+          <button id="close-offline-modal-button" type="button" class="mini-button">
+            Continuar
+          </button>
+        </div>
+
+        <div id="offline-summary" class="offline-summary"></div>
+      </div>
+    </div>
   </main>
 
   <script src="script.js"></script>
 </body>
+
 </html>

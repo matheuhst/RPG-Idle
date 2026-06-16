@@ -307,6 +307,7 @@ button:disabled {
 }
 
 .monster-portrait {
+  position: relative;
   display: grid;
   place-items: center;
   width: 100%;
@@ -1248,7 +1249,6 @@ button:disabled {
    INDICADORES VISUAIS DE COMBATE
    ================================ */
 
-.hero-card,
 .monster-card {
   position: relative;
   overflow: hidden;
@@ -1443,7 +1443,6 @@ button:disabled {
    LAYOUT NOVO — EQUIPAMENTOS
    ================================ */
 
-.hero-card,
 .monster-card {
   align-self: start;
 }
@@ -1454,6 +1453,7 @@ button:disabled {
 }
 
 .monster-portrait {
+  position: relative;
   min-height: 130px;
   margin: 12px 0;
 }
@@ -1647,4 +1647,2070 @@ button:disabled {
 #stage-display {
   max-width: none;
   white-space: nowrap;
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.modal-header-actions .danger-button {
+  color: #fff;
+  background: linear-gradient(135deg, #ff5d67, #c92d40);
+}
+
+@media (max-width: 720px) {
+  .modal-header-actions {
+    width: 100%;
+  }
+
+  .modal-header-actions button {
+    width: 100%;
+  }
+}
+
+/* ================================
+   AFINIDADE DO MONSTRO
+   ================================ */
+
+.monster-affinity-panel {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(82, 185, 255, 0.12), transparent 42%),
+    rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.085);
+}
+
+.monster-affinity-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.monster-affinity-header strong {
+  color: var(--accent);
+  font-size: 0.84rem;
+}
+
+.monster-affinity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.monster-affinity-item {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.monster-affinity-item strong {
+  display: block;
+  font-size: 0.84rem;
+}
+
+.monster-affinity-item small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.affinity-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.075);
+}
+
+.monster-affinity-item.weak {
+  border-color: rgba(99, 220, 145, 0.34);
+  background: rgba(99, 220, 145, 0.08);
+}
+
+.monster-affinity-item.weak strong {
+  color: var(--success);
+}
+
+.monster-affinity-item.resistant {
+  border-color: rgba(255, 93, 103, 0.34);
+  background: rgba(255, 93, 103, 0.08);
+}
+
+.monster-affinity-item.resistant strong {
+  color: var(--danger);
+}
+
+.monster-affinity-item.neutral {
+  border-color: rgba(255, 255, 255, 0.09);
+}
+
+@media (max-width: 720px) {
+  .monster-affinity-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.monster-affinity-item.best {
+  border-color: rgba(247, 201, 85, 0.42);
+  background: rgba(247, 201, 85, 0.10);
+}
+
+.monster-affinity-item.best strong {
+  color: var(--accent);
+}
+
+/* Automação do herói */
+.auto-settings-panel {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.auto-settings-title {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.auto-settings-title span {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 10px;
+  border-radius: 14px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.065);
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+
+.toggle-row input {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.toggle-row span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.main-toggle {
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+.auto-buff-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.skill-spend-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.skill-mode-button {
+  min-width: 44px;
+  padding: 8px 11px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.skill-mode-button.active {
+  color: #17111f;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.skill-button {
+  display: grid;
+  gap: 2px;
+  place-items: center;
+  min-height: 58px;
+}
+
+.skill-button small,
+.stat-upgrade-count {
+  color: rgba(248, 245, 255, 0.72);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.stat-card {
+  min-width: 0;
+}
+
+.stat-card > span {
+  min-width: 0;
+}
+
+.stat-card strong,
+.stat-card .stat-value {
+  min-width: 0;
+  max-width: 54%;
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.monster-card .stat-card strong,
+.monster-card .stat-card .stat-value {
+  font-size: 0.95rem;
+}
+
+.monster-portrait {
+  position: relative;
+  position: relative;
+  overflow: hidden;
+}
+
+.monster-fallback-icon {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.spell-impact {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: spellImpactPop 0.85s ease-out forwards;
+}
+
+.spell-impact img {
+  width: 74px;
+  height: 74px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.45));
+}
+
+.spell-impact span {
+  font-size: 3.4rem;
+  filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.45));
+}
+
+.spell-impact strong {
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 93, 103, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 0.92rem;
+}
+
+@keyframes spellImpactPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.55) rotate(-10deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -54%) scale(1.2) rotate(5deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -78%) scale(0.88) rotate(0deg);
+  }
+}
+
+@media (max-width: 720px) {
+  .auto-buff-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   HERO / AUTOMAÇÃO
+   ========================= */
+
+.compact-stat-card {
+  min-height: 74px;
+}
+
+.hero-automation {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.section-mini-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.section-mini-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.toggle-chip-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.toggle-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--muted);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.toggle-chip input {
+  display: none;
+}
+
+.toggle-chip.active {
+  color: var(--text);
+  border-color: rgba(247, 201, 85, 0.34);
+  background: rgba(247, 201, 85, 0.12);
+}
+
+/* =========================
+   HABILIDADES
+   ========================= */
+
+.skill-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0 10px;
+  flex-wrap: wrap;
+}
+
+.skill-toolbar-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.amount-chip-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.amount-chip {
+  min-width: 46px;
+  padding: 8px 12px;
+  font-size: 0.84rem;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
+.amount-chip.active {
+  color: #17111f;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.skill-list {
+  display: grid;
+  gap: 10px;
+}
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.065);
+}
+
+.skill-row-info {
+  min-width: 0;
+}
+
+.skill-row-info strong {
+  display: block;
+  font-size: 0.97rem;
+}
+
+.skill-row-info small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.skill-apply-button {
+  min-width: 80px;
+  padding: 10px 14px;
+}
+
+/* =========================
+   MONSTRO / TIPO
+   ========================= */
+
+.monster-card .card-title > div {
+  min-width: 0;
+}
+
+#monster-name {
+  overflow-wrap: anywhere;
+}
+
+#monster-type-badge {
+  display: block;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+
+/* =========================
+   RESPONSIVO
+   ========================= */
+
+@media (max-width: 720px) {
+  .toggle-chip-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .skill-apply-button {
+    width: 100%;
+  }
+}
+
+/* =========================
+   CARD DO INIMIGO - STATUS
+   ========================= */
+
+.monster-card #monster-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.monster-card .monster-affinity-panel {
+  grid-column: 1 / -1;
+}
+
+.monster-stat-card {
+  min-width: 0;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.monster-stat-main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.monster-stat-card .stat-icon {
+  flex: 0 0 30px;
+  margin-right: 0;
+}
+
+.monster-stat-label {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monster-stat-value {
+  min-width: 0;
+  max-width: 74px;
+  text-align: right;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.1;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.monster-stat-family {
+  grid-column: 1 / -1;
+}
+
+.monster-stat-family .monster-stat-value {
+  max-width: none;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+  overflow-wrap: break-word;
+  text-align: right;
+}
+
+/* =========================
+   CARD DO HERÓI - STATUS
+   ========================= */
+
+.hero-card #player-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.hero-stat-card {
+  min-width: 0;
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.hero-stat-main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-stat-card .stat-icon {
+  flex: 0 0 30px;
+  margin-right: 0;
+}
+
+.hero-stat-label {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-stat-value {
+  min-width: 46px;
+  max-width: 76px;
+  text-align: right;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.1;
+  font-weight: 950;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-stat-crit {
+  grid-column: span 1;
+}
+
+/* =========================
+   AJUSTES VISUAIS - EQUIPAMENTOS E STATS
+   ========================= */
+
+/* Remove a moldura pesada da imagem do equipamento e deixa a arte respirar. */
+.equipment-slot {
+  grid-template-columns: 88px minmax(0, 1fr);
+}
+
+.gear-image-frame {
+  width: 88px;
+  height: 88px;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.gear-image-frame.empty {
+  width: 76px;
+  height: 76px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  opacity: 0.72;
+}
+
+.gear-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.12);
+}
+
+/* Impede números do card do herói quebrarem em 2 linhas. */
+.hero-card .hero-stat-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  min-height: 58px;
+  padding: 10px;
+}
+
+.hero-card .hero-stat-main {
+  min-width: 0;
+  gap: 6px;
+}
+
+.hero-card .hero-stat-card .stat-icon {
+  width: 26px;
+  height: 26px;
+  flex: 0 0 26px;
+  margin-right: 0;
+}
+
+.hero-card .hero-stat-label {
+  min-width: 0;
+  font-size: 0.86rem;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hero-card .hero-stat-card .hero-stat-value {
+  min-width: max-content;
+  max-width: none;
+  text-align: right;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.monster-card .monster-stat-card .monster-stat-value {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+.monster-card .monster-stat-family .monster-stat-value {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+@media (max-width: 720px) {
+  .equipment-slot {
+    grid-template-columns: 76px minmax(0, 1fr);
+  }
+
+  .gear-image-frame {
+    width: 76px;
+    height: 76px;
+  }
+}
+
+
+/* =========================
+   SKILLS: pontos gastos vs ganho real
+   ========================= */
+.skill-apply-button {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  min-width: 92px;
+  padding: 9px 13px;
+  line-height: 1.05;
+}
+
+.skill-apply-button small {
+  color: rgba(23, 17, 31, 0.78);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.skill-row-info small {
+  overflow-wrap: anywhere;
+}
+
+/* =========================
+   MAGIA: impacto visual e brilho dos cards
+   ========================= */
+.monster-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.monster-card.spell-target-glow {
+  border-color: var(--spell-color, rgba(247, 201, 85, 0.85)) !important;
+  box-shadow:
+    0 0 0 1px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
+    0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
+    var(--shadow) !important;
+  animation: spellCardPulse 0.88s ease-out;
+}
+
+.monster-card.spell-target-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at center, var(--spell-color-soft, rgba(247, 201, 85, 0.26)), transparent 58%);
+  opacity: 0;
+  animation: spellCardOverlay 0.88s ease-out;
+}
+
+.monster-card.spell-target-glow > * {
+  position: relative;
+  z-index: 2;
+}
+
+.spell-impact {
+  color: var(--spell-color, #fff);
+}
+
+.spell-impact img {
+  width: 92px;
+  height: 92px;
+  filter:
+    drop-shadow(0 0 16px var(--spell-color-soft, rgba(247, 201, 85, 0.34)))
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.48));
+}
+
+.spell-impact span {
+  font-size: 4rem;
+  filter:
+    drop-shadow(0 0 16px var(--spell-color-soft, rgba(247, 201, 85, 0.34)))
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.48));
+}
+
+.spell-impact strong {
+  color: #fff;
+  background: var(--spell-color-soft, rgba(255, 93, 103, 0.9));
+  border-color: var(--spell-color, rgba(255, 255, 255, 0.22));
+  box-shadow: 0 0 18px var(--spell-color-soft, rgba(255, 93, 103, 0.26));
+}
+
+@keyframes spellCardPulse {
+  0% {
+    transform: translateY(0);
+  }
+  22% {
+    transform: translateY(-1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes spellCardOverlay {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
+/* =========================
+   TEMAS VISUAIS POR BIOMA
+   ========================= */
+
+body {
+  position: relative;
+  overflow-x: hidden;
+  --biome-bg-1: #151022;
+  --biome-bg-2: #090813;
+  --biome-accent: var(--accent);
+  --biome-accent-2: var(--accent-2);
+  --biome-glow: rgba(247, 201, 85, 0.16);
+  --biome-card: rgba(255, 255, 255, 0.065);
+  --biome-card-strong: rgba(255, 255, 255, 0.105);
+  --biome-border: rgba(255, 255, 255, 0.11);
+  background:
+    radial-gradient(circle at 12% 4%, var(--biome-glow), transparent 30%),
+    radial-gradient(circle at 88% 6%, color-mix(in srgb, var(--biome-accent) 16%, transparent), transparent 26%),
+    linear-gradient(180deg, var(--biome-bg-1), var(--biome-bg-2));
+  transition: background 0.45s ease;
+}
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body::before {
+  opacity: 0.68;
+  background: var(--biome-atmosphere, transparent);
+  mix-blend-mode: screen;
+}
+
+body::after {
+  opacity: 0.88;
+  background: var(--biome-ground, transparent);
+}
+
+.app-shell {
+  position: relative;
+  z-index: 2;
+}
+
+.card,
+.action-panel,
+.modal-card {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--biome-card-strong) 78%, transparent), color-mix(in srgb, var(--biome-card) 88%, transparent));
+  border-color: var(--biome-border);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.32),
+    0 0 32px color-mix(in srgb, var(--biome-accent) 10%, transparent);
+}
+
+.badge,
+.coin-balance,
+.power-badge,
+.equipment-slot,
+.shop-item,
+.inventory-item,
+.empty-state,
+.stat-card,
+.skill-row,
+.toggle-chip,
+.monster-affinity-panel,
+.monster-affinity-item {
+  border-color: color-mix(in srgb, var(--biome-accent) 18%, rgba(255, 255, 255, 0.08));
+  background-color: color-mix(in srgb, var(--biome-card) 76%, rgba(255, 255, 255, 0.03));
+}
+
+button:not(.mini-button):not(.tab-button):not(.danger-button),
+.tab-button.active,
+.amount-chip.active,
+.skill-apply-button,
+.prestige-button {
+  background: linear-gradient(135deg, var(--biome-accent), var(--biome-accent-2));
+  box-shadow: 0 16px 34px color-mix(in srgb, var(--biome-accent) 24%, transparent);
+}
+
+.progress-fill.hp-fill {
+  background: linear-gradient(90deg, var(--success), color-mix(in srgb, var(--success) 64%, var(--biome-accent)));
+}
+
+.progress-fill.xp-fill {
+  background: linear-gradient(90deg, var(--blue), var(--biome-accent));
+}
+
+.progress-fill.danger-fill {
+  background: linear-gradient(90deg, var(--danger), var(--biome-accent-2));
+}
+
+.monster-portrait {
+  position: relative;
+  background:
+    radial-gradient(circle at center, color-mix(in srgb, var(--biome-accent) 20%, transparent), transparent 55%),
+    rgba(255, 255, 255, 0.045);
+  border-color: color-mix(in srgb, var(--biome-accent) 22%, rgba(255, 255, 255, 0.08));
+}
+
+body.biome-catacombs {
+  --biome-bg-1: #161120;
+  --biome-bg-2: #05070c;
+  --biome-accent: #80d27b;
+  --biome-accent-2: #5b8372;
+  --biome-glow: rgba(85, 174, 118, 0.16);
+  --biome-card: rgba(44, 47, 58, 0.64);
+  --biome-card-strong: rgba(80, 76, 92, 0.52);
+  --biome-border: rgba(148, 214, 150, 0.18);
+  --biome-atmosphere:
+    radial-gradient(circle at 20% 18%, rgba(129, 211, 155, 0.10), transparent 24%),
+    radial-gradient(circle at 82% 20%, rgba(111, 99, 146, 0.12), transparent 28%),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px) 0 0 / 72px 72px;
+  --biome-ground:
+    linear-gradient(to top, rgba(12, 20, 14, 0.72) 0%, rgba(13, 12, 20, 0.38) 15%, transparent 42%);
+}
+
+body.biome-abandonedMines {
+  --biome-bg-1: #201815;
+  --biome-bg-2: #080706;
+  --biome-accent: #d49a52;
+  --biome-accent-2: #8a6142;
+  --biome-glow: rgba(210, 151, 83, 0.18);
+  --biome-card: rgba(45, 36, 30, 0.68);
+  --biome-card-strong: rgba(92, 70, 50, 0.45);
+  --biome-border: rgba(212, 154, 82, 0.18);
+  --biome-atmosphere:
+    radial-gradient(circle at 18% 15%, rgba(214, 166, 96, 0.10), transparent 30%),
+    radial-gradient(circle at 70% 28%, rgba(110, 78, 45, 0.15), transparent 25%),
+    linear-gradient(115deg, transparent 0 44%, rgba(255, 208, 142, 0.05) 45% 47%, transparent 48% 100%);
+  --biome-ground:
+    radial-gradient(ellipse at bottom left, rgba(83, 58, 35, 0.62), transparent 45%),
+    linear-gradient(to top, rgba(20, 13, 8, 0.75) 0%, rgba(28, 19, 13, 0.42) 18%, transparent 48%);
+}
+
+body.biome-sunkenTemple {
+  --biome-bg-1: #052737;
+  --biome-bg-2: #030912;
+  --biome-accent: #54d6ff;
+  --biome-accent-2: #2e8fb3;
+  --biome-glow: rgba(84, 214, 255, 0.18);
+  --biome-card: rgba(10, 42, 57, 0.66);
+  --biome-card-strong: rgba(44, 95, 112, 0.44);
+  --biome-border: rgba(92, 219, 255, 0.22);
+  --biome-atmosphere:
+    radial-gradient(circle at 12% 22%, rgba(106, 224, 255, 0.13), transparent 24%),
+    radial-gradient(circle at 78% 15%, rgba(79, 160, 216, 0.12), transparent 28%),
+    radial-gradient(circle at 24% 70%, rgba(180, 255, 255, 0.08) 0 3px, transparent 4px),
+    radial-gradient(circle at 62% 54%, rgba(180, 255, 255, 0.07) 0 2px, transparent 3px),
+    linear-gradient(110deg, rgba(255,255,255,0.04) 0 1px, transparent 1px 44px) 0 0 / 90px 90px;
+  --biome-ground:
+    linear-gradient(to top, rgba(3, 25, 32, 0.78) 0%, rgba(4, 31, 42, 0.52) 20%, transparent 54%),
+    repeating-linear-gradient(0deg, rgba(96, 207, 235, 0.08) 0 1px, transparent 1px 48px);
+}
+
+body.biome-brokenTower {
+  --biome-bg-1: #18122c;
+  --biome-bg-2: #080613;
+  --biome-accent: #b984ff;
+  --biome-accent-2: #54d6ff;
+  --biome-glow: rgba(185, 132, 255, 0.20);
+  --biome-card: rgba(35, 25, 61, 0.68);
+  --biome-card-strong: rgba(79, 56, 129, 0.45);
+  --biome-border: rgba(185, 132, 255, 0.23);
+  --biome-atmosphere:
+    radial-gradient(circle at 18% 20%, rgba(184, 131, 255, 0.16), transparent 25%),
+    radial-gradient(circle at 72% 18%, rgba(84, 214, 255, 0.10), transparent 28%),
+    conic-gradient(from 45deg at 75% 35%, transparent, rgba(183, 132, 255, 0.07), transparent 20%);
+  --biome-ground:
+    linear-gradient(to top, rgba(10, 8, 25, 0.78) 0%, rgba(22, 12, 42, 0.48) 18%, transparent 52%);
+}
+
+body.biome-mechanicArcane {
+  --biome-bg-1: #101722;
+  --biome-bg-2: #05080c;
+  --biome-accent: #75f0d1;
+  --biome-accent-2: #7d8dff;
+  --biome-glow: rgba(117, 240, 209, 0.17);
+  --biome-card: rgba(18, 32, 44, 0.68);
+  --biome-card-strong: rgba(36, 67, 84, 0.46);
+  --biome-border: rgba(117, 240, 209, 0.22);
+  --biome-atmosphere:
+    linear-gradient(90deg, rgba(117, 240, 209, 0.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(125, 141, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 80% 22%, rgba(117, 240, 209, 0.12), transparent 28%);
+  --biome-ground:
+    linear-gradient(to top, rgba(5, 12, 18, 0.80), rgba(8, 18, 28, 0.42) 22%, transparent 52%);
+  background-size: auto, 54px 54px, 54px 54px, auto;
+}
+
+body.biome-ashHell {
+  --biome-bg-1: #2a120f;
+  --biome-bg-2: #080303;
+  --biome-accent: #ff8a3d;
+  --biome-accent-2: #ff3d2e;
+  --biome-glow: rgba(255, 104, 44, 0.23);
+  --biome-card: rgba(59, 24, 20, 0.72);
+  --biome-card-strong: rgba(107, 44, 30, 0.45);
+  --biome-border: rgba(255, 126, 57, 0.25);
+  --biome-atmosphere:
+    radial-gradient(circle at 15% 22%, rgba(255, 138, 61, 0.16), transparent 26%),
+    radial-gradient(circle at 78% 18%, rgba(255, 61, 46, 0.12), transparent 26%),
+    radial-gradient(circle at 35% 48%, rgba(255, 180, 80, 0.07) 0 2px, transparent 3px),
+    radial-gradient(circle at 69% 58%, rgba(255, 94, 45, 0.08) 0 2px, transparent 3px);
+  --biome-ground:
+    radial-gradient(ellipse at 20% 100%, rgba(255, 112, 35, 0.70) 0%, rgba(116, 23, 16, 0.45) 30%, transparent 55%),
+    radial-gradient(ellipse at 78% 100%, rgba(255, 61, 46, 0.58) 0%, rgba(97, 16, 14, 0.42) 32%, transparent 58%),
+    linear-gradient(to top, rgba(35, 4, 3, 0.92) 0%, rgba(89, 18, 8, 0.62) 13%, rgba(255, 98, 29, 0.20) 20%, transparent 48%);
+}
+
+body.biome-infiniteVoid {
+  --biome-bg-1: #0a0821;
+  --biome-bg-2: #010106;
+  --biome-accent: #8f7cff;
+  --biome-accent-2: #ef7cff;
+  --biome-glow: rgba(143, 124, 255, 0.19);
+  --biome-card: rgba(14, 13, 36, 0.76);
+  --biome-card-strong: rgba(43, 35, 89, 0.48);
+  --biome-border: rgba(159, 138, 255, 0.24);
+  --biome-atmosphere:
+    radial-gradient(circle at 14% 18%, rgba(143, 124, 255, 0.18), transparent 22%),
+    radial-gradient(circle at 78% 24%, rgba(239, 124, 255, 0.12), transparent 28%),
+    radial-gradient(circle at 20% 38%, rgba(255,255,255,0.18) 0 1px, transparent 2px),
+    radial-gradient(circle at 65% 60%, rgba(255,255,255,0.14) 0 1px, transparent 2px),
+    radial-gradient(circle at 82% 42%, rgba(255,255,255,0.12) 0 1px, transparent 2px);
+  --biome-ground:
+    radial-gradient(ellipse at bottom, rgba(82, 57, 180, 0.42), transparent 52%),
+    linear-gradient(to top, rgba(1, 1, 9, 0.88), rgba(8, 6, 24, 0.42) 26%, transparent 56%);
+}
+
+
+/* =========================
+   AJUSTES FINAIS - BIOMA / SKILLS / LOJA / MAGIA
+   ========================= */
+
+.biome-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  color: var(--text);
+  background:
+    linear-gradient(135deg,
+      color-mix(in srgb, var(--biome-accent) 28%, rgba(255, 255, 255, 0.08)),
+      color-mix(in srgb, var(--biome-accent-2) 20%, rgba(255, 255, 255, 0.06))
+    );
+  border: 1px solid color-mix(in srgb, var(--biome-accent) 42%, rgba(255, 255, 255, 0.12));
+  box-shadow: 0 0 24px color-mix(in srgb, var(--biome-accent) 18%, transparent);
+  white-space: nowrap;
+}
+
+.biome-badge span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.biome-badge strong {
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.clean-skill-row {
+  min-height: 58px;
+  padding: 10px 12px;
+}
+
+.skill-row-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.skill-next-gain {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 28px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--biome-accent) 82%, var(--text));
+  background: color-mix(in srgb, var(--biome-accent) 10%, rgba(255, 255, 255, 0.045));
+  border: 1px solid color-mix(in srgb, var(--biome-accent) 18%, rgba(255, 255, 255, 0.08));
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.clean-skill-button {
+  min-width: 48px;
+  min-height: 36px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.clean-skill-button small {
+  display: none;
+}
+
+.skill-row-info small {
+  font-size: 0.76rem;
+  opacity: 0.78;
+}
+
+.shop-card .shop-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 82px;
+  padding: 12px 14px;
+}
+
+.shop-card .shop-item .item-content {
+  display: flex;
+  grid-template-columns: unset;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.shop-card .shop-item .item-thumb {
+  width: 62px;
+  height: 62px;
+  flex: 0 0 62px;
+  overflow: visible;
+}
+
+.shop-card .shop-item .item-image {
+  width: 118%;
+  height: 118%;
+  max-width: none;
+  max-height: none;
+  transform: translate(-4%, -4%);
+}
+
+.shop-card .shop-item .item-text {
+  min-width: 0;
+}
+
+.shop-card .shop-item .item-name-line {
+  max-width: 100%;
+  font-size: 0.98rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.shop-card .shop-item p {
+  overflow-wrap: anywhere;
+}
+
+.monster-card.spell-target-glow {
+  border-color: var(--spell-color, var(--biome-accent)) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 54%, transparent),
+    0 0 38px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
+    var(--shadow) !important;
+}
+
+.spell-impact-fire {
+  --spell-color: rgba(255, 138, 53, 0.95);
+  --spell-color-soft: rgba(255, 138, 53, 0.30);
+}
+
+.spell-impact-ice {
+  --spell-color: rgba(103, 215, 255, 0.95);
+  --spell-color-soft: rgba(103, 215, 255, 0.30);
+}
+
+.spell-impact-lightning {
+  --spell-color: rgba(247, 201, 85, 0.98);
+  --spell-color-soft: rgba(247, 201, 85, 0.30);
+}
+
+.spell-impact-poison {
+  --spell-color: rgba(99, 220, 145, 0.98);
+  --spell-color-soft: rgba(99, 220, 145, 0.28);
+}
+
+.spell-impact-wind {
+  --spell-color: rgba(141, 245, 255, 0.98);
+  --spell-color-soft: rgba(141, 245, 255, 0.28);
+}
+
+.spell-impact img,
+.spell-impact span {
+  filter:
+    drop-shadow(0 0 18px var(--spell-color-soft, rgba(247, 201, 85, 0.34)))
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.48));
+}
+
+.spell-impact strong {
+  background: color-mix(in srgb, var(--spell-color, #f7c955) 82%, rgba(0, 0, 0, 0.28));
+  border-color: color-mix(in srgb, var(--spell-color, #f7c955) 58%, rgba(255, 255, 255, 0.22));
+}
+
+@media (max-width: 720px) {
+  .biome-badge {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .skill-row-action {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .shop-card .shop-item {
+    grid-template-columns: 1fr;
+  }
+
+  .shop-card .shop-item > button {
+    width: 100%;
+  }
+}
+
+
+/* Ajuste final: magia brilha o card inteiro do inimigo, e a imagem da magia sobe no retrato */
+.monster-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.monster-card.spell-target-glow {
+  border-color: var(--spell-color, var(--biome-accent)) !important;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 56%, transparent),
+    0 0 42px var(--spell-color-soft, rgba(247, 201, 85, 0.30)),
+    inset 0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.18)),
+    var(--shadow) !important;
+  animation: spellCardPulse 0.88s ease-out;
+}
+
+.monster-card.spell-target-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 34%, var(--spell-color-soft, rgba(247, 201, 85, 0.26)), transparent 48%),
+    linear-gradient(135deg, color-mix(in srgb, var(--spell-color, #f7c955) 16%, transparent), transparent 54%);
+  opacity: 0;
+  animation: spellCardOverlay 0.88s ease-out;
+}
+
+.monster-card.spell-target-glow > * {
+  position: relative;
+  z-index: 2;
+}
+
+.monster-portrait {
+  position: relative;
+  overflow: hidden;
+}
+
+.spell-impact {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: var(--spell-color, #fff);
+  animation: spellImpactFloatUp 0.9s ease-out forwards;
+}
+
+.spell-impact img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.spell-impact span {
+  font-size: 4rem;
+}
+
+.spell-impact img,
+.spell-impact span {
+  filter:
+    drop-shadow(0 0 18px var(--spell-color-soft, rgba(247, 201, 85, 0.34)))
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.48));
+}
+
+.spell-impact strong {
+  color: #fff;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--spell-color, #f7c955) 82%, rgba(0, 0, 0, 0.28));
+  border: 1px solid color-mix(in srgb, var(--spell-color, #f7c955) 58%, rgba(255, 255, 255, 0.22));
+  box-shadow: 0 0 18px var(--spell-color-soft, rgba(255, 93, 103, 0.26));
+  font-size: 0.92rem;
+}
+
+@keyframes spellImpactFloatUp {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -38%) scale(0.55) rotate(-8deg);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -54%) scale(1.15) rotate(5deg);
+  }
+  72% {
+    opacity: 0.92;
+    transform: translate(-50%, -86%) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -122%) scale(0.86) rotate(0deg);
+  }
+}
+
+/* =========================
+   AJUSTE FINAL - MAGIA SEM ALTERAR TAMANHO DO CARD
+   ========================= */
+.monster-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.monster-card.spell-target-glow {
+  border-color: var(--spell-color, var(--biome-accent)) !important;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 58%, transparent),
+    inset 0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.18)),
+    var(--shadow) !important;
+  animation: spellCardGlowStable 0.86s ease-out !important;
+}
+
+.monster-card.spell-target-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 46%, var(--spell-color-soft, rgba(247, 201, 85, 0.24)), transparent 45%),
+    linear-gradient(135deg, color-mix(in srgb, var(--spell-color, #f7c955) 12%, transparent), transparent 58%);
+  opacity: 0;
+  animation: spellCardOverlayStable 0.86s ease-out;
+}
+
+.monster-card.spell-target-glow > *:not(.spell-impact) {
+  position: relative;
+  z-index: 2;
+}
+
+.monster-card > .spell-impact {
+  position: absolute !important;
+  left: 50% !important;
+  top: 47% !important;
+  z-index: 8 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 96px;
+  height: 96px;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: var(--spell-color, #fff);
+  contain: layout paint;
+  animation: spellImpactFloatUpStable 0.9s ease-out forwards !important;
+}
+
+.monster-card > .spell-impact img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.monster-card > .spell-impact span {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.monster-card > .spell-impact img,
+.monster-card > .spell-impact span {
+  filter:
+    drop-shadow(0 0 18px var(--spell-color-soft, rgba(247, 201, 85, 0.34)))
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.48));
+}
+
+.monster-card > .spell-impact strong {
+  display: none !important;
+}
+
+.spell-impact-wind {
+  --spell-color: rgba(255, 255, 255, 0.98);
+  --spell-color-soft: rgba(255, 255, 255, 0.30);
+}
+
+@keyframes spellCardGlowStable {
+  0% {
+    filter: brightness(1);
+  }
+  22% {
+    filter: brightness(1.08);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+@keyframes spellCardOverlayStable {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes spellImpactFloatUpStable {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -34%) scale(0.58) rotate(-8deg);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08) rotate(5deg);
+  }
+  72% {
+    opacity: 0.95;
+    transform: translate(-50%, -78%) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -112%) scale(0.86) rotate(0deg);
+  }
+}
+
+
+/* =========================
+   FIX DEFINITIVO - MAGIA SEM AUMENTAR O CARD
+   ========================= */
+.monster-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.monster-card.spell-target-glow {
+  border-color: var(--spell-color, var(--biome-accent)) !important;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 58%, transparent),
+    inset 0 0 30px var(--spell-color-soft, rgba(247, 201, 85, 0.18)),
+    var(--shadow) !important;
+  animation: spellCardGlowOnly 0.82s ease-out !important;
+}
+
+.monster-card.spell-target-glow::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 45%, var(--spell-color-soft, rgba(247, 201, 85, 0.24)), transparent 44%),
+    linear-gradient(135deg, color-mix(in srgb, var(--spell-color, #f7c955) 12%, transparent), transparent 58%);
+  opacity: 0;
+  animation: spellCardOverlayOnly 0.82s ease-out !important;
+}
+
+.monster-card.spell-target-glow > *:not(.spell-impact) {
+  position: relative;
+  z-index: 2;
+}
+
+/* Esconde qualquer impacto antigo que tenha sido colocado dentro do card em saves/abas abertas. */
+.monster-card > .spell-impact {
+  display: none !important;
+}
+
+.spell-impact-screen {
+  position: fixed !important;
+  left: var(--spell-x, 50vw) !important;
+  top: var(--spell-y, 45vh) !important;
+  z-index: 9999 !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 96px !important;
+  height: 96px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  color: var(--spell-color, #fff);
+  contain: layout paint size style;
+  animation: spellImpactScreenFloat 0.9s ease-out forwards !important;
+}
+
+.spell-impact-screen img {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.spell-impact-screen span {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.spell-impact-screen img,
+.spell-impact-screen span {
+  filter:
+    drop-shadow(0 0 18px var(--spell-color-soft, rgba(247, 201, 85, 0.34)))
+    drop-shadow(0 14px 24px rgba(0, 0, 0, 0.48));
+}
+
+.spell-impact-screen strong {
+  display: none !important;
+}
+
+.spell-impact-wind {
+  --spell-color: rgba(255, 255, 255, 0.98) !important;
+  --spell-color-soft: rgba(255, 255, 255, 0.30) !important;
+}
+
+@keyframes spellCardGlowOnly {
+  0% { filter: brightness(1); }
+  24% { filter: brightness(1.08); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes spellCardOverlayOnly {
+  0% { opacity: 0; }
+  22% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes spellImpactScreenFloat {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -34%) scale(0.58) rotate(-8deg);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08) rotate(5deg);
+  }
+  72% {
+    opacity: 0.95;
+    transform: translate(-50%, -82%) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -116%) scale(0.86) rotate(0deg);
+  }
+}
+
+/* ================================
+   CORREÇÃO FINAL - EMOJIS DE COMBATE E MAGIA
+   ================================ */
+
+.hero-card,
+.monster-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Durante o brilho da magia, regras antigas deixavam filhos do card com position: relative.
+   Isso fazia o emoji genérico de combate entrar no fluxo e aparecer no rodapé do card. */
+.monster-card.spell-target-glow > .combat-indicator,
+.hero-card > .combat-indicator,
+.monster-card > .combat-indicator {
+  position: absolute !important;
+  top: 45% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  z-index: 60 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: translate(-50%, -50%) scale(0.7);
+  pointer-events: none;
+}
+
+/* A animação da magia já mostra a imagem equipada, então qualquer indicador de ataque
+   que sobrar no card durante o brilho fica escondido. */
+.monster-card.spell-target-glow .combat-indicator {
+  display: none !important;
+}
+
+.spell-impact-screen {
+  z-index: 9999 !important;
+}
+
+
+/* ================================
+   FIX — ANIMAÇÕES ESTÁVEIS NOS CARDS DE COMBATE
+   ================================ */
+.hero-card,
+.monster-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Mantém qualquer indicador antigo fora do fluxo para nunca aumentar card. */
+.hero-card > .combat-indicator,
+.monster-card > .combat-indicator {
+  display: none !important;
+}
+
+.combat-indicator-screen {
+  position: fixed !important;
+  left: var(--combat-x, 50vw) !important;
+  top: var(--combat-y, 45vh) !important;
+  z-index: 9998 !important;
+  width: 82px !important;
+  height: 82px !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  pointer-events: none !important;
+  color: #fff;
+  font-size: 4rem;
+  line-height: 1;
+  contain: layout paint size style;
+  filter:
+    drop-shadow(0 0 12px rgba(255, 255, 255, 0.18))
+    drop-shadow(0 16px 22px rgba(0, 0, 0, 0.48));
+  animation: combatScreenPopStable 0.72s ease-out forwards;
+}
+
+.combat-indicator-screen.playerMiss,
+.combat-indicator-screen.playerDodge {
+  color: #bfefff;
+  animation-name: combatScreenDodgeStable;
+}
+
+.combat-indicator-screen.critical {
+  color: #ffd45f;
+  font-size: 4.35rem;
+  animation-duration: 0.82s;
+  animation-name: combatScreenCriticalStable;
+}
+
+.combat-indicator-screen.playerHit {
+  color: #fff2d0;
+}
+
+.combat-indicator-screen.enemyHit {
+  color: #ff9a9a;
+}
+
+.combat-card-hit {
+  animation: combatCardHitStable 0.42s ease-out !important;
+}
+
+.combat-card-dodge {
+  animation: combatCardDodgeStable 0.48s ease-out !important;
+}
+
+.combat-card-critical {
+  animation: combatCardCriticalStable 0.62s ease-out !important;
+}
+
+@keyframes combatScreenPopStable {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -42%) scale(0.52) rotate(-8deg);
+  }
+  24% {
+    opacity: 1;
+    transform: translate(-50%, -54%) scale(1.08) rotate(4deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -96%) scale(0.88) rotate(0deg);
+  }
+}
+
+@keyframes combatScreenDodgeStable {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -48%) scale(0.52);
+  }
+  28% {
+    opacity: 1;
+    transform: translate(-28%, -58%) scale(1.08);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(16%, -82%) scale(0.9);
+  }
+}
+
+@keyframes combatScreenCriticalStable {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -44%) scale(0.48) rotate(-18deg);
+  }
+  22% {
+    opacity: 1;
+    transform: translate(-50%, -58%) scale(1.22) rotate(8deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -104%) scale(0.88) rotate(0deg);
+  }
+}
+
+@keyframes combatCardHitStable {
+  0% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+  35% {
+    filter: brightness(1.08);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 93, 103, 0.42),
+      inset 0 0 28px rgba(255, 93, 103, 0.16),
+      var(--shadow);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes combatCardDodgeStable {
+  0% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+  35% {
+    filter: brightness(1.08);
+    box-shadow:
+      inset 0 0 0 1px rgba(82, 185, 255, 0.45),
+      inset 0 0 28px rgba(82, 185, 255, 0.16),
+      var(--shadow);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes combatCardCriticalStable {
+  0% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+  35% {
+    filter: brightness(1.12);
+    box-shadow:
+      inset 0 0 0 1px rgba(247, 201, 85, 0.55),
+      inset 0 0 34px rgba(247, 201, 85, 0.22),
+      0 0 22px rgba(247, 201, 85, 0.18),
+      var(--shadow);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+}
+
+
+/* ================================
+   FIX — ANIMAÇÃO NOS DOIS CARDS
+   ================================ */
+
+.combat-card-action {
+  animation: combatCardActionStable 0.54s ease-out !important;
+}
+
+.combat-card-cast {
+  animation: combatCardCastStable 0.76s ease-out !important;
+}
+
+@keyframes combatCardActionStable {
+  0% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+  32% {
+    filter: brightness(1.09);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.22),
+      inset 0 0 24px rgba(255, 255, 255, 0.10),
+      0 0 18px rgba(255, 255, 255, 0.08),
+      var(--shadow);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes combatCardCastStable {
+  0% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+  30% {
+    filter: brightness(1.12);
+    box-shadow:
+      inset 0 0 0 1px var(--spell-color, rgba(155, 119, 255, 0.42)),
+      inset 0 0 30px var(--spell-color-soft, rgba(155, 119, 255, 0.16)),
+      0 0 22px var(--spell-color-soft, rgba(155, 119, 255, 0.12)),
+      var(--shadow);
+  }
+  100% {
+    filter: brightness(1);
+    box-shadow: var(--shadow);
+  }
+}
+
+/* ================================
+   AJUSTE — IMAGEM DO INIMIGO MAIOR
+   ================================ */
+
+.monster-card .monster-portrait {
+  min-height: clamp(230px, 24vw, 330px) !important;
+  margin: 14px 0 12px !important;
+  padding: 8px !important;
+  display: grid !important;
+  place-items: center !important;
+  overflow: hidden !important;
+  isolation: isolate;
+}
+
+.monster-card .monster-image {
+  width: min(100%, 340px) !important;
+  max-width: 100% !important;
+  max-height: clamp(220px, 23vw, 320px) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  transform: scale(1.08);
+  transform-origin: center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter:
+    drop-shadow(0 22px 28px rgba(0, 0, 0, 0.38))
+    drop-shadow(0 0 18px color-mix(in srgb, var(--biome-accent, #f7c955) 20%, transparent));
+}
+
+.monster-card .monster-fallback-icon {
+  font-size: clamp(4.6rem, 8vw, 7rem) !important;
+}
+
+@media (max-width: 1180px) {
+  .monster-card .monster-portrait {
+    min-height: clamp(220px, 30vw, 300px) !important;
+  }
+
+  .monster-card .monster-image {
+    width: min(100%, 310px) !important;
+    max-height: clamp(210px, 28vw, 290px) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .monster-card .monster-portrait {
+    min-height: 215px !important;
+    margin: 12px 0 !important;
+  }
+
+  .monster-card .monster-image {
+    width: min(100%, 260px) !important;
+    max-height: 245px !important;
+    transform: scale(1.04);
+  }
+}
+
+
+/* ================================
+   FIX FINAL — MOVIMENTO REAL AO RECEBER MAGIA
+   ================================
+   A magia aplicava .spell-target-glow no mesmo card e essa classe
+   tinha animação própria/brilho, sobrescrevendo o movimento do card.
+   Este bloco deixa o brilho existir, mas garante que o movimento da
+   magia recebida seja o que manda no transform.
+*/
+
+.hero-card,
+.monster-card {
+  transform-origin: center center;
+  will-change: transform, filter, box-shadow;
+}
+
+.combat-card-hit {
+  animation: receiverCardHitMove 0.58s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+}
+
+.combat-card-dodge {
+  animation: receiverCardDodgeMove 0.66s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+}
+
+.combat-card-critical {
+  animation: receiverCardCriticalMove 0.72s cubic-bezier(0.18, 0.95, 0.25, 1) both !important;
+}
+
+.combat-card-magic,
+.monster-card.spell-target-glow.combat-card-magic {
+  animation: receiverCardMagicMove 0.82s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+}
+
+@keyframes receiverCardHitMove {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+  }
+
+  16% {
+    transform: translate3d(-7px, 0, 0) rotate(-0.55deg);
+    filter: brightness(1.12);
+  }
+
+  34% {
+    transform: translate3d(6px, 0, 0) rotate(0.45deg);
+  }
+
+  56% {
+    transform: translate3d(-4px, 0, 0) rotate(-0.25deg);
+  }
+
+  78% {
+    transform: translate3d(2px, 0, 0) rotate(0.12deg);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+@keyframes receiverCardDodgeMove {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+  }
+
+  22% {
+    transform: translate3d(18px, -2px, 0) rotate(0.8deg);
+    filter: brightness(1.12);
+  }
+
+  48% {
+    transform: translate3d(-8px, 1px, 0) rotate(-0.45deg);
+  }
+
+  72% {
+    transform: translate3d(4px, 0, 0) rotate(0.22deg);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+@keyframes receiverCardCriticalMove {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+
+  14% {
+    transform: translate3d(-11px, 0, 0) scale(1.008) rotate(-0.85deg);
+    filter: brightness(1.22);
+  }
+
+  30% {
+    transform: translate3d(10px, 0, 0) scale(1.006) rotate(0.75deg);
+  }
+
+  48% {
+    transform: translate3d(-7px, 0, 0) scale(1.004) rotate(-0.45deg);
+  }
+
+  68% {
+    transform: translate3d(4px, 0, 0) scale(1.002) rotate(0.25deg);
+  }
+
+  86% {
+    transform: translate3d(-2px, 0, 0) scale(1.001) rotate(-0.1deg);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    filter: brightness(1);
+  }
+}
+
+@keyframes receiverCardMagicMove {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: brightness(1);
+  }
+
+  16% {
+    transform: translate3d(0, -7px, 0) scale(1.008);
+    filter: brightness(1.22);
+  }
+
+  36% {
+    transform: translate3d(-7px, 2px, 0) scale(1.005);
+  }
+
+  56% {
+    transform: translate3d(7px, 0, 0) scale(1.004);
+  }
+
+  76% {
+    transform: translate3d(0, 2px, 0) scale(1.002);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: brightness(1);
+  }
 }
