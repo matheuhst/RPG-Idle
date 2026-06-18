@@ -3746,8 +3746,10 @@ function applyOfflineProgress(lastSaveAt) {
     epicOrLegendaryFound,
   };
 
-  elements.offlineMessage.textContent =
-    `Offline: +${formatCompactNumber(xpGained)} XP, ${formatSignedMoneyText(coinsGained)} e ${formatCompactNumber(report.monstersDefeated)} monstros derrotados.`;
+  if (elements.offlineMessage) {
+    elements.offlineMessage.textContent =
+      `Offline: +${formatCompactNumber(xpGained)} XP, ${formatSignedMoneyText(coinsGained)} e ${formatCompactNumber(report.monstersDefeated)} monstros derrotados.`;
+  }
 
   showOfflineModal(finalReport);
 
@@ -3921,38 +3923,94 @@ function closeOfflineModal() {
   elements.offlineModal.hidden = true;
 }
 
+function ensureLogNoticeStack() {
+  let stack = document.getElementById('game-log-notice-stack');
+
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'game-log-notice-stack';
+    document.body.appendChild(stack);
+  }
+
+  return stack;
+}
+
+function getLogNoticeIcon(type = 'system') {
+  const icons = {
+    damage: '⚔️',
+    reward: '✨',
+    drop: '🎒',
+    shop: '🛒',
+    boss: '👑',
+    death: '💀',
+    offline: '🌙',
+    equip: '🛡️',
+    buy: '🛒',
+    level: '⬆️',
+    'system-important': '⚠️',
+    system: '✦',
+  };
+
+  return icons[type] || icons.system;
+}
+
+function getLogNoticeTitle(type = 'system') {
+  const titles = {
+    damage: 'Combate',
+    reward: 'Recompensa',
+    drop: 'Drop',
+    shop: 'Loja',
+    boss: 'Boss',
+    death: 'Derrota',
+    offline: 'Offline',
+    equip: 'Equipamento',
+    buy: 'Compra',
+    level: 'Nível',
+    'system-important': 'Aviso',
+    system: 'Sistema',
+  };
+
+  return titles[type] || titles.system;
+}
+
+function showLogNotice(message, type = 'system', important = false) {
+  const stack = ensureLogNoticeStack();
+  const notice = document.createElement('div');
+  const cleanMessage = String(message || '').trim();
+  const duration = important ? 4600 : type === 'damage' ? 2400 : 3400;
+
+  notice.className = `game-log-notice ${type}${important ? ' important' : ''}`;
+  notice.innerHTML = `
+    <div class="game-log-notice-icon">${getLogNoticeIcon(type)}</div>
+    <div class="game-log-notice-body">
+      <strong>${escapeAttr(getLogNoticeTitle(type))}</strong>
+      <p>${cleanMessage}</p>
+    </div>
+  `;
+
+  notice.addEventListener('click', () => dismissLogNotice(notice));
+  stack.prepend(notice);
+
+  while (stack.childElementCount > 6) {
+    dismissLogNotice(stack.lastElementChild, 0);
+  }
+
+  window.setTimeout(() => dismissLogNotice(notice), duration);
+}
+
+function dismissLogNotice(notice, delay = 240) {
+  if (!notice || notice.dataset.leaving === 'true') return;
+
+  notice.dataset.leaving = 'true';
+  notice.classList.add('is-leaving');
+
+  window.setTimeout(() => {
+    notice.remove();
+  }, delay);
+}
+
 function log(message, type = 'system', important = false) {
-  const cleanMessage = String(message).replace(/<[^>]*>/g, '');
-
-  const importantTypes = [
-    'level',
-    'reward',
-    'drop',
-    'shop',
-    'boss',
-    'death',
-    'offline',
-    'equip',
-    'buy',
-    'system-important',
-  ];
-
-  const shouldShowTopMessage = important || importantTypes.includes(type);
-
-  if (elements.offlineMessage && shouldShowTopMessage) {
-    elements.offlineMessage.textContent = cleanMessage;
-  }
-
-  if (!elements.battleLog) return;
-
-  const entry = document.createElement('p');
-  entry.className = `log-entry ${type}${important ? ' important' : ''}`;
-  entry.innerHTML = `<span>${message}</span>`;
-  elements.battleLog.prepend(entry);
-
-  while (elements.battleLog.childElementCount > 35) {
-    elements.battleLog.removeChild(elements.battleLog.lastChild);
-  }
+  showLogNotice(message, type, important);
 }
 
 function getMonsterImage(monster) {
