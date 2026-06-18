@@ -76,9 +76,17 @@ const gameConfig = {
   prestigeCatchUpMaxStageGain: 6,
 
   offlineMinSeconds: 60,
-  offlineMaxMinutes: 1440,
-  offlineBattleSeconds: 45,
-  offlineGearDropCap: 14,
+  offlineMaxMinutes: 720,
+  offlineBattleSeconds: 95,
+  offlineGearDropCap: 6,
+  offlineRewardRate: 0.45,
+  offlineMaxBattles: 70,
+  spellDamageMultiplier: 1.85,
+
+  mythicRiftBaseChance: 5,
+  mythicRiftChanceGain: 3,
+  mythicRiftGuaranteeBosses: 5,
+  mythicUpgradeCoinCostMultiplier: 0.25,
 };
 
 const rarities = [
@@ -87,12 +95,14 @@ const rarities = [
   { id: 'rare', name: 'Raro', chance: 17, multiplier: 1.6, className: 'rarity-rare' },
   { id: 'epic', name: 'Épico', chance: 8, multiplier: 2.15, className: 'rarity-epic' },
   { id: 'legendary', name: 'Lendário', chance: 3, multiplier: 3, className: 'rarity-legendary' },
+  { id: 'mythic', name: 'Mítico', chance: 0, multiplier: 4.25, className: 'rarity-mythic' },
 ];
 
 // Coloque as imagens dos inimigos nesta pasta, mantendo estes nomes de arquivo.
 // Exemplo: assets/inimigos/slime-acido.png
 const enemyImageBasePath = 'assets/inimigos/';
 const itemImageBasePath = 'assets/itens/';
+const coinImagePath = `${itemImageBasePath}moeda.png`;
 
 const enemyImageByName = {
   // Inimigos antigos / Catacumbas
@@ -156,6 +166,14 @@ const enemyImageByName = {
   'Guardião do Pergaminho': 'guardiaoPergaminho.png',
   'Caçador de Relíquias': 'cacadorReliquias.png',
   'Eco do Herói Antigo': 'ecoHeroiAntigo.png',
+  'Ferreiro do Fim': 'ferreiroFim.png',
+  'Oráculo Despedaçado': 'oraculoDespedacado.png',
+  'Comandante das Máquinas': 'comandanteMaquinas.png',
+  'Serafim Quebrado': 'serafimQuebrado.png',
+  'Devorador de Relíquias': 'devoradorReliquias.png',
+  'Duque do Vazio': 'duqueVazio.png',
+  'Arauto da Forja Eterna': 'arautoForjaEterna.png',
+  'Guardião do Eclipse': 'guardiaoEclipse.png',
 };
 
 function getEnemyBaseName(enemyName) {
@@ -228,6 +246,61 @@ const gearImageByBaseName = {
   'Descarga Estática': 'raio.png',
   'Veneno corrosivo': 'veneno.png',
   'Tufão': 'tufao.png',
+
+  // Equipamentos míticos — coloque as imagens nesta pasta com estes nomes.
+  'Espada Corta-Mundo': 'espadaCortaMundo.png',
+  'Machado Quebra-Realidade': 'machadoQuebraRealidade.png',
+  'Lança do Último Céu': 'lancaUltimoCeu.png',
+  'Foice do Eclipse': 'foiceEclipse.png',
+  'Katana da Fenda': 'katanaFenda.png',
+
+  'Cajado da Tempestade Eterna': 'cajadoTempestadeEterna.png',
+  'Orbe do Vazio Vivo': 'orbeVazioVivo.png',
+  'Tomo do Primeiro Arcano': 'tomoPrimeiroArcano.png',
+  'Cristal do Cosmos Partido': 'cristalCosmosPartido.png',
+  'Grimório das Mil Vozes': 'grimorioMilVozes.png',
+
+  'Elmo da Imortalidade': 'elmoImortalidade.png',
+  'Coroa do Rei Ausente': 'coroaReiAusente.png',
+  'Máscara do Sem-Rosto': 'mascaraSemRosto.png',
+  'Capacete do Titã Celeste': 'capaceteTitaCeleste.png',
+  'Diadema da Aurora Morta': 'diademaAuroraMorta.png',
+
+  'Couraça do Colosso Astral': 'couracaColossoAstral.png',
+  'Manto do Último Guardião': 'mantoUltimoGuardiao.png',
+  'Peitoral do Dragão Primordial': 'peitoralDragaoPrimordial.png',
+  'Armadura da Noite Infinita': 'armaduraNoiteInfinita.png',
+  'Cota do Juramento Antigo': 'cotaJuramentoAntigo.png',
+
+  'Botas de Voo': 'botasVoo.png',
+  'Grevas do Relâmpago': 'grevasRelampago.png',
+  'Passos do Andarilho Eterno': 'passosAndarilhoEterno.png',
+  'Botas da Travessia Estelar': 'botasTravessiaEstelar.png',
+  'Grevas do Horizonte Partido': 'grevasHorizontePartido.png',
+
+  'Colar da Estrela Morta': 'colarEstrelaMorta.png',
+  'Medalhão do Sol Negro': 'medalhaoSolNegro.png',
+  'Amuleto do Coração Cósmico': 'amuletoCoracaoCosmico.png',
+  'Pingente da Lua Esquecida': 'pingenteLuaEsquecida.png',
+  'Gargantilha do Destino Selado': 'gargantilhaDestinoSelado.png',
+
+  'Bracelete do Tempo Partido': 'braceleteTempoPartido.png',
+  'Pulseira da Forja Eterna': 'pulseiraForjaEterna.png',
+  'Bracelete das Correntes Astrais': 'braceleteCorrentesAstrais.png',
+  'Pulseira do Juramento Rúnico': 'pulseiraJuramentoRunico.png',
+  'Algema do Rei Demônio': 'algemaReiDemonio.png',
+
+  'Anel do Rei Ausente': 'anelReiAusente.png',
+  'Anel do Eclipse Arcano': 'anelEclipseArcano.png',
+  'Anel da Segunda Alma': 'anelSegundaAlma.png',
+  'Anel do Olho Infinito': 'anelOlhoInfinito.png',
+  'Anel da Coroa Quebrada': 'anelCoroaQuebrada.png',
+
+  'Chama Corta-Mundo': 'chamaCortaMundo.png',
+  'Raio do Deus Antigo': 'raioDeusAntigo.png',
+  'Vórtice do Fim': 'vorticeFim.png',
+  'Tempestade de Mil Sóis': 'tempestadeMilSois.png',
+  'Julgamento do Vazio': 'julgamentoVazio.png',
 };
 
 const shopCatalog = [
@@ -341,6 +414,16 @@ const shopCatalog = [
     icon: '📜',
     cost: 420,
     type: 'specialBoss',
+  },
+  {
+    id: 'mythicFragment',
+    name: 'Fragmento Mítico',
+    shopName: 'Fragmento',
+    description: 'Material raro deixado por bosses especiais. Usado para manter e melhorar equipamentos míticos.',
+    image: `${itemImageBasePath}fragmentoMitico.png`,
+    icon: '💠',
+    cost: 0,
+    type: 'material',
   },
 ];
 
@@ -549,7 +632,7 @@ const relicCatalog = {
   },
   merchant: {
     name: 'Relíquia do Mercador',
-    description: '+4% de moedas ganhas por nível.',
+    description: `+4% de ganhos de ${coinIconHtml()} por nível.`,
     baseCost: 2,
     costGrowth: 1,
   },
@@ -633,6 +716,14 @@ const initialState = {
     victories: 0,
     bossesDefeated: 0,
     monstersSinceBoss: 0,
+    recoveryGrace: {
+      battles: 0,
+      checkpointStage: 1,
+      deaths: 0,
+    },
+    specialBossesDefeated: 0,
+    mythicPity: 0,
+    bossesSinceMythicRift: 0,
     stage: 1,
     magic: 14,
     magicChance: 18,
@@ -683,12 +774,18 @@ const initialState = {
       hp: 0,
       magic: 0,
     },
+    skillBalanceVersion: 0,
   },
   monster: null,
   shop: {
     active: false,
     items: [],
     encountersLeft: 0,
+  },
+  mythicRift: {
+    active: false,
+    chance: 0,
+    sourceBoss: '',
   },
   inventory: {
     items: [],
@@ -728,6 +825,73 @@ function randomBetween(min, max) {
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
+}
+
+function formatCompactNumber(value, decimals = 1) {
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return String(value ?? 0);
+  }
+
+  const abs = Math.abs(number);
+  const units = [
+    { value: 1_000_000_000_000, suffix: 't' },
+    { value: 1_000_000_000, suffix: 'b' },
+    { value: 1_000_000, suffix: 'm' },
+    { value: 1_000, suffix: 'k' },
+  ];
+
+  for (const unit of units) {
+    if (abs >= unit.value) {
+      const compact = number / unit.value;
+      const fractionDigits = Math.abs(compact) >= 10 ? 0 : decimals;
+
+      return compact
+        .toFixed(fractionDigits)
+        .replace('.', ',')
+        .replace(/,0$/, '') + unit.suffix;
+    }
+  }
+
+  return Math.round(number).toLocaleString('pt-BR');
+}
+
+function coinIconHtml() {
+  return `
+    <img
+      class="coin-icon"
+      src="${escapeAttr(coinImagePath)}"
+      alt="Moeda"
+      loading="lazy"
+      decoding="async"
+      onerror="this.hidden=true;"
+    />
+  `;
+}
+
+function formatMoney(value) {
+  return `<span class="money-inline">${coinIconHtml()}<span>${formatCompactNumber(value)}</span></span>`;
+}
+
+function formatMoneyText(value) {
+  return `💰 ${formatCompactNumber(value)}`;
+}
+
+function formatSignedMoney(value) {
+  return `<span class="money-inline money-positive"><span>+</span>${coinIconHtml()}<span>${formatCompactNumber(value)}</span></span>`;
+}
+
+function formatSignedMoneyText(value) {
+  return `+💰 ${formatCompactNumber(value)}`;
+}
+
+function formatDisplayValue(value) {
+  if (typeof value === 'number') {
+    return formatCompactNumber(value);
+  }
+
+  return String(value ?? '-');
 }
 
 const damageAffinityLimits = {
@@ -973,13 +1137,14 @@ function getNextLevelXpForLevel(level) {
 
 function getLevelUpBonuses(level) {
   const tier = Math.floor(level / 10);
+  const skillPointBase = 1 + Math.floor(level / 25);
 
   return {
     maxHp: 16 + tier * 3,
     attack: 2 + Math.floor(tier / 2),
     defense: 1 + Math.floor(tier / 3),
     agility: level % 4 === 0 ? 1 + Math.floor(tier / 4) : 0,
-    skillPoints: level % 5 === 0 ? 3 : 1,
+    skillPoints: level % 5 === 0 ? skillPointBase + 2 : skillPointBase,
   };
 }
 
@@ -1129,6 +1294,14 @@ function getPlayerMagicDamageMultiplier() {
   return 1 + (getEquipmentBonus('magicDamagePercent') / 100);
 }
 
+function getPlayerSpellDamageMultiplier() {
+  return (gameConfig.spellDamageMultiplier || 1.85) * getPlayerMagicDamageMultiplier();
+}
+
+function isMagicWeaponActive() {
+  return gameState.player.activeWeaponSlot === 'magicWeapon' && Boolean(gameState.equipment?.magicWeapon);
+}
+
 function getPlayerXpBonusPercent() {
   return getEquipmentBonus('xpPercent');
 }
@@ -1238,7 +1411,7 @@ const dungeonBiomes = [
 
   {
     id: 'mechanicArcane',
-    name: 'Família Mecânica/Arcana',
+    name: 'Fortaleza Autômata',
     minStage: 301,
     maxStage: 520,
     theme: 'machine',
@@ -1322,6 +1495,14 @@ const specialBossPool = [
   { name: 'Guardião do Pergaminho', icon: '📜', type: 'Boss Especial', hp: 1.7, attack: 1.45, defense: 1.15, agility: 1.05, resist: { physical: 1, magic: 1 } },
   { name: 'Caçador de Relíquias', icon: '💎', type: 'Boss Especial', hp: 1.45, attack: 1.55, defense: 1, agility: 1.28, resist: { physical: 1.05, magic: 0.95 } },
   { name: 'Eco do Herói Antigo', icon: '👤', type: 'Boss Especial', hp: 1.6, attack: 1.6, defense: 1.18, agility: 1.12, resist: { physical: 1, magic: 1 } },
+  { name: 'Ferreiro do Fim', icon: '🔨', type: 'Boss Especial da Forja', hp: 1.75, attack: 1.48, defense: 1.28, agility: 0.92, resist: { physical: 0.92, magic: 1.05 } },
+  { name: 'Oráculo Despedaçado', icon: '👁️', type: 'Boss Especial Arcano', hp: 1.42, attack: 1.68, defense: 0.95, agility: 1.18, resist: { physical: 1.12, magic: 0.78 } },
+  { name: 'Comandante das Máquinas', icon: '⚙️', type: 'Boss Especial Mecânico', hp: 1.65, attack: 1.52, defense: 1.32, agility: 0.82, resist: { physical: 0.86, magic: 1.08 } },
+  { name: 'Serafim Quebrado', icon: '🪽', type: 'Boss Especial Celestial', hp: 1.55, attack: 1.58, defense: 1.1, agility: 1.2, resist: { physical: 1, magic: 0.9 } },
+  { name: 'Devorador de Relíquias', icon: '🧿', type: 'Boss Especial Relicário', hp: 1.7, attack: 1.5, defense: 1.12, agility: 1.05, resist: { physical: 0.95, magic: 0.95 } },
+  { name: 'Duque do Vazio', icon: '🌌', type: 'Boss Especial do Vazio', hp: 1.82, attack: 1.62, defense: 1.18, agility: 1.08, resist: { physical: 0.9, magic: 0.88 } },
+  { name: 'Arauto da Forja Eterna', icon: '🔥', type: 'Boss Especial da Forja', hp: 1.68, attack: 1.56, defense: 1.22, agility: 0.98, resist: { physical: 0.9, magic: 1 } },
+  { name: 'Guardião do Eclipse', icon: '🌘', type: 'Boss Especial Mítico', hp: 1.78, attack: 1.6, defense: 1.2, agility: 1.02, resist: { physical: 0.95, magic: 0.9 } },
 ];
 
 function getBossPoolForBiome(biomeId, specialBoss = false) {
@@ -1345,31 +1526,19 @@ function getBiomeIndex(biomeOrId) {
 
 function getPreviousBiomeCandidates(stage = gameState.player.stage, currentBiome = getDungeonBiome(stage)) {
   const currentIndex = getBiomeIndex(currentBiome);
-  const fadeStart = 45;
-  const fadeEnd = 140;
 
-  return dungeonBiomes
-    .slice(0, currentIndex)
-    .map((biome, index) => {
-      const distancePastBiome = Math.max(0, stage - biome.maxStage);
+  if (currentIndex <= 0) {
+    return [];
+  }
 
-      if (distancePastBiome >= fadeEnd) {
-        return null;
-      }
-
-      const fadeFactor = distancePastBiome <= fadeStart
-        ? 1
-        : 1 - ((distancePastBiome - fadeStart) / (fadeEnd - fadeStart));
-
-      const distanceFromCurrent = Math.max(1, currentIndex - index);
-      const proximityFactor = 1 / distanceFromCurrent;
-
-      return {
-        biome,
-        weight: Math.max(0.03, fadeFactor * proximityFactor),
-      };
-    })
-    .filter(Boolean);
+  // Regra nova: só o bioma imediatamente anterior pode aparecer fora do seu território.
+  // Ex.: Catacumbas aparecem raramente nas Minas, mas nunca do Templo em diante.
+  return [
+    {
+      biome: dungeonBiomes[currentIndex - 1],
+      weight: 1,
+    },
+  ];
 }
 
 function pickWeightedBiomeEntry(entries) {
@@ -1395,19 +1564,149 @@ function pickWeightedBiomeEntry(entries) {
 function getEnemyBiomeForStage(stage = gameState.player.stage) {
   const currentBiome = getDungeonBiome(stage);
   const currentIndex = getBiomeIndex(currentBiome);
+
+  if (currentIndex <= 0) {
+    return currentBiome;
+  }
+
   const previousBiomeEntries = getPreviousBiomeCandidates(stage, currentBiome);
 
   if (!previousBiomeEntries.length) {
     return currentBiome;
   }
 
-  const previousBiomeChance = clamp(24 - currentIndex * 2.5, 8, 24);
+  const previousBiomeChance = currentIndex === 1 ? 14 : 10;
 
-  if (randomBetween(1, 100) > previousBiomeChance) {
-    return currentBiome;
+  if (randomBetween(1, 100) <= previousBiomeChance) {
+    return pickWeightedBiomeEntry(previousBiomeEntries);
   }
 
-  return pickWeightedBiomeEntry(previousBiomeEntries);
+  return currentBiome;
+}
+
+
+function getDeathRecoveryGraceInfo() {
+  const grace = gameState.player.recoveryGrace || {};
+  const battlesLeft = Number(grace.battles) || 0;
+
+  if (battlesLeft <= 0) {
+    return {
+      active: false,
+      hpMultiplier: 1,
+      attackMultiplier: 1,
+      defenseMultiplier: 1,
+      agilityMultiplier: 1,
+      rewardMultiplier: 1,
+    };
+  }
+
+  const deaths = clamp(Number(grace.deaths) || 1, 1, 4);
+  const strength = 1 + (deaths - 1) * 0.18;
+
+  return {
+    active: true,
+    hpMultiplier: clamp(0.86 - deaths * 0.035, 0.70, 0.86),
+    attackMultiplier: clamp(0.80 - deaths * 0.055, 0.56, 0.80),
+    defenseMultiplier: clamp(0.90 - deaths * 0.025, 0.78, 0.90),
+    agilityMultiplier: clamp(0.92 - deaths * 0.025, 0.82, 0.92),
+    rewardMultiplier: clamp(0.98 - strength * 0.025, 0.88, 0.98),
+  };
+}
+
+function getBiomeEntryReliefInfo(stage = gameState.player.stage, currentBiome = getDungeonBiome(stage)) {
+  const currentIndex = getBiomeIndex(currentBiome);
+
+  if (currentIndex <= 0) {
+    return {
+      active: false,
+      hpMultiplier: 1,
+      attackMultiplier: 1,
+      defenseMultiplier: 1,
+      agilityMultiplier: 1,
+    };
+  }
+
+  const stagesInsideBiome = Math.max(0, stage - currentBiome.minStage);
+  const reliefWindow = 12;
+
+  if (stagesInsideBiome >= reliefWindow) {
+    return {
+      active: false,
+      hpMultiplier: 1,
+      attackMultiplier: 1,
+      defenseMultiplier: 1,
+      agilityMultiplier: 1,
+    };
+  }
+
+  const t = stagesInsideBiome / reliefWindow;
+
+  return {
+    active: true,
+    hpMultiplier: 0.88 + t * 0.12,
+    attackMultiplier: 0.82 + t * 0.18,
+    defenseMultiplier: 0.90 + t * 0.10,
+    agilityMultiplier: 0.92 + t * 0.08,
+  };
+}
+
+function applyMonsterBalanceModifiers(monster, context = {}) {
+  const recovery = getDeathRecoveryGraceInfo();
+  const entryRelief = getBiomeEntryReliefInfo(context.stage, context.currentBiome);
+  const isPreviousBiomeEnemy = context.enemyBiome?.id && context.currentBiome?.id && context.enemyBiome.id !== context.currentBiome.id;
+  const oldBiomeMultiplier = isPreviousBiomeEnemy ? 0.88 : 1;
+
+  const hpMultiplier = recovery.hpMultiplier * entryRelief.hpMultiplier * oldBiomeMultiplier;
+  const attackMultiplier = recovery.attackMultiplier * entryRelief.attackMultiplier * oldBiomeMultiplier;
+  const defenseMultiplier = recovery.defenseMultiplier * entryRelief.defenseMultiplier;
+  const agilityMultiplier = recovery.agilityMultiplier * entryRelief.agilityMultiplier;
+  const rewardMultiplier = recovery.rewardMultiplier;
+
+  monster.maxHp = Math.max(1, Math.round(monster.maxHp * hpMultiplier));
+  monster.hp = monster.maxHp;
+  monster.attack = Math.max(1, Math.round(monster.attack * attackMultiplier));
+  monster.defense = Math.max(0, Math.round(monster.defense * defenseMultiplier));
+  monster.agility = Math.max(1, Math.round(monster.agility * agilityMultiplier));
+  monster.xpReward = Math.max(1, Math.round(monster.xpReward * rewardMultiplier));
+  monster.coinReward = Math.max(0, Math.round(monster.coinReward * rewardMultiplier));
+
+  monster.balanceModifiers = {
+    deathRecovery: recovery.active,
+    biomeEntryRelief: entryRelief.active,
+    previousBiomeEnemy: isPreviousBiomeEnemy,
+  };
+
+  return monster;
+}
+
+function activateDeathRecoveryGrace(previousStage, checkpointStage) {
+  const previousGrace = gameState.player.recoveryGrace || {};
+  const sameCheckpoint = previousGrace.checkpointStage === checkpointStage;
+  const deaths = sameCheckpoint
+    ? clamp((previousGrace.deaths || 0) + 1, 1, 4)
+    : 1;
+
+  gameState.player.recoveryGrace = {
+    battles: clamp(8 + deaths * 2, 8, 14),
+    checkpointStage,
+    deaths,
+    previousStage,
+  };
+}
+
+function tickDeathRecoveryGraceAfterWin(monster) {
+  const grace = gameState.player.recoveryGrace;
+
+  if (!grace || grace.battles <= 0) return;
+
+  grace.battles = Math.max(0, grace.battles - 1);
+
+  if (grace.battles === 0) {
+    grace.deaths = 0;
+    log('A masmorra voltou ao ritmo normal. Os inimigos não estão mais enfraquecidos pelo checkpoint.', 'system', true);
+  } else if (monster?.isBoss) {
+    grace.battles = Math.max(0, grace.battles - 1);
+  }
 }
 
 function createMonster(isBoss = false, specialBoss = false) {
@@ -1432,8 +1731,36 @@ function createMonster(isBoss = false, specialBoss = false) {
 
   const biomeScaling = 1 + Math.floor(effectiveStage / 300) * 0.08;
   const bossMultiplier = isBoss ? 1.35 : 1;
+  const currentBiomeIndex = getBiomeIndex(currentBiome);
 
   const base = 72 + level * 16 + effectiveStage * 1.2;
+
+  const playerOffense = Math.max(getPlayerAttack(), getPlayerMagic());
+  const playerDefense = getPlayerDefense();
+  const playerMaxHp = getPlayerMaxHp();
+  const playerAgility = getPlayerAgility();
+  const adaptation = clamp((player.level - 35) / 55, 0, 1);
+
+  const baseHp = Math.round(base * template.hp * bossMultiplier * biomeScaling);
+  // Balanceamento mais justo para biomas avançados:
+  // inimigo comum deve ameaçar, mas não virar uma parede de HP nem bater como boss.
+  const targetFightTurns = isBoss ? 5.8 : 2.85;
+  const adaptiveHp = Math.round(
+    playerOffense * targetFightTurns *
+    (0.82 + template.hp * 0.12) *
+    (1 + currentBiomeIndex * 0.045)
+  );
+
+  const baseAttack = Math.round((8 + level * 1.72 + effectiveStage * 0.20) * template.attack * bossMultiplier * biomeScaling);
+  const targetIncomingDamage = Math.round(playerMaxHp * (isBoss ? 0.102 : 0.052) + playerDefense * 0.22);
+  const adaptiveAttack = Math.round(targetIncomingDamage * template.attack * (isBoss ? 0.96 : 0.78));
+  const attackSoftCap = Math.round(playerDefense * 0.42 + playerMaxHp * (isBoss ? 0.145 : 0.092));
+
+  const baseDefense = Math.round((3 + level * 0.82 + effectiveStage * 0.13) * template.defense * biomeScaling);
+  const adaptiveDefense = Math.round(playerOffense * (isBoss ? 0.15 : 0.095) * template.defense);
+
+  const baseAgility = Math.round((7 + level * 0.34 + effectiveStage * 0.045) * template.agility * biomeScaling);
+  const adaptiveAgility = Math.round(playerAgility * (isBoss ? 0.50 : 0.34) * template.agility);
 
   const monster = {
     id: uid('monster'),
@@ -1450,17 +1777,24 @@ function createMonster(isBoss = false, specialBoss = false) {
     specialBoss,
     resist: template.resist || { physical: 1, magic: 1 },
 
-    maxHp: Math.round(base * template.hp * bossMultiplier * biomeScaling),
-    attack: Math.round((9 + level * 2.05 + effectiveStage * 0.28) * template.attack * bossMultiplier * biomeScaling),
-    defense: Math.round((3 + level * 0.9 + effectiveStage * 0.16) * template.defense * biomeScaling),
-    agility: Math.round((8 + level * 0.45 + effectiveStage * 0.07) * template.agility * biomeScaling),
+    maxHp: Math.round(baseHp * (1 - adaptation) + Math.max(baseHp, adaptiveHp) * adaptation),
+    attack: Math.min(
+      attackSoftCap,
+      Math.round(baseAttack * (1 - adaptation) + Math.max(baseAttack, adaptiveAttack) * adaptation)
+    ),
+    defense: Math.round(baseDefense * (1 - adaptation) + Math.max(baseDefense, adaptiveDefense) * adaptation),
+    agility: Math.round(baseAgility * (1 - adaptation) + Math.max(baseAgility, adaptiveAgility) * adaptation),
 
     xpReward: Math.round((45 + level * 18 + effectiveStage * 3) * (isBoss ? 2.6 : 1) * biomeScaling),
-    coinReward: Math.round((10 + level * 6 + effectiveStage * 1.7) * (isBoss ? 2.7 : 1) * biomeScaling),
+    coinReward: Math.round((18 + level * 8.5 + effectiveStage * 2.4) * (isBoss ? 3.2 : 1) * biomeScaling),
   };
 
   monster.hp = monster.maxHp;
-  return monster;
+  return applyMonsterBalanceModifiers(monster, {
+    stage: player.stage,
+    currentBiome,
+    enemyBiome,
+  });
 }
 
 function getShopItemPool() {
@@ -1488,11 +1822,82 @@ function getShopItemPool() {
     allowedIds.push('elixir');
   }
 
-  if (stage >= 35 || prestige >= 1) {
-    allowedIds.push('bossScroll');
-  }
+  // Boss especial não aparece mais na loja normal.
+  // Agora ele surge como Fenda Mítica rara após bosses comuns.
 
   return shopCatalog.filter((item) => allowedIds.includes(item.id));
+}
+
+function getTrainingScrollSkillPoints() {
+  const levelBonus = Math.floor((gameState.player.level || 1) / 40);
+  const stageBonus = Math.floor((gameState.player.stage || 1) / 250);
+
+  return clamp(1 + levelBonus + stageBonus, 1, 8);
+}
+
+function getShopItemWeight(item) {
+  const weights = {
+    potion: 18,
+    superPotion: 11,
+    elixir: gameState.player.stage >= 120 ? 2 : 1,
+    trainingScroll: 6,
+    furyPotion: 8,
+    stonePotion: 8,
+    windPotion: 8,
+    arcanePotion: 8,
+    arcaneBomb: 5,
+    bossScroll: 1,
+  };
+
+  return weights[item.id] || 5;
+}
+
+function getShopItemCostMultiplier(item) {
+  const powerMultipliers = {
+    potion: 0.75,
+    superPotion: 0.9,
+    elixir: 1.85,
+    trainingScroll: 1.05 + getTrainingScrollSkillPoints() * 0.12,
+    furyPotion: 0.95,
+    stonePotion: 0.9,
+    windPotion: 0.9,
+    arcanePotion: 0.95,
+    arcaneBomb: 1.05,
+    bossScroll: 2.4,
+  };
+
+  return powerMultipliers[item.id] || 1;
+}
+
+function pickWeightedShopItem(pool) {
+  const totalWeight = pool.reduce((sum, item) => sum + getShopItemWeight(item), 0);
+  let roll = Math.random() * totalWeight;
+
+  for (let index = 0; index < pool.length; index += 1) {
+    roll -= getShopItemWeight(pool[index]);
+
+    if (roll <= 0) {
+      return index;
+    }
+  }
+
+  return Math.max(0, pool.length - 1);
+}
+
+function getScaledShopItemCost(item) {
+  const stage = gameState.player.stage || 1;
+  const level = gameState.player.level || 1;
+
+  const progressScale =
+    1 +
+    stage * 0.055 +
+    level * 0.018 +
+    Math.pow(stage, 0.92) * 0.045;
+
+  return Math.max(
+    1,
+    Math.floor(item.cost * progressScale * getShopItemCostMultiplier(item))
+  );
 }
 
 function createShopItems() {
@@ -1501,9 +1906,9 @@ function createShopItems() {
   const items = [];
 
   while (items.length < amount && pool.length) {
-    const index = randomBetween(0, pool.length - 1);
+    const index = pickWeightedShopItem(pool);
     const item = { ...pool.splice(index, 1)[0] };
-    item.cost = Math.floor(item.cost * (1 + gameState.player.stage * 0.12 + gameState.player.level * 0.025));
+    item.cost = getScaledShopItemCost(item);
     items.push(item);
   }
 
@@ -1658,6 +2063,27 @@ function getAvailableGearNamesForStage(slot, stage = gameState.player.stage) {
   return availableNames.length ? availableNames : gearNames[slot] || ['Item'];
 }
 
+function getEquippedGearLevel(slot) {
+  const item = gameState.equipment?.[slot];
+  return Number(item?.level) || 0;
+}
+
+function getGearSlotCatchUpNeed(slot, stage = gameState.player.stage) {
+  const equippedLevel = getEquippedGearLevel(slot);
+
+  if (!equippedLevel) return 2.2;
+
+  const expectedLevel = Math.max(1, Math.round(stage * 0.72));
+  const gap = expectedLevel - equippedLevel;
+
+  if (gap >= 70) return 5.5;
+  if (gap >= 45) return 4.2;
+  if (gap >= 25) return 2.8;
+  if (gap >= 12) return 1.6;
+
+  return 1;
+}
+
 function getRandomGearSlotForBiome(biome) {
   const stage = gameState.player.stage || 1;
 
@@ -1677,54 +2103,446 @@ function getRandomGearSlotForBiome(biome) {
     getAvailableGearNamesForStage(slot, stage).length > 0
   );
 
-  return unlockedSlots[randomBetween(0, unlockedSlots.length - 1)];
+  const baseWeights = {
+    physicalWeapon: 2.2,
+    magicWeapon: 2,
+    spell: 1.6,
+    helmet: 1.15,
+    chest: 1.35,
+    boots: 1.1,
+    necklace: 0.9,
+    bracelet: 0.9,
+    ring: 0.9,
+  };
+
+  const preferredSlotByDrop = {
+    sword: 'physicalWeapon',
+    dagger: 'physicalWeapon',
+    hammer: 'physicalWeapon',
+    axe: 'physicalWeapon',
+    spear: 'physicalWeapon',
+    trident: 'physicalWeapon',
+    katana: 'physicalWeapon',
+    scythe: 'physicalWeapon',
+    saber: 'physicalWeapon',
+    staff: 'magicWeapon',
+    wand: 'magicWeapon',
+    orb: 'magicWeapon',
+    book: 'magicWeapon',
+    crystal: 'magicWeapon',
+    spell: 'spell',
+    helmet: 'helmet',
+    chest: 'chest',
+    boots: 'boots',
+    necklace: 'necklace',
+    bracelet: 'bracelet',
+    ring: 'ring',
+  };
+
+  const preferredSlots = new Set(
+    (biome?.preferredDrops || [])
+      .map((drop) => preferredSlotByDrop[drop])
+      .filter(Boolean)
+  );
+
+  const entries = unlockedSlots.map((slot) => {
+    let weight = baseWeights[slot] || 1;
+
+    if (preferredSlots.has(slot)) {
+      weight *= 1.55;
+    }
+
+    if (slot === 'physicalWeapon' || slot === 'magicWeapon' || slot === 'spell') {
+      weight *= getGearSlotCatchUpNeed(slot, stage);
+    }
+
+    return { slot, weight };
+  });
+
+  const totalWeight = entries.reduce((sum, entry) => sum + entry.weight, 0);
+  let roll = Math.random() * totalWeight;
+
+  for (const entry of entries) {
+    roll -= entry.weight;
+
+    if (roll <= 0) {
+      return entry.slot;
+    }
+  }
+
+  return entries[entries.length - 1]?.slot || unlockedSlots[0];
 }
 
-function createGear(monsterLevel, bossDrop = false) {
-  const rarity = bossDrop ? getBossRarity() : getRarity();
+const mythicGearNames = {
+  physicalWeapon: [
+    'Espada Corta-Mundo',
+    'Machado Quebra-Realidade',
+    'Lança do Último Céu',
+    'Foice do Eclipse',
+    'Katana da Fenda',
+  ],
+  magicWeapon: [
+    'Cajado da Tempestade Eterna',
+    'Orbe do Vazio Vivo',
+    'Tomo do Primeiro Arcano',
+    'Cristal do Cosmos Partido',
+    'Grimório das Mil Vozes',
+  ],
+  helmet: [
+    'Elmo da Imortalidade',
+    'Coroa do Rei Ausente',
+    'Máscara do Sem-Rosto',
+    'Capacete do Titã Celeste',
+    'Diadema da Aurora Morta',
+  ],
+  chest: [
+    'Couraça do Colosso Astral',
+    'Manto do Último Guardião',
+    'Peitoral do Dragão Primordial',
+    'Armadura da Noite Infinita',
+    'Cota do Juramento Antigo',
+  ],
+  boots: [
+    'Botas de Voo',
+    'Grevas do Relâmpago',
+    'Passos do Andarilho Eterno',
+    'Botas da Travessia Estelar',
+    'Grevas do Horizonte Partido',
+  ],
+  necklace: [
+    'Colar da Estrela Morta',
+    'Medalhão do Sol Negro',
+    'Amuleto do Coração Cósmico',
+    'Pingente da Lua Esquecida',
+    'Gargantilha do Destino Selado',
+  ],
+  bracelet: [
+    'Bracelete do Tempo Partido',
+    'Pulseira da Forja Eterna',
+    'Bracelete das Correntes Astrais',
+    'Pulseira do Juramento Rúnico',
+    'Algema do Rei Demônio',
+  ],
+  ring: [
+    'Anel do Rei Ausente',
+    'Anel do Eclipse Arcano',
+    'Anel da Segunda Alma',
+    'Anel do Olho Infinito',
+    'Anel da Coroa Quebrada',
+  ],
+  spell: [
+    'Chama Corta-Mundo',
+    'Raio do Deus Antigo',
+    'Vórtice do Fim',
+    'Tempestade de Mil Sóis',
+    'Julgamento do Vazio',
+  ],
+};
+
+function isMythicGear(item) {
+  return item?.rarity === 'mythic' || item?.mythic === true;
+}
+
+function getMythicGearName(slot) {
+  const names = mythicGearNames[slot] || gearNames[slot] || ['Artefato Mítico'];
+  return names[randomBetween(0, names.length - 1)];
+}
+
+function getWeakestGearSlotForMythic(stage = gameState.player.stage) {
+  const slots = [
+    'physicalWeapon',
+    'magicWeapon',
+    'spell',
+    'chest',
+    'helmet',
+    'boots',
+    'ring',
+    'necklace',
+    'bracelet',
+  ];
+
+  const expectedLevel = Math.max(1, Math.round(stage * 0.82));
+
+  return slots
+    .map((slot) => {
+      const current = gameState.equipment?.[slot];
+      const currentLevel = Number(current?.level) || 0;
+      const scorePenalty = current ? Math.max(0, expectedLevel - currentLevel) : expectedLevel * 1.25;
+      const combatWeight = ['physicalWeapon', 'magicWeapon', 'spell'].includes(slot) ? 1.35 : 1;
+
+      return {
+        slot,
+        weight: scorePenalty * combatWeight,
+      };
+    })
+    .sort((a, b) => b.weight - a.weight)[0]?.slot || 'physicalWeapon';
+}
+
+function getSpecialBossThematicSlots(monster) {
+  const name = monster?.name || '';
+
+  if (name.includes('Pergaminho') || name.includes('Oráculo')) return ['spell', 'magicWeapon', 'bracelet'];
+  if (name.includes('Relíquias') || name.includes('Caçador')) return ['ring', 'necklace', 'bracelet', 'boots'];
+  if (name.includes('Eco') || name.includes('Eclipse')) return [getWeakestGearSlotForMythic(), 'physicalWeapon', 'magicWeapon'];
+  if (name.includes('Ferreiro') || name.includes('Forja')) return ['physicalWeapon', 'chest', 'helmet'];
+  if (name.includes('Máquinas')) return ['chest', 'bracelet', 'physicalWeapon'];
+  if (name.includes('Serafim')) return ['boots', 'helmet', 'spell'];
+  if (name.includes('Vazio')) return ['magicWeapon', 'ring', 'spell'];
+
+  return [getWeakestGearSlotForMythic(), 'physicalWeapon', 'magicWeapon'];
+}
+
+function getSpecialBossMythicSlot(monster) {
+  if (randomBetween(1, 100) <= 55) {
+    return getWeakestGearSlotForMythic();
+  }
+
+  const slots = getSpecialBossThematicSlots(monster);
+  return slots[randomBetween(0, slots.length - 1)] || getWeakestGearSlotForMythic();
+}
+
+function applyMythicSpecialStats(stats, slot, baseName) {
+  if (slot === 'physicalWeapon') {
+    stats.doubleStrikeChance = randomBetween(7, 13);
+    stats.doubleStrikeDamagePercent = randomBetween(45, 70);
+  }
+
+  if (slot === 'magicWeapon' || slot === 'spell') {
+    stats.doubleMagicChance = randomBetween(7, 13);
+    stats.doubleMagicDamagePercent = randomBetween(45, 75);
+  }
+
+  if (slot === 'helmet') {
+    stats.deathWardChance = randomBetween(3, 7);
+    stats.maxHp = Math.round((stats.maxHp || 0) * 1.18);
+  }
+
+  if (slot === 'chest') {
+    stats.damageReductionPercent = randomBetween(4, 8);
+    stats.defense = Math.round((stats.defense || 0) * 1.14);
+  }
+
+  if (slot === 'boots') {
+    stats.firstStrikeChance = randomBetween(5, 10);
+    stats.agility = Math.round((stats.agility || 0) * 1.16);
+  }
+
+  if (slot === 'necklace') {
+    stats.xpPercent = Math.max(stats.xpPercent || 0, randomBetween(14, 24));
+    stats.mythicFindChance = randomBetween(2, 5);
+  }
+
+  if (slot === 'bracelet') {
+    stats.mythicForgePower = randomBetween(8, 16);
+  }
+
+  if (slot === 'ring') {
+    // O anel mítico é forte, mas não invalida os anéis especiais: ele mistura bônus médios,
+    // enquanto os anéis antigos continuam melhores quando o jogador quer um efeito focado.
+    stats.lifeStealChance = randomBetween(5, 8);
+    stats.precision = randomBetween(8, 14);
+    stats.bossDamagePercent = randomBetween(8, 16);
+  }
+
+  if (baseName.includes('Imortalidade')) {
+    stats.deathWardChance = Math.max(stats.deathWardChance || 0, 7);
+  }
+
+  if (baseName.includes('Voo')) {
+    stats.firstStrikeChance = Math.max(stats.firstStrikeChance || 0, 9);
+  }
+}
+
+function createMythicGear(monsterLevel, monster = null, forcedSlot = '') {
+  const slot = forcedSlot || getSpecialBossMythicSlot(monster);
+  return createGear(monsterLevel, true, {
+    rarityId: 'mythic',
+    slot,
+    mythic: true,
+  });
+}
+
+function getMythicRewardChoiceSlots(monster) {
+  const preferredSlots = [
+    getWeakestGearSlotForMythic(),
+    ...getSpecialBossThematicSlots(monster),
+    'physicalWeapon',
+    'magicWeapon',
+    'spell',
+    'chest',
+    'helmet',
+    'boots',
+    'ring',
+    'necklace',
+    'bracelet',
+  ];
+
+  return [...new Set(preferredSlots)].slice(0, 3);
+}
+
+function createMythicRewardChoices(monster, count = 3) {
+  const slots = getMythicRewardChoiceSlots(monster);
+  const choices = [];
+
+  while (choices.length < count) {
+    const slot = slots[choices.length] || getSpecialBossMythicSlot(monster);
+    choices.push(createMythicGear(monster.level, monster, slot));
+  }
+
+  return choices;
+}
+
+function getMythicDropChance(monster) {
+  const stage = gameState.player.stage || 1;
+  const pity = gameState.player.mythicPity || 0;
+  const luckBonus = getEquipmentBonus('mythicFindChance') || 0;
+
+  return clamp(
+    26 + Math.floor(stage / 120) * 2 + pity * 9 + luckBonus,
+    22,
+    62
+  );
+}
+
+function getSpecialBossMythicFragments(monster) {
+  const stageBonus = Math.floor((gameState.player.stage || 1) / 160);
+  const bossBonus = monster?.name?.includes('Relíquias') ? 1 : 0;
+
+  return clamp(randomBetween(1, 2) + stageBonus + bossBonus, 1, 6);
+}
+
+function addMythicFragments(amount) {
+  addConsumable('mythicFragment', amount);
+}
+
+function getMythicFragmentQuantity() {
+  return getConsumableQuantity('mythicFragment');
+}
+
+function getMythicUpgradeFragmentCost(item) {
+  if (!isMythicGear(item)) return 0;
+
+  const upgrades = Math.max(0, (item.level || 1) - (item.mythicBaseLevel || item.level || 1));
+  return clamp(1 + Math.floor(upgrades / 12), 1, 6);
+}
+
+function spendMythicFragments(amount) {
+  for (let i = 0; i < amount; i += 1) {
+    removeConsumable('mythicFragment');
+  }
+}
+
+function maybeAwardSpecialBossRewards(monster) {
+  if (!monster?.specialBoss) return;
+
+  gameState.player.specialBossesDefeated = (gameState.player.specialBossesDefeated || 0) + 1;
+  gameState.player.mythicPity = (gameState.player.mythicPity || 0) + 1;
+
+  const fragments = getSpecialBossMythicFragments(monster);
+  addMythicFragments(fragments);
+
+  const chance = getMythicDropChance(monster);
+  const guaranteed = gameState.player.mythicPity >= 4;
+  const droppedMythic = guaranteed || randomBetween(1, 100) <= chance;
+  const pityProgress = Math.min(gameState.player.mythicPity, 4);
+
+  log(
+    `${monster.name} deixou ${fragments} Fragmento(s) Mítico(s).`,
+    'reward',
+    true
+  );
+
+  if (!droppedMythic) {
+    log(
+      `Nenhum item Mítico apareceu desta vez. Chance atual: ${chance}%. Garantia: ${pityProgress}/4.`,
+      'system',
+      true
+    );
+
+    showAchievementNotice({
+      title: 'Boss especial derrotado',
+      subtitle: monster.name,
+      message: `Você recebeu +${fragments} Fragmento(s) Mítico(s). Nenhum item Mítico apareceu desta vez. Chance atual: ${chance}%. Garantia: ${pityProgress}/4.`,
+      type: 'fragment',
+    });
+    return;
+  }
+
+  const choices = createMythicRewardChoices(monster, 3);
+  gameState.player.mythicPity = 0;
+
+  log(
+    `RECOMPENSA MÍTICA: escolha 1 entre 3 itens Míticos deixados por ${monster.name}.`,
+    'reward',
+    true
+  );
+
+  showAchievementNotice({
+    title: 'Boss especial derrotado',
+    subtitle: monster.name,
+    message: `Você recebeu +${fragments} Fragmento(s) Mítico(s). Um item Mítico apareceu — escolha 1 entre 3 opções.`,
+    type: 'mythic',
+  });
+
+  openMythicChoiceModal(monster, choices);
+}
+
+function createGear(monsterLevel, bossDrop = false, options = {}) {
+  const rarity = options.rarityId
+    ? getRarityById(options.rarityId)
+    : bossDrop
+      ? getBossRarity()
+      : getRarity();
 
   const biome = getDungeonBiome(gameState.player.stage);
-  const slot = getRandomGearSlotForBiome(biome);
+  const slot = options.slot || getRandomGearSlotForBiome(biome);
   const namePool = getAvailableGearNamesForStage(slot, gameState.player.stage);
 
-  const baseName = namePool[randomBetween(0, namePool.length - 1)];
-  const level = Math.max(1, monsterLevel + randomBetween(-1, 2));
+  const isMythic = rarity.id === 'mythic' || options.mythic === true;
+  const baseName = isMythic
+    ? getMythicGearName(slot)
+    : namePool[randomBetween(0, namePool.length - 1)];
+
+  const stageTargetLevel = Math.round((gameState.player.stage || 1) * (isMythic ? 0.92 : 0.78));
+  const heroTargetLevel = Math.round((gameState.player.level || 1) * (isMythic ? 1.18 : 1.06));
+  const catchUpTargetLevel = Math.max(monsterLevel, stageTargetLevel, heroTargetLevel);
+  const level = Math.max(1, catchUpTargetLevel + randomBetween(isMythic ? 6 : bossDrop ? 0 : -2, isMythic ? 14 : bossDrop ? 5 : 3));
   const power = Math.max(1, Math.round((level + 3) * rarity.multiplier));
 
   const stats = {};
 
   if (slot === 'physicalWeapon') {
-    stats.attack = Math.max(2, Math.round(power * 1.5));
+    stats.attack = Math.max(2, Math.round(power * (isMythic ? 1.72 : 1.5)));
 
-    if (rarity.id === 'epic' || rarity.id === 'legendary') {
-      stats.critChance = randomBetween(3, 8);
+    if (rarity.id === 'epic' || rarity.id === 'legendary' || rarity.id === 'mythic') {
+      stats.critChance = randomBetween(isMythic ? 6 : 3, isMythic ? 12 : 8);
     }
   }
 
   if (slot === 'magicWeapon') {
-    stats.magic = Math.max(2, Math.round(power * 1.5));
-    stats.magicChance = randomBetween(2, 6);
+    stats.magic = Math.max(2, Math.round(power * (isMythic ? 1.72 : 1.5)));
+    stats.magicChance = randomBetween(isMythic ? 5 : 2, isMythic ? 10 : 6);
 
-    if (rarity.id === 'epic' || rarity.id === 'legendary') {
-      stats.magicDamagePercent = randomBetween(6, 16);
+    if (rarity.id === 'epic' || rarity.id === 'legendary' || rarity.id === 'mythic') {
+      stats.magicDamagePercent = randomBetween(isMythic ? 14 : 6, isMythic ? 26 : 16);
     }
   }
 
   if (slot === 'helmet') {
-    stats.maxHp = Math.max(14, Math.round(power * 5.2));
+    stats.maxHp = Math.max(14, Math.round(power * (isMythic ? 6.4 : 5.2)));
   }
 
   if (slot === 'chest') {
-    stats.defense = Math.max(2, Math.round(power * 1.25));
-    stats.maxHp = Math.max(8, Math.round(power * 2.5));
+    stats.defense = Math.max(2, Math.round(power * (isMythic ? 1.45 : 1.25)));
+    stats.maxHp = Math.max(8, Math.round(power * (isMythic ? 3.1 : 2.5)));
   }
 
   if (slot === 'boots') {
-    stats.agility = Math.max(2, Math.round(power * 1));
+    stats.agility = Math.max(2, Math.round(power * (isMythic ? 1.22 : 1)));
   }
 
   if (slot === 'necklace') {
-    stats.xpPercent = randomBetween(4, 12);
+    stats.xpPercent = randomBetween(isMythic ? 14 : 4, isMythic ? 24 : 12);
   }
 
   if (slot === 'bracelet') {
@@ -1732,30 +2550,40 @@ function createGear(monsterLevel, bossDrop = false) {
     const chosen = possibleStats[randomBetween(0, possibleStats.length - 1)];
 
     if (chosen === 'maxHp') {
-      stats[chosen] = Math.max(10, Math.round(power * 4));
+      stats[chosen] = Math.max(10, Math.round(power * (isMythic ? 5 : 4)));
     } else {
-      stats[chosen] = Math.max(2, Math.round(power * 1.1));
+      stats[chosen] = Math.max(2, Math.round(power * (isMythic ? 1.35 : 1.1)));
     }
   }
 
   if (slot === 'ring') {
-    applyRingSpecialStats(stats, baseName, rarity.id);
+    if (isMythic) {
+      stats.precision = randomBetween(10, 16);
+    } else {
+      applyRingSpecialStats(stats, baseName, rarity.id);
+    }
   }
 
   if (slot === 'spell') {
-    stats.magic = Math.max(2, Math.round(power * 1.2));
-    stats.magicChance = randomBetween(4, 10);
-    stats.magicDamagePercent = randomBetween(5, 18);
+    stats.magic = Math.max(2, Math.round(power * (isMythic ? 1.45 : 1.2)));
+    stats.magicChance = randomBetween(isMythic ? 8 : 4, isMythic ? 14 : 10);
+    stats.magicDamagePercent = randomBetween(isMythic ? 18 : 5, isMythic ? 32 : 18);
+  }
+
+  if (isMythic) {
+    applyMythicSpecialStats(stats, slot, baseName);
   }
 
   return {
-    uid: uid('gear'),
-    name: `${baseName} ${rarity.name}`,
+    uid: uid(isMythic ? 'mythic' : 'gear'),
+    name: isMythic ? baseName : `${baseName} ${rarity.name}`,
     slot,
     rarity: rarity.id,
     level,
+    mythic: isMythic,
+    mythicBaseLevel: isMythic ? level : undefined,
     stats,
-    value: Math.max(12, Math.round(power * 6)),
+    value: Math.max(12, Math.round(power * (isMythic ? 14 : 6))),
   };
 }
 
@@ -1797,7 +2625,16 @@ function getGearScore(item) {
     (item.stats.precision || 0) * 1.8 +
     (item.stats.magicEchoChance || 0) * 2.1 +
     (item.stats.magicEchoDamagePercent || 0) * 1.2 +
-    (item.stats.bossDamagePercent || 0) * 1.7
+    (item.stats.bossDamagePercent || 0) * 1.7 +
+    (item.stats.doubleStrikeChance || 0) * 2.5 +
+    (item.stats.doubleStrikeDamagePercent || 0) * 1.3 +
+    (item.stats.doubleMagicChance || 0) * 2.6 +
+    (item.stats.doubleMagicDamagePercent || 0) * 1.35 +
+    (item.stats.deathWardChance || 0) * 2.4 +
+    (item.stats.damageReductionPercent || 0) * 2.1 +
+    (item.stats.firstStrikeChance || 0) * 1.8 +
+    (item.stats.mythicFindChance || 0) * 3 +
+    (item.stats.mythicForgePower || 0) * 2
   );
 }
 
@@ -1808,6 +2645,7 @@ function getRarityCostMultiplier(rarityId) {
     rare: 1.9,
     epic: 2.8,
     legendary: 4,
+    mythic: 4.85,
   };
 
   return multipliers[rarityId] || 1;
@@ -1826,9 +2664,10 @@ function getForgePower(item) {
   const bossBonus = Math.floor(bosses / 10) * 0.10;
   const prestigeBonus = prestigeCount * 0.08;
   const itemLevelBonus = Math.floor(itemLevel / 10) * 0.06;
+  const mythicForgeBonus = (getEquipmentBonus('mythicForgePower') || 0) / 100;
 
   return clamp(
-    1 + stageBonus + bossBonus + prestigeBonus + itemLevelBonus,
+    1 + stageBonus + bossBonus + prestigeBonus + itemLevelBonus + mythicForgeBonus,
     1,
     5
   );
@@ -1840,16 +2679,26 @@ function getGearUpgradeCost(item) {
   const rarityMultiplier = getRarityCostMultiplier(item.rarity);
   const level = item.level || 1;
 
-  const prestigeDiscount = Math.min(0.28, (gameState.prestige.count || 0) * 0.025);
-  const bossDiscount = Math.min(0.22, Math.floor((gameState.player.bossesDefeated || 0) / 20) * 0.025);
+  const prestigeDiscount = Math.min(0.20, (gameState.prestige.count || 0) * 0.018);
+  const bossDiscount = Math.min(0.16, Math.floor((gameState.player.bossesDefeated || 0) / 20) * 0.018);
   const discountMultiplier = 1 - prestigeDiscount - bossDiscount;
 
-  const baseCost = 80 + level * 24 + Math.pow(level, 1.12) * 6;
-
-  return Math.max(
-    25,
-    Math.round(baseCost * rarityMultiplier * discountMultiplier)
+  const itemPower = Math.max(1, getGearScore(item));
+  const stageFactor = 1 + Math.min(3.2, (gameState.player.stage || 1) / 180);
+  const baseCost = 95 + level * 38 + Math.pow(level, 1.18) * 12 + itemPower * (5.2 + level * 0.32);
+  const normalCost = Math.max(
+    35,
+    Math.round(baseCost * rarityMultiplier * stageFactor * discountMultiplier)
   );
+
+  if (isMythicGear(item)) {
+    return Math.max(
+      120,
+      Math.round(normalCost * (gameConfig.mythicUpgradeCoinCostMultiplier || 0.25))
+    );
+  }
+
+  return normalCost;
 }
 
 function getStatUpgradeAmount(stat, item) {
@@ -1911,6 +2760,16 @@ function getStatUpgradeAmount(stat, item) {
 
   if (stat === 'bossDamagePercent') return 2;
 
+  if (stat === 'doubleStrikeChance') return 1;
+  if (stat === 'doubleStrikeDamagePercent') return 2;
+  if (stat === 'doubleMagicChance') return 1;
+  if (stat === 'doubleMagicDamagePercent') return 2;
+  if (stat === 'deathWardChance') return 1;
+  if (stat === 'damageReductionPercent') return 1;
+  if (stat === 'firstStrikeChance') return 1;
+  if (stat === 'mythicFindChance') return 1;
+  if (stat === 'mythicForgePower') return 2;
+
   if (stat === 'xpPercent') return 1;
   if (stat === 'magicChance') return 1;
   if (stat === 'magicDamagePercent') return 2;
@@ -1919,6 +2778,52 @@ function getStatUpgradeAmount(stat, item) {
     1,
     Math.round(rarity.multiplier * forgePower)
   );
+}
+
+
+function getMythicUpgradeGainMultiplier(stat) {
+  const mainStats = ['attack', 'magic'];
+  const survivalStats = ['defense', 'maxHp'];
+  const speedStats = ['agility'];
+  const damagePercentStats = [
+    'magicDamagePercent',
+    'bossDamagePercent',
+    'doubleStrikeDamagePercent',
+    'doubleMagicDamagePercent',
+    'damageReductionPercent',
+  ];
+  const specialChanceStats = [
+    'critChance',
+    'magicChance',
+    'lifeStealChance',
+    'lifeStealAmountPercent',
+    'furyPower',
+    'precision',
+    'magicEchoChance',
+    'magicEchoDamagePercent',
+    'doubleStrikeChance',
+    'doubleMagicChance',
+    'deathWardChance',
+    'firstStrikeChance',
+    'mythicFindChance',
+    'mythicForgePower',
+    'xpPercent',
+  ];
+
+  if (mainStats.includes(stat)) return 3.15;
+  if (survivalStats.includes(stat)) return 2.75;
+  if (speedStats.includes(stat)) return 2.35;
+  if (damagePercentStats.includes(stat)) return 1.8;
+  if (specialChanceStats.includes(stat)) return 1.25;
+
+  return 2.2;
+}
+
+function applyMythicUpgradeGain(stat, amount, item) {
+  if (!isMythicGear(item)) return amount;
+
+  const multiplier = getMythicUpgradeGainMultiplier(stat);
+  return Math.max(amount + 1, Math.round(amount * multiplier));
 }
 
 function getForgeUpgradeGains(item) {
@@ -1930,7 +2835,7 @@ function getForgeUpgradeGains(item) {
   const gains = {};
 
   Object.keys(item.stats || {}).forEach((stat) => {
-    gains[stat] = getStatUpgradeAmount(stat, previewItem);
+    gains[stat] = applyMythicUpgradeGain(stat, getStatUpgradeAmount(stat, previewItem), item);
   });
 
   return gains;
@@ -1950,15 +2855,30 @@ function upgradeEquippedGear(slot) {
   }
 
   const cost = getGearUpgradeCost(equippedItem);
+  const fragmentCost = getMythicUpgradeFragmentCost(equippedItem);
 
   if (gameState.player.coins < cost) {
-    log(`Moedas insuficientes. Você precisa de ${cost} moedas para melhorar este equipamento.`, 'shop', true);
+    log(`Saldo insuficiente. Você precisa de ${formatMoney(cost)} para melhorar este equipamento.`, 'shop', true);
+    return;
+  }
+
+  if (fragmentCost > 0 && getMythicFragmentQuantity() < fragmentCost) {
+    log(
+      `Este item Mítico precisa de ${fragmentCost} Fragmento(s) Mítico(s) para ser melhorado. Você tem ${getMythicFragmentQuantity()}.`,
+      'shop',
+      true
+    );
     return;
   }
 
   const item = gameState.inventory.gear.find((gear) => gear.uid === equippedItem.uid) || equippedItem;
 
   gameState.player.coins -= cost;
+
+  if (fragmentCost > 0) {
+    spendMythicFragments(fragmentCost);
+  }
+
   item.level += 1;
 
   const gains = getForgeUpgradeGains(item);
@@ -1969,11 +2889,13 @@ function upgradeEquippedGear(slot) {
 
   normalizeSpecialGearStats(item);
 
-  item.value += Math.round(cost * 0.35);
+  item.value += Math.round(cost * (isMythicGear(item) ? 0.55 : 0.35));
   gameState.equipment[slot] = item;
 
+  const fragmentText = fragmentCost > 0 ? ` e ${fragmentCost} Fragmento(s) Mítico(s)` : '';
+
   log(
-    `Forja concluída! ${formatGearName(item)} subiu para o nível ${item.level}. Ganhos: ${formatStats(gains)}.`,
+    `Forja concluída! ${formatGearName(item)} subiu para o nível ${item.level} usando ${formatMoney(cost)}${fragmentText}. Ganhos: ${formatStats(gains)}.`,
     'equip',
     true
   );
@@ -2073,6 +2995,7 @@ function autoUseEmergencyHealing() {
   removeConsumable(itemId);
 
   const healed = gameState.player.hp - hpBefore;
+  showHeroPotionVisual(item, item.shopName || item.name);
 
   log(
     `Uso automático: ${item.name} ativada e recuperou ${healed} HP.`,
@@ -2081,6 +3004,123 @@ function autoUseEmergencyHealing() {
   );
 
   return true;
+}
+
+
+function getBuffAutoUseItemId(key) {
+  const map = {
+    fury: 'furyPotion',
+    stone: 'stonePotion',
+    wind: 'windPotion',
+    arcane: 'arcanePotion',
+  };
+
+  return map[key] || '';
+}
+
+function getConsumableVisualColor(item) {
+  const colors = {
+    potion: 'rgba(99, 220, 145, 0.96)',
+    superPotion: 'rgba(255, 116, 166, 0.96)',
+    elixir: 'rgba(247, 201, 85, 0.98)',
+    furyPotion: 'rgba(255, 138, 53, 0.98)',
+    stonePotion: 'rgba(180, 170, 150, 0.96)',
+    windPotion: 'rgba(110, 225, 255, 0.96)',
+    arcanePotion: 'rgba(155, 119, 255, 0.98)',
+    arcaneBomb: 'rgba(255, 93, 103, 0.98)',
+  };
+
+  return colors[item?.id] || 'rgba(155, 119, 255, 0.98)';
+}
+
+function showHeroPotionVisual(item, label = '') {
+  const heroCard = document.querySelector('.hero-card');
+  if (!heroCard || !item) return;
+
+  const runPotionVisual = () => {
+    const color = getConsumableVisualColor(item);
+    heroCard.style.setProperty('--potion-color', color);
+    heroCard.style.setProperty('--potion-color-soft', color.replace('0.98', '0.24').replace('0.96', '0.24'));
+
+    if (typeof pulseCombatCard === 'function') {
+      pulseCombatCard(heroCard, 'combat-card-potion', 900);
+    }
+
+    const center = getCombatTargetCenter(heroCard);
+    const visual = document.createElement('div');
+    visual.className = 'potion-use-indicator-screen';
+    visual.style.setProperty('--potion-x', `${center.x}px`);
+    visual.style.setProperty('--potion-y', `${center.y}px`);
+    visual.style.setProperty('--potion-color', color);
+
+    const safeLabel = escapeAttr(label || item.name || 'Poção');
+    visual.innerHTML = item.image
+      ? `
+        <img src="${escapeAttr(item.image)}" alt="${safeLabel}" loading="lazy" decoding="async" onerror="this.hidden=true; this.nextElementSibling.hidden=false;" />
+        <span hidden>${item.icon || '🧪'}</span>
+        <strong>${safeLabel}</strong>
+      `
+      : `<span>${item.icon || '🧪'}</span><strong>${safeLabel}</strong>`;
+
+    document.body.appendChild(visual);
+    setTimeout(() => visual.remove(), 2000);
+  };
+
+  queueCardEffect(heroCard, runPotionVisual, 2000, 120);
+}
+
+function showLifeStealVisual(amount) {
+  const heroCard = document.querySelector('.hero-card');
+  if (!heroCard) return;
+
+  const runLifeStealVisual = () => {
+    if (typeof pulseCombatCard === 'function') {
+      pulseCombatCard(heroCard, 'combat-card-heal', 780);
+    }
+
+    const center = getCombatTargetCenter(heroCard);
+    const visual = document.createElement('div');
+    visual.className = 'life-steal-indicator-screen';
+    visual.style.setProperty('--life-x', `${center.x}px`);
+    visual.style.setProperty('--life-y', `${center.y}px`);
+    visual.innerHTML = `<span>💚</span><strong>+${amount} HP</strong><small>Roubo de vida</small>`;
+
+    document.body.appendChild(visual);
+    setTimeout(() => visual.remove(), 2000);
+  };
+
+  queueCardEffect(heroCard, runLifeStealVisual, 2000, 120);
+}
+
+function tryUseAutoBuffPotion(key, reason = 'auto') {
+  if (key === 'heal') return false;
+  if (!gameState.ui?.autoUse?.[key]) return false;
+
+  const itemId = getBuffAutoUseItemId(key);
+  if (!itemId || getConsumableQuantity(itemId) <= 0) return false;
+
+  const item = shopCatalog.find((catalogItem) => catalogItem.id === itemId);
+  if (!item || item.type !== 'buff') return false;
+
+  if ((gameState.player.buffs?.[item.buff] || 0) > 0) return false;
+
+  gameState.player.buffs[item.buff] = item.duration || 5;
+  removeConsumable(itemId);
+  showHeroPotionVisual(item, item.shopName || item.name);
+
+  log(
+    `${reason === 'toggle' ? 'Automação ativada' : 'Automação'}: ${item.name} usada por ${item.duration || 5} lutas.`,
+    'shop',
+    true
+  );
+
+  return true;
+}
+
+function refreshAutoBuffPotions() {
+  ['fury', 'stone', 'wind', 'arcane'].forEach((key) => {
+    tryUseAutoBuffPotion(key, 'auto');
+  });
 }
 
 function getRandomConsumableDrop(monster) {
@@ -2136,6 +3176,15 @@ function formatStats(stats) {
     magicEchoChance: 'Chance de Eco Arcano',
     magicEchoDamagePercent: 'Dano do Eco Arcano',
     bossDamagePercent: 'Dano contra Boss',
+    doubleStrikeChance: 'Chance de Golpe Duplo',
+    doubleStrikeDamagePercent: 'Dano do Golpe Duplo',
+    doubleMagicChance: 'Chance de Magia Dupla',
+    doubleMagicDamagePercent: 'Dano da Magia Dupla',
+    deathWardChance: 'Proteção contra Morte',
+    damageReductionPercent: 'Redução de Dano',
+    firstStrikeChance: 'Iniciativa',
+    mythicFindChance: 'Achado Mítico',
+    mythicForgePower: 'Forja Mítica',
   };
 
   const percentStats = [
@@ -2149,6 +3198,15 @@ function formatStats(stats) {
     'magicEchoChance',
     'magicEchoDamagePercent',
     'bossDamagePercent',
+    'doubleStrikeChance',
+    'doubleStrikeDamagePercent',
+    'doubleMagicChance',
+    'doubleMagicDamagePercent',
+    'deathWardChance',
+    'damageReductionPercent',
+    'firstStrikeChance',
+    'mythicFindChance',
+    'mythicForgePower',
   ];
 
   return Object.entries(stats)
@@ -2156,9 +3214,52 @@ function formatStats(stats) {
       const label = labels[key] || key;
       const suffix = percentStats.includes(key) ? '%' : '';
 
-      return `+${value}${suffix} ${label}`;
+      const formattedValue = percentStats.includes(key)
+        ? formatCompactNumber(value, 1)
+        : formatCompactNumber(value);
+
+      return `+${formattedValue}${suffix} ${label}`;
     })
+
     .join(' • ');
+}
+
+function getMythicSpecialEffectSummary(item) {
+  const stats = item?.stats || {};
+
+  if (stats.doubleStrikeChance) {
+    return `Golpe Duplo: ${formatCompactNumber(stats.doubleStrikeChance, 1)}% de chance de causar outro golpe com ${formatCompactNumber(stats.doubleStrikeDamagePercent || 50, 1)}% do dano.`;
+  }
+
+  if (stats.doubleMagicChance) {
+    return `Magia Dupla: ${formatCompactNumber(stats.doubleMagicChance, 1)}% de chance de repetir magia com ${formatCompactNumber(stats.doubleMagicDamagePercent || 50, 1)}% do dano.`;
+  }
+
+  if (stats.deathWardChance) {
+    return `Proteção contra Morte: ${formatCompactNumber(stats.deathWardChance, 1)}% de chance de salvar o herói de uma queda fatal.`;
+  }
+
+  if (stats.damageReductionPercent) {
+    return `Redução de Dano: diminui ${formatCompactNumber(stats.damageReductionPercent, 1)}% do dano recebido.`;
+  }
+
+  if (stats.firstStrikeChance) {
+    return `Iniciativa: ${formatCompactNumber(stats.firstStrikeChance, 1)}% de chance de agir antes do inimigo.`;
+  }
+
+  if (stats.mythicFindChance) {
+    return `Achado Mítico: +${formatCompactNumber(stats.mythicFindChance, 1)}% de chance de encontrar itens míticos.`;
+  }
+
+  if (stats.mythicForgePower) {
+    return `Forja Mítica: +${formatCompactNumber(stats.mythicForgePower, 1)}% de força ao melhorar equipamentos míticos.`;
+  }
+
+  if (stats.lifeStealChance || stats.precision || stats.bossDamagePercent) {
+    return 'Anel Mítico: combina roubo de vida, precisão e dano contra bosses.';
+  }
+
+  return 'Poder Mítico: efeito raro exclusivo de boss especial.';
 }
 
 function escapeAttr(value) {
@@ -2309,7 +3410,7 @@ function applySpellGlow(card, visualInfo, className) {
 
   setTimeout(() => {
     card.classList.remove(className);
-  }, 900);
+  }, 1300);
 }
 
 function showSpellImpact(damage = 0) {
@@ -2321,44 +3422,50 @@ function showSpellImpact(damage = 0) {
   const visualInfo = getSpellVisualInfo(spellItem);
   const imagePath = getGearImagePath(spellItem);
   const spellName = escapeAttr(getSpellBaseName(spellItem) || spellItem.name || 'Magia');
-  const cardRect = monsterCard.getBoundingClientRect();
 
-  // O brilho continua no card inteiro, mas a imagem da magia fica fora do fluxo do card.
-  // Assim a animação não aumenta a altura do card nem cria espaço vazio no final.
-  applySpellGlow(monsterCard, visualInfo, 'spell-target-glow');
+  const runSpellVisual = () => {
+    const cardRect = monsterCard.getBoundingClientRect();
 
-  // Remove ícones genéricos de combate para a magia não aparecer junto com espada/raio/etc.
-  monsterCard.querySelectorAll('.combat-indicator, .spell-impact').forEach((entry) => entry.remove());
-  document.querySelectorAll('.spell-impact-screen').forEach((entry) => entry.remove());
-  document
-    .querySelectorAll('.combat-indicator-screen[data-target-side="monster"]')
-    .forEach((entry) => entry.remove());
+    // O brilho continua no card inteiro, mas a imagem da magia fica fora do fluxo do card.
+    // Assim a animação não aumenta a altura do card nem cria espaço vazio no final.
+    applySpellGlow(monsterCard, visualInfo, 'spell-target-glow');
+    pulseCombatCard(monsterCard, 'combat-card-magic', 820);
 
-  const impact = document.createElement('div');
-  impact.className = `spell-impact-screen spell-impact-${visualInfo.className}`;
-  impact.style.setProperty('--spell-color', visualInfo.color);
-  impact.style.setProperty('--spell-color-soft', visualInfo.softColor);
-  impact.style.setProperty('--spell-x', `${cardRect.left + cardRect.width / 2}px`);
-  impact.style.setProperty('--spell-y', `${cardRect.top + cardRect.height * 0.46}px`);
+    // Remove ícones genéricos de combate para a magia não aparecer junto com espada/raio/etc.
+    monsterCard.querySelectorAll('.combat-indicator, .spell-impact').forEach((entry) => entry.remove());
+    document.querySelectorAll('.spell-impact-screen').forEach((entry) => entry.remove());
+    document
+      .querySelectorAll('.combat-indicator-screen[data-target-side="monster"]')
+      .forEach((entry) => entry.remove());
 
-  impact.innerHTML = imagePath
-    ? `
-      <img
-        src="${escapeAttr(imagePath)}"
-        alt="${spellName}"
-        loading="lazy"
-        decoding="async"
-        onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
-      />
-      <span hidden>${visualInfo.emoji}</span>
-    `
-    : `<span>${visualInfo.emoji}</span>`;
+    const impact = document.createElement('div');
+    impact.className = `spell-impact-screen spell-impact-${visualInfo.className}`;
+    impact.style.setProperty('--spell-color', visualInfo.color);
+    impact.style.setProperty('--spell-color-soft', visualInfo.softColor);
+    impact.style.setProperty('--spell-x', `${cardRect.left + cardRect.width / 2}px`);
+    impact.style.setProperty('--spell-y', `${cardRect.top + cardRect.height * 0.46}px`);
 
-  document.body.appendChild(impact);
+    impact.innerHTML = imagePath
+      ? `
+        <img
+          src="${escapeAttr(imagePath)}"
+          alt="${spellName}"
+          loading="lazy"
+          decoding="async"
+          onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+        />
+        <span hidden>${visualInfo.emoji}</span>
+      `
+      : `<span>${visualInfo.emoji}</span>`;
 
-  setTimeout(() => {
-    impact.remove();
-  }, 920);
+    document.body.appendChild(impact);
+
+    setTimeout(() => {
+      impact.remove();
+    }, 2000);
+  };
+
+  queueCardEffect(monsterCard, runSpellVisual, 2000, 120);
 }
 
 function itemImageTag(item) {
@@ -2400,7 +3507,8 @@ function getConsumableTooltip(item) {
   }
 
   if (item.type === 'skillPoint') {
-    return `${item.name}: concede +1 ponto de habilidade.`;
+    const points = getTrainingScrollSkillPoints();
+    return `${item.name}: concede +${points} ponto(s) de habilidade no seu nível atual.`;
   }
 
   if (item.type === 'buff') {
@@ -2411,8 +3519,16 @@ function getConsumableTooltip(item) {
     return `${item.name}: causa dano imediato no monstro atual.`;
   }
 
+  if (item.type === 'material') {
+    log(`${item.name} é material de melhoria e não pode ser usado diretamente.`, 'system', true);
+  }
+
   if (item.type === 'specialBoss') {
     return `${item.name}: invoca um boss especial.`;
+  }
+
+  if (item.type === 'material') {
+    return `${item.name}: ${item.description}`;
   }
 
   return item.description || 'Item consumível.';
@@ -2427,7 +3543,10 @@ Tipo: ${slot}
 Raridade: ${rarity.name}
 Nível: ${item.level}
 Efeito: ${formatStats(item.stats)}
-Valor de venda: ${item.value} moedas`;
+Valor de venda: ${formatMoneyText(item.value)}${isMythicGear(item) ? `
+Melhoria mítica: +1 nível, ganhos de status maiores.
+Custo atual: ${formatMoneyText(getGearUpgradeCost(item))} + ${getMythicUpgradeFragmentCost(item)} Fragmento(s) Mítico(s).
+Você tem: ${getMythicFragmentQuantity()} Fragmento(s).` : ''}`;
 }
 
 function formatGearName(item) {
@@ -2444,6 +3563,7 @@ function saveGame() {
     prestige: gameState.prestige,
     monster: gameState.monster,
     shop: gameState.shop,
+    mythicRift: gameState.mythicRift,
     inventory: gameState.inventory,
     equipment: gameState.equipment,
     currentTurn: gameState.currentTurn,
@@ -2469,7 +3589,7 @@ function getSavedLastSaveAt() {
 }
 
 function resumeOfflineProgressIfNeeded() {
-  const lastSaveAt = getSavedLastSaveAt();
+  const lastSaveAt = getSavedLastSaveAt() || gameState.lastSaveAt;
   const progressed = applyOfflineProgress(lastSaveAt);
 
   if (progressed) {
@@ -2491,6 +3611,13 @@ function loadGame() {
     gameState.player.magicChance ??= 18;
     gameState.player.activeWeaponSlot ??= 'physicalWeapon';
     gameState.player.monstersSinceBoss ??= 0;
+    gameState.player.specialBossesDefeated ??= 0;
+    gameState.player.mythicPity ??= 0;
+    gameState.player.bossesSinceMythicRift ??= 0;
+    gameState.player.recoveryGrace = {
+      ...initialState.player.recoveryGrace,
+      ...(gameState.player.recoveryGrace || {}),
+    };
     gameState.player.buffs ??= { fury: 0, stone: 0, wind: 0, arcane: 0 };
     gameState.player.buffs.arcane ??= 0;
 
@@ -2506,6 +3633,10 @@ function loadGame() {
     gameState.monster = saved.monster || null;
     gameState.shop = saved.shop || structuredCloneSafe(initialState.shop);
     gameState.shop.encountersLeft = gameState.shop.encountersLeft || 0;
+    gameState.mythicRift = {
+      ...structuredCloneSafe(initialState.mythicRift),
+      ...(saved.mythicRift || {}),
+    };
     gameState.inventory = saved.inventory || structuredCloneSafe(initialState.inventory);
     const savedEquipment = saved.equipment || {};
     gameState.ui = {
@@ -2519,6 +3650,7 @@ function loadGame() {
         ...initialState.ui.appliedStats,
         ...(saved.ui?.appliedStats || {}),
       },
+      skillBalanceVersion: saved.ui?.skillBalanceVersion || 0,
     };
 
     gameState.equipment = structuredCloneSafe(initialState.equipment);
@@ -2537,7 +3669,9 @@ function loadGame() {
     gameState.activeInventoryTab = saved.activeInventoryTab || 'items';
     gameState.lastSaveAt = saved.lastSaveAt || Date.now();
 
+    rebalanceAppliedSkillStatsIfNeeded();
     normalizeProgressionAfterBalance(true);
+    ensureMythicRiftState();
 
     normalizePlayerHp();
     applyOfflineProgress(saved.lastSaveAt);
@@ -2613,12 +3747,12 @@ function applyOfflineProgress(lastSaveAt) {
   };
 
   elements.offlineMessage.textContent =
-    `Offline: +${xpGained} XP, +${coinsGained} moedas e ${report.monstersDefeated} monstros derrotados.`;
+    `Offline: +${formatCompactNumber(xpGained)} XP, ${formatSignedMoneyText(coinsGained)} e ${formatCompactNumber(report.monstersDefeated)} monstros derrotados.`;
 
   showOfflineModal(finalReport);
 
   log(
-    `Progresso offline: +${xpGained} XP, +${coinsGained} moedas e ${report.monstersDefeated} monstros derrotados.`,
+    `Progresso offline: +${formatCompactNumber(xpGained)} XP, +${formatMoney(coinsGained)} e ${formatCompactNumber(report.monstersDefeated)} monstros derrotados.`,
     'offline',
     true
   );
@@ -2633,18 +3767,22 @@ function calculateOfflineProgress(minutes) {
   const power = Math.max(1, getPlayerPower());
   const dungeonDifficulty = Math.max(60, 70 + player.stage * 24 + player.level * 7);
 
-  const efficiency = clamp(power / dungeonDifficulty, 0.45, 3.25);
+  const efficiency = clamp(power / dungeonDifficulty, 0.35, 1.25);
   const offlineMultiplier = typeof getTotalOfflineMultiplier === 'function'
-    ? getTotalOfflineMultiplier()
+    ? clamp(getTotalOfflineMultiplier(), 0.7, 1.8)
     : 1;
 
   const estimatedBattles = Math.floor(
     ((minutes * 60) / gameConfig.offlineBattleSeconds) * efficiency * offlineMultiplier
   );
 
-  const monstersDefeated = Math.max(1, estimatedBattles);
+  const monstersDefeated = clamp(
+    Math.max(1, estimatedBattles),
+    1,
+    gameConfig.offlineMaxBattles || 70
+  );
 
-  const bossesDefeated = Math.min(10, Math.floor(monstersDefeated / getMandatoryBossTarget()));
+  const bossesDefeated = Math.min(5, Math.floor(monstersDefeated / getMandatoryBossTarget()));
   const stageGainPerBoss = getPrestigeCatchUpStageGain();
   const stagesGained = bossesDefeated * stageGainPerBoss;
 
@@ -2657,12 +3795,14 @@ function calculateOfflineProgress(minutes) {
   const baseBossXp = baseMonsterXp * 2.2;
   const baseBossCoins = baseMonsterCoins * 2.4;
 
+  const offlineRewardRate = gameConfig.offlineRewardRate || 0.45;
+
   const baseXp = Math.floor(
-    monstersDefeated * baseMonsterXp + bossesDefeated * baseBossXp
+    (monstersDefeated * baseMonsterXp + bossesDefeated * baseBossXp) * offlineRewardRate
   );
 
   const baseCoins = Math.floor(
-    monstersDefeated * baseMonsterCoins + bossesDefeated * baseBossCoins
+    (monstersDefeated * baseMonsterCoins + bossesDefeated * baseBossCoins) * offlineRewardRate
   );
 
   const dropBonus = typeof getTotalDropBonus === 'function'
@@ -2670,12 +3810,12 @@ function calculateOfflineProgress(minutes) {
     : 0;
 
   const dropChance = clamp(
-    28 + Math.min(18, player.stage * 2) + dropBonus,
-    5,
-    80
+    14 + Math.min(10, player.stage) + dropBonus * 0.7,
+    4,
+    42
   );
 
-  const expectedDrops = Math.floor(monstersDefeated * (dropChance / 100));
+  const expectedDrops = Math.floor(monstersDefeated * (dropChance / 100) * 0.55);
   const luckyDrop = randomBetween(1, 100) <= dropChance ? 1 : 0;
 
   const gearDrops = clamp(
@@ -2684,7 +3824,7 @@ function calculateOfflineProgress(minutes) {
     gameConfig.offlineGearDropCap
   );
 
-  const potionsFound = Math.floor(monstersDefeated / 20);
+  const potionsFound = Math.min(3, Math.floor(monstersDefeated / 35));
 
   return {
     minutes,
@@ -2738,8 +3878,8 @@ function showOfflineModal(report) {
     </div>
 
     <div class="offline-card">
-      <strong>Moedas ganhas</strong>
-      <span>+${report.coinsGained} moedas</span>
+      <strong class="money-title">${coinIconHtml()}<span>Ganho</span></strong>
+      <span>${formatSignedMoney(report.coinsGained)}</span>
     </div>
 
     <div class="offline-card">
@@ -2883,7 +4023,9 @@ function updateStats() {
   const monster = gameState.monster;
   const maxHp = getPlayerMaxHp();
 
-  elements.heroLevel.textContent = `Nível ${player.level}`;
+  if (elements.heroLevel) {
+    elements.heroLevel.textContent = `Nível ${player.level}`;
+  }
 
   const currentStageBiome = getDungeonBiome(player.stage);
 
@@ -2895,15 +4037,19 @@ function updateStats() {
   }
 
   elements.prestigeTitle.textContent = getPrestigeTitle(gameState.prestige.count);
-  elements.prestigePoints.textContent = gameState.prestige.points;
-  elements.coinDisplay.textContent = player.coins;
-  elements.skillPointsDisplay.textContent = `${player.skillPoints} pontos`;
-  elements.playerPower.textContent = `Poder ${getPlayerPower()}`;
+  elements.prestigePoints.textContent = formatCompactNumber(gameState.prestige.points);
+  if (elements.coinDisplay) {
+    elements.coinDisplay.textContent = formatCompactNumber(player.coins);
+  }
+  elements.skillPointsDisplay.textContent = `${formatCompactNumber(player.skillPoints)} pontos`;
+  if (elements.playerPower) {
+    elements.playerPower.textContent = `Nível ${player.level}`;
+  }
 
   elements.playerHpBar.style.width = `${percent(player.hp, maxHp)}%`;
   elements.playerXpBar.style.width = `${percent(player.xp, player.nextLevelXp)}%`;
-  elements.playerHpText.textContent = `${player.hp} / ${maxHp}`;
-  elements.playerXpText.textContent = `${player.xp} / ${player.nextLevelXp}`;
+  elements.playerHpText.textContent = `${formatCompactNumber(player.hp)} / ${formatCompactNumber(maxHp)}`;
+  elements.playerXpText.textContent = `${formatCompactNumber(player.xp)} / ${formatCompactNumber(player.nextLevelXp)}`;
 
   elements.monsterName.textContent = monster ? monster.name : '—';
   elements.monsterLevel.textContent = monster ? `Nv. ${monster.level}` : 'Nv. 1';
@@ -2913,7 +4059,7 @@ function updateStats() {
 
   renderMonsterPortrait(monster);
   elements.monsterHpBar.style.width = monster ? `${percent(monster.hp, monster.maxHp)}%` : '0%';
-  elements.monsterHpText.textContent = monster ? `${monster.hp} / ${monster.maxHp}` : '0 / 0';
+  elements.monsterHpText.textContent = monster ? `${formatCompactNumber(monster.hp)} / ${formatCompactNumber(monster.maxHp)}` : '0 / 0';
 
   renderPlayerStats();
   renderMonsterStats();
@@ -2923,6 +4069,7 @@ function updateStats() {
   if (elements.gearModal && !elements.gearModal.hidden) {
     renderGearModal();
   }
+  renderMythicRiftIndicator();
   updateTurnDisplay();
   updateButtons();
   renderSkillControls();
@@ -2944,11 +4091,16 @@ function getAutoUseLabel(key) {
 
 function renderAutomationPanel() {
   const autoUse = gameState.ui.autoUse;
+  const bombCount = getConsumableQuantity('arcaneBomb');
+  const bombItem = shopCatalog.find((catalogItem) => catalogItem.id === 'arcaneBomb');
+  const bombImage = bombItem?.image || '';
 
+  // A bomba pode ser usada também durante o automático; ela só precisa existir e haver monstro vivo.
+  const canUseBomb = bombCount > 0 && gameState.monster && gameState.monster.hp > 0 && gameState.player.hp > 0;
   elements.heroAutomation.innerHTML = `
     <div class="section-mini-header">
       <h4>Automação</h4>
-      <p>Escolha o que o jogo pode usar sozinho.</p>
+      <p>Cura usa só em emergência. Buffs usam agora e renovam ao acabar.</p>
     </div>
 
     <div class="toggle-chip-grid">
@@ -2959,6 +4111,35 @@ function renderAutomationPanel() {
         </label>
       `).join('')}
     </div>
+
+    <div class="hero-quick-actions">
+      <button
+        type="button"
+        class="hero-bomb-button"
+        data-use-hero-bomb
+        ${canUseBomb ? '' : 'disabled'}
+        title="Usa uma Bomba Arcana no monstro atual, inclusive durante o automático."
+        aria-label="Usar Bomba Arcana. Você possui ${bombCount}."
+      >
+        <span class="hero-bomb-visual">
+          ${bombImage ? `
+            <img
+              class="hero-bomb-image"
+              src="${escapeAttr(bombImage)}"
+              alt="Bomba Arcana"
+              loading="lazy"
+              decoding="async"
+              onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+            />
+            <span class="hero-bomb-fallback" hidden>${bombItem?.icon || '💣'}</span>
+          ` : `<span class="hero-bomb-fallback">${bombItem?.icon || '💣'}</span>`}
+        </span>
+        <span class="hero-bomb-copy">
+          <span class="hero-bomb-title">Bomba Arcana</span>
+        </span>
+        <strong class="hero-bomb-count">x${bombCount}</strong>
+      </button>
+    </div>
   `;
 
   elements.heroAutomation
@@ -2966,10 +4147,21 @@ function renderAutomationPanel() {
     .forEach((input) => {
       input.addEventListener('change', (event) => {
         const key = event.currentTarget.dataset.autoUse;
-        gameState.ui.autoUse[key] = event.currentTarget.checked;
-        renderAutomationPanel();
+        const enabled = event.currentTarget.checked;
+        gameState.ui.autoUse[key] = enabled;
+
+        if (enabled && key !== 'heal') {
+          tryUseAutoBuffPotion(key, 'toggle');
+        }
+
+        updateStats();
       });
     });
+
+  const bombButton = elements.heroAutomation.querySelector('[data-use-hero-bomb]');
+  if (bombButton) {
+    bombButton.addEventListener('click', () => useConsumable('arcaneBomb'));
+  }
 }
 
 function renderPlayerStats() {
@@ -2982,7 +4174,8 @@ function renderPlayerStats() {
   ];
 
   elements.playerStats.innerHTML = stats.map(({ key, icon, label, value }) => {
-    const safeValue = escapeAttr(value ?? '-');
+    const displayValue = formatDisplayValue(value);
+    const safeValue = escapeAttr(displayValue);
 
     return `
       <div class="stat-card hero-stat-card hero-stat-${key}">
@@ -3011,18 +4204,67 @@ const skillMeta = {
   magic: { label: 'Magia', icon: '🔮', statGain: 2, suffix: '' },
 };
 
-function getSkillStatGain(stat, points = 1) {
+function getSkillPointMultiplier(level = gameState.player.level) {
+  if (level >= 180) return 3.35;
+  if (level >= 120) return 2.75;
+  if (level >= 80) return 2.25;
+  if (level >= 40) return 1.5;
+
+  return 1;
+}
+
+function getSkillStatGain(stat, points = 1, level = gameState.player.level) {
+  const meta = skillMeta[stat];
+  if (!meta) return 0;
+
+  return Math.max(0, points) * Math.round(meta.statGain * getSkillPointMultiplier(level));
+}
+
+function getOldSkillStatGain(stat, points = 1) {
   const meta = skillMeta[stat];
   if (!meta) return 0;
 
   return Math.max(0, points) * meta.statGain;
 }
 
+function rebalanceAppliedSkillStatsIfNeeded() {
+  if ((gameState.ui.skillBalanceVersion || 0) >= 1) return;
+
+  const appliedStats = gameState.ui.appliedStats || {};
+  let changed = false;
+
+  Object.keys(skillMeta).forEach((stat) => {
+    const points = appliedStats[stat] || 0;
+    if (points <= 0) return;
+
+    const oldGain = getOldSkillStatGain(stat, points);
+    const newGain = getSkillStatGain(stat, points, gameState.player.level);
+    const delta = newGain - oldGain;
+
+    if (!delta) return;
+    changed = true;
+
+    if (stat === 'hp') {
+      gameState.player.maxHp += delta;
+      gameState.player.hp += delta;
+      return;
+    }
+
+    gameState.player[stat] += delta;
+  });
+
+  gameState.ui.skillBalanceVersion = 1;
+
+  if (changed) {
+    log('Balanceamento aplicado: seus pontos de habilidade antigos foram recalculados pela nova regra de nível.', 'system', true);
+  }
+}
+
 function getSkillGainText(stat, points = 1) {
   const meta = skillMeta[stat];
   if (!meta) return '';
 
-  return `+${getSkillStatGain(stat, points)}${meta.suffix}`;
+  return `+${formatCompactNumber(getSkillStatGain(stat, points))}${meta.suffix}`;
 }
 
 function getCurrentSkillSpendAmount() {
@@ -3059,7 +4301,7 @@ function renderSkillControls() {
       <div class="skill-row clean-skill-row">
         <div class="skill-row-info">
           <strong>${meta.icon} ${meta.label}</strong>
-          <small>${pointsSpent} pts aplicados</small>
+          <small>${formatCompactNumber(pointsSpent)} pts aplicados</small>
         </div>
 
         <div class="skill-row-action">
@@ -3124,30 +4366,62 @@ function renderMonsterStats() {
   elements.monsterStats.appendChild(affinityPanel);
 
   const stats = [
-    { key: 'attack', icon: '💥', label: 'Ataque', value: monster.attack },
-    { key: 'defense', icon: '🛡️', label: 'Defesa', value: monster.defense },
-    { key: 'agility', icon: '⚡', label: 'Agilidade', value: monster.agility },
-    { key: 'xp', icon: '✨', label: 'XP', value: monster.xpReward },
-    { key: 'coins', icon: '💰', label: 'Moedas', value: monster.coinReward },
-    { key: 'family', icon: '👥', label: 'Família', value: monster.type },
+    {
+      key: 'attack',
+      icon: '💥',
+      label: 'Ataque',
+      value: formatCompactNumber(monster.attack),
+    },
+    {
+      key: 'defense',
+      icon: '🛡️',
+      label: 'Defesa',
+      value: formatCompactNumber(monster.defense),
+    },
+    {
+      key: 'agility',
+      icon: '⚡',
+      label: 'Agilidade',
+      value: formatCompactNumber(monster.agility),
+    },
+    {
+      key: 'xp',
+      icon: '✨',
+      label: 'XP',
+      value: formatCompactNumber(monster.xpReward),
+    },
+    {
+      key: 'coins',
+      icon: coinIconHtml(),
+      label: 'Recompensa',
+      valueHtml: formatSignedMoney(monster.coinReward),
+      title: `+${formatCompactNumber(monster.coinReward)}`,
+    },
+    {
+      key: 'family',
+      icon: '👥',
+      label: 'Família',
+      value: monster.type,
+    },
   ];
 
-  stats.forEach(({ key, icon, label, value }) => {
+  stats.forEach(({ key, icon, label, value, valueHtml, title }) => {
     const card = document.createElement('div');
-    const safeValue = escapeAttr(value ?? '-');
+    const displayValue = valueHtml || escapeAttr(value ?? '-');
+    const safeTitle = escapeAttr(title || value || '-');
 
     card.className = `stat-card monster-stat-card monster-stat-${key}`;
 
     card.innerHTML = `
-      <div class="monster-stat-main">
-        <span class="stat-icon">${icon}</span>
-        <span class="monster-stat-label">${label}</span>
-      </div>
+    <div class="monster-stat-main">
+      <span class="stat-icon">${icon}</span>
+      <span class="monster-stat-label">${label}</span>
+    </div>
 
-      <strong class="monster-stat-value" title="${safeValue}">
-        ${safeValue}
-      </strong>
-    `;
+    <strong class="monster-stat-value" title="${safeTitle}">
+      ${displayValue}
+    </strong>
+  `;
 
     elements.monsterStats.appendChild(card);
   });
@@ -3174,6 +4448,7 @@ function renderEquipment() {
       const isActiveWeapon = gameState.player.activeWeaponSlot === slot;
 
       row.className = `equipment-slot ${item ? 'has-item' : 'is-empty'} ${isActiveWeapon ? 'active-weapon' : ''}`;
+      if (item?.rarity) row.dataset.rarity = item.rarity;
 
       if (!item) {
         row.innerHTML = `
@@ -3191,9 +4466,16 @@ function renderEquipment() {
         const forgePreview = getForgeUpgradePreview(item);
         const rarity = getRarityById(item.rarity);
 
+        const mythicFragmentCost = getMythicUpgradeFragmentCost(item);
+        const mythicFragmentLine = mythicFragmentCost > 0
+          ? `
+Fragmentos Míticos: ${mythicFragmentCost} necessário(s) • você tem ${getMythicFragmentQuantity()}`
+          : '';
+
         const tooltip = `${getGearTooltip(item)}
-Melhorar: ${cost} moedas
+Melhorar: ${formatMoneyText(cost)}${mythicFragmentLine}
 Ganho na próxima melhoria: ${forgePreview}`;
+        row.dataset.tooltip = tooltip;
 
         row.innerHTML = `
           ${gearImageTag(item)}
@@ -3205,7 +4487,6 @@ Ganho na próxima melhoria: ${forgePreview}`;
 
             <strong class="gear-item-name">
               ${formatGearName(item)}
-              ${infoIcon(tooltip)}
             </strong>
 
             <div class="gear-item-meta">
@@ -3226,7 +4507,8 @@ Ganho na próxima melhoria: ${forgePreview}`;
         `;
 
         const upgradeButton = row.querySelector('[data-upgrade-slot]');
-        upgradeButton.disabled = gameState.player.coins < cost;
+        const fragmentCost = getMythicUpgradeFragmentCost(item);
+        upgradeButton.disabled = gameState.player.coins < cost || getMythicFragmentQuantity() < fragmentCost;
         upgradeButton.addEventListener('click', () => upgradeEquippedGear(slot));
 
         const activeWeaponButton = row.querySelector('[data-active-weapon]');
@@ -3271,7 +4553,7 @@ function renderShop() {
         </div>
       </div>
 
-      <button type="button" data-buy="${item.id}">${item.cost} moedas</button>
+      <button type="button" data-buy="${item.id}">${formatMoney(item.cost)}</button>
     `;
 
     const button = card.querySelector('button');
@@ -3284,7 +4566,7 @@ function renderShop() {
 function renderInventory() {
   const totalItems =
     gameState.inventory.items.reduce((sum, item) => sum + item.quantity, 0) + gameState.inventory.gear.length;
-  elements.inventoryCount.textContent = `${totalItems} itens`;
+  elements.inventoryCount.textContent = `${formatCompactNumber(totalItems)} itens`;
 
   elements.tabButtons.forEach((button) => {
     button.classList.toggle('active', button.dataset.tab === gameState.activeInventoryTab);
@@ -3322,12 +4604,16 @@ function renderConsumables() {
       </div>
 
       <div class="item-actions">
-        <button type="button" data-use="${item.id}">Usar</button>
+        <button type="button" data-use="${item.id}" ${item.type === 'material' ? 'disabled' : ''}>
+          ${item.type === 'material' ? 'Material' : 'Usar'}
+        </button>
       </div>
     `;
 
     const button = row.querySelector('[data-use]');
-    button.addEventListener('click', () => useConsumable(item.id));
+    if (item.type !== 'material') {
+      button.addEventListener('click', () => useConsumable(item.id));
+    }
     elements.inventoryItemsContainer.appendChild(row);
   });
 }
@@ -3341,12 +4627,15 @@ function renderGearInventory() {
   }
 
   const equippedItems = Object.values(gameState.equipment).filter(Boolean);
+  const equippedUids = getEquippedGearUids();
+  const journeyGearCount = gameState.inventory.gear.filter((item) => !equippedUids.has(item.uid)).length;
 
   elements.inventoryItemsContainer.innerHTML = `
     <div class="empty-state gear-preview">
       <div>
-        Você tem <strong>${totalGear}</strong> equipamentos guardados.
-        Abra a mochila para ver a lista completa sem expandir a página.
+        Você tem <strong>${formatCompactNumber(totalGear)}</strong> equipamentos guardados.
+        <br>
+        <small>Equipados: ${formatCompactNumber(equippedItems.length)} • Jornada: ${formatCompactNumber(journeyGearCount)}</small>
       </div>
       <button type="button" id="open-gear-modal-button">Abrir equipamentos</button>
     </div>
@@ -3356,11 +4645,12 @@ function renderGearInventory() {
     equippedItems.forEach((item) => {
       const row = document.createElement('div');
       row.className = 'inventory-item';
+      if (item?.rarity) row.dataset.rarity = item.rarity;
+      row.dataset.tooltip = getGearTooltip(item);
       row.innerHTML = `
         <div>
           <strong class="item-name-line">
             ${formatGearName(item)}
-            ${infoIcon(getGearTooltip(item))}
           </strong>
           <p>Equipado • ${gearSlots[item.slot]} • Nv. ${item.level} • ${formatStats(item.stats)}</p>
         </div>
@@ -3382,8 +4672,64 @@ function closeGearModal() {
   elements.gearModal.hidden = true;
 }
 
+function createGearModalRow(item, equipped = false) {
+  const rarity = getRarityById(item.rarity);
+
+  const row = document.createElement('div');
+  row.className = 'gear-modal-item';
+  row.dataset.rarity = rarity.id;
+  row.dataset.equipped = equipped ? 'true' : 'false';
+  row.dataset.tooltip = getGearTooltip(item);
+
+  row.innerHTML = `
+    <div class="gear-modal-item-main">
+      <div class="gear-modal-item-media">
+        ${gearImageTag(item)}
+      </div>
+
+      <div class="gear-modal-item-text">
+        <div class="gear-modal-item-topline">
+          <strong class="gear-modal-item-name">
+            ${formatGearName(item)}
+          </strong>
+
+          <div class="gear-modal-badges">
+            <span class="gear-modal-rarity">${rarity.name}</span>
+            ${equipped ? '<span class="gear-modal-equipped-badge">Equipado</span>' : ''}
+          </div>
+        </div>
+
+        <p class="gear-modal-item-meta">
+          <span>${gearSlots[item.slot]}</span>
+          <span>•</span>
+          <span>Nv. ${item.level}</span>
+        </p>
+
+        <p class="gear-modal-item-stats">
+          ${formatStats(item.stats)}
+        </p>
+      </div>
+    </div>
+
+    <div class="gear-modal-item-actions">
+      <button type="button" data-equip="${item.uid}" ${equipped ? 'disabled' : ''}>
+        ${equipped ? 'Equipado' : 'Equipar'}
+      </button>
+      <button type="button" data-sell="${item.uid}" class="mini-button">
+        Vender ${formatMoney(item.value)}
+      </button>
+    </div>
+  `;
+
+  row.querySelector('[data-equip]')?.addEventListener('click', () => equipGear(item.uid));
+  row.querySelector('[data-sell]')?.addEventListener('click', () => sellGear(item.uid));
+
+  return row;
+}
+
 function renderGearModal() {
   elements.gearModalList.innerHTML = '';
+
   if (elements.sellUnequippedGearButton) {
     elements.sellUnequippedGearButton.disabled = getUnequippedGearItems().length === 0;
   }
@@ -3393,33 +4739,51 @@ function renderGearModal() {
     return;
   }
 
-  gameState.inventory.gear.forEach((item) => {
-    const rarity = getRarityById(item.rarity);
-    const equipped = gameState.equipment[item.slot]?.uid === item.uid;
-    const row = document.createElement('div');
+  const equippedItems = gameState.inventory.gear.filter((item) => gameState.equipment[item.slot]?.uid === item.uid);
+  const unequippedItems = gameState.inventory.gear.filter((item) => gameState.equipment[item.slot]?.uid !== item.uid);
 
-    row.className = 'inventory-item';
-    row.dataset.rarity = rarity.id;
+  const equippedSection = document.createElement('section');
+  equippedSection.className = 'gear-modal-section';
+  equippedSection.innerHTML = `
+    <div class="gear-modal-section-header">
+      <h3>Equipados</h3>
+      <p>O que seu herói está usando agora.</p>
+    </div>
+    <div class="gear-modal-section-list"></div>
+  `;
 
-    row.innerHTML = `
-      <div>
-        <strong class="item-name-line">
-          ${formatGearName(item)} ${equipped ? '✅' : ''}
-          ${infoIcon(getGearTooltip(item))}
-        </strong>
-        <p>${gearSlots[item.slot]} • Nv. ${item.level} • ${formatStats(item.stats)}</p>
-      </div>
-      <div class="item-actions">
-        <button type="button" data-equip="${item.uid}" ${equipped ? 'disabled' : ''}>Equipar</button>
-        <button type="button" data-sell="${item.uid}" class="mini-button">Vender ${item.value}</button>
-      </div>
-    `;
+  const equippedList = equippedSection.querySelector('.gear-modal-section-list');
 
-    row.querySelector('[data-equip]').addEventListener('click', () => equipGear(item.uid));
-    row.querySelector('[data-sell]').addEventListener('click', () => sellGear(item.uid));
+  if (equippedItems.length) {
+    equippedItems.forEach((item) => {
+      equippedList.appendChild(createGearModalRow(item, true));
+    });
+  } else {
+    equippedList.innerHTML = '<div class="empty-state">Nada equipado no momento.</div>';
+  }
 
-    elements.gearModalList.appendChild(row);
-  });
+  const unequippedSection = document.createElement('section');
+  unequippedSection.className = 'gear-modal-section';
+  unequippedSection.innerHTML = `
+    <div class="gear-modal-section-header">
+      <h3>Ganhos na jornada</h3>
+      <p>Equipamentos guardados para equipar, comparar ou vender.</p>
+    </div>
+    <div class="gear-modal-section-list"></div>
+  `;
+
+  const unequippedList = unequippedSection.querySelector('.gear-modal-section-list');
+
+  if (unequippedItems.length) {
+    unequippedItems.forEach((item) => {
+      unequippedList.appendChild(createGearModalRow(item, false));
+    });
+  } else {
+    unequippedList.innerHTML = '<div class="empty-state">Nada por aqui.</div>';
+  }
+
+  elements.gearModalList.appendChild(equippedSection);
+  elements.gearModalList.appendChild(unequippedSection);
 }
 
 function updateTurnDisplay() {
@@ -3429,7 +4793,11 @@ function updateTurnDisplay() {
     : `Boss em ${getMonstersUntilMandatoryBoss()} inimigo(s)`;
 
   elements.turnDisplay.textContent = `🛡️ Turno: ${current}`;
-  elements.autoStatus.textContent = `Auto: ${gameState.autoAttack ? 'ligado' : 'desligado'} • ${bossProgress}`;
+  const recoveryText = gameState.player.recoveryGrace?.battles > 0
+    ? ` • Recuperação: ${gameState.player.recoveryGrace.battles} luta(s)`
+    : '';
+
+  elements.autoStatus.textContent = `Auto: ${gameState.autoAttack ? 'ligado' : 'desligado'} • ${bossProgress}${recoveryText}`;
 }
 
 function updateButtons() {
@@ -3463,7 +4831,25 @@ function getCombatTargetCenter(target) {
   };
 }
 
-function pulseCombatCard(target, flashClass, duration = 720) {
+const cardEffectQueues = new WeakMap();
+
+function queueCardEffect(target, callback, duration = 900, gap = 100) {
+  if (!target || typeof callback !== 'function') return Promise.resolve();
+
+  const previous = cardEffectQueues.get(target) || Promise.resolve();
+
+  const next = previous
+    .catch(() => {})
+    .then(() => new Promise((resolve) => {
+      callback();
+      setTimeout(resolve, duration + gap);
+    }));
+
+  cardEffectQueues.set(target, next);
+  return next;
+}
+
+function clearCombatCardEffectClasses(target) {
   if (!target) return;
 
   target.classList.remove(
@@ -3472,15 +4858,33 @@ function pulseCombatCard(target, flashClass, duration = 720) {
     'combat-card-hit',
     'combat-card-dodge',
     'combat-card-critical',
-    'combat-card-magic'
+    'combat-card-magic',
+    'combat-card-arcane-hit',
+    'combat-card-heal',
+    'combat-card-potion'
   );
+}
 
-  void target.offsetWidth;
-  target.classList.add(flashClass);
+function pulseCombatCard(target, flashClass, duration = 720, queued = false) {
+  if (!target) return Promise.resolve();
 
-  setTimeout(() => {
-    target.classList.remove(flashClass);
-  }, duration);
+  const runPulse = () => {
+    clearCombatCardEffectClasses(target);
+
+    void target.offsetWidth;
+    target.classList.add(flashClass);
+
+    setTimeout(() => {
+      target.classList.remove(flashClass);
+    }, duration);
+  };
+
+  if (queued) {
+    return queueCardEffect(target, runPulse, duration, 100);
+  }
+
+  runPulse();
+  return Promise.resolve();
 }
 
 function showCombatIndicator(targetSide, resultType) {
@@ -3493,6 +4897,8 @@ function showCombatIndicator(targetSide, resultType) {
 
   const icons = {
     playerHit: '⚔️',
+    magicWeaponHit: '🔮',
+    arcaneBombHit: '💣',
     playerMiss: '💨',
     enemyHit: '💥',
     playerDodge: '💨',
@@ -3501,35 +4907,59 @@ function showCombatIndicator(targetSide, resultType) {
 
   const isDodge = resultType === 'playerMiss' || resultType === 'playerDodge';
   const isCritical = resultType === 'critical';
+  const isArcaneBasic = resultType === 'magicWeaponHit' || resultType === 'arcaneBombHit' || resultType === 'mythicHit';
 
   const flashClass = isDodge
     ? 'combat-card-dodge'
     : isCritical
       ? 'combat-card-critical'
-      : 'combat-card-hit';
+      : isArcaneBasic
+        ? 'combat-card-arcane-hit'
+        : 'combat-card-hit';
 
-  pulseCombatCard(target, flashClass, isCritical ? 820 : 720);
+  const visualDuration = isCritical ? 2000 : 1850;
+  const pulseDuration = isCritical ? 820 : 720;
 
-  target.querySelectorAll('.combat-indicator').forEach((indicator) => indicator.remove());
+  const runCombatVisual = () => {
+    pulseCombatCard(target, flashClass, pulseDuration);
 
-  document
-    .querySelectorAll(`.combat-indicator-screen[data-target-side="${targetSide}"]`)
-    .forEach((indicator) => indicator.remove());
+    target.querySelectorAll('.combat-indicator').forEach((indicator) => indicator.remove());
 
-  const center = getCombatTargetCenter(target);
-  const indicator = document.createElement('div');
+    document
+      .querySelectorAll(`.combat-indicator-screen[data-target-side="${targetSide}"]`)
+      .forEach((indicator) => indicator.remove());
 
-  indicator.className = `combat-indicator-screen ${resultType}`;
-  indicator.dataset.targetSide = targetSide;
-  indicator.style.setProperty('--combat-x', `${center.x}px`);
-  indicator.style.setProperty('--combat-y', `${center.y}px`);
-  indicator.textContent = icons[resultType] || '✦';
+    const center = getCombatTargetCenter(target);
+    const indicator = document.createElement('div');
 
-  document.body.appendChild(indicator);
+    indicator.className = `combat-indicator-screen ${resultType}`;
+    indicator.dataset.targetSide = targetSide;
+    indicator.style.setProperty('--combat-x', `${center.x}px`);
+    indicator.style.setProperty('--combat-y', `${center.y}px`);
+    indicator.textContent = icons[resultType] || '✦';
 
-  setTimeout(() => {
-    indicator.remove();
-  }, isCritical ? 820 : 720);
+    document.body.appendChild(indicator);
+
+    setTimeout(() => {
+      indicator.remove();
+    }, visualDuration);
+  };
+
+  queueCardEffect(target, runCombatVisual, visualDuration, 120);
+}
+
+function getCombatDodgeChance(attacker, defender, attackerSide = 'player') {
+  const precision = attacker.precision || 0;
+  const attackerAgility = Math.max(1, Number(attacker.agility) || 1);
+  const defenderAgility = Math.max(1, Number(defender.agility) || 1);
+  const agilityDiffRatio = (defenderAgility - attackerAgility) / Math.max(attackerAgility, defenderAgility, 1);
+
+  // Antes, qualquer inimigo com agilidade alta batia sempre no teto de 28%.
+  // Agora a esquiva depende da diferença real entre as agilidades.
+  const baseChance = 8 + agilityDiffRatio * 18 - precision;
+  const maxChance = attackerSide === 'player' ? 20 : 24;
+
+  return clamp(baseChance, 3, maxChance);
 }
 
 function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSide = 'player', damageType = 'physical') {
@@ -3537,8 +4967,7 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
   // O card de quem lança a ação não anima aqui.
   // Apenas o card que recebe dano, magia, crítico ou esquiva reage visualmente.
 
-  const precision = attacker.precision || 0;
-  const dodgeChance = clamp((defender.agility || 0) * 0.9 - precision, 3, 28);
+  const dodgeChance = getCombatDodgeChance(attacker, defender, attackerSide);
   const criticalChance = attacker.critChance ?? 8;
 
   if (randomBetween(1, 100) <= dodgeChance) {
@@ -3562,16 +4991,19 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
 
   const variation = randomBetween(-3, 4);
 
-  let basePower =
-    damageType === 'magic'
-      ? attacker.magic || attacker.attack || 1
-      : attacker.attack || 1;
+  const isMagicWeaponAttack = attackerSide === 'player' && damageType === 'magicWeapon';
+  const isSpellCast = attackerSide === 'player' && damageType === 'magic';
+  const isMagicalDamage = damageType === 'magic' || damageType === 'magicWeapon';
 
-  if (attackerSide === 'player' && damageType === 'magic') {
-    basePower = Math.round(basePower * getPlayerMagicDamageMultiplier());
+  let basePower = isMagicalDamage
+    ? attacker.magic || attacker.attack || 1
+    : attacker.attack || 1;
+
+  if (isSpellCast) {
+    basePower = Math.round(basePower * getPlayerSpellDamageMultiplier());
   }
 
-  let weaponDamageKey = damageType;
+  let weaponDamageKey = isMagicalDamage ? 'magic' : damageType;
 
   if (attackerSide === 'player' && damageType === 'physical') {
     const activeSlot = gameState.player.activeWeaponSlot || 'physicalWeapon';
@@ -3619,36 +5051,38 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
     Math.round(basePower * minimumDamageRate)
   );
 
+  const damageReductionMultiplier = attackerSide === 'monster'
+    ? clamp(1 - ((defender.damageReductionPercent || 0) / 100), 0.65, 1)
+    : 1;
+
   const rawDamage = Math.max(
     minimumDamage,
     Math.round(
       (basePower - defenseReduction + variation) *
       resistance *
       furyMultiplier *
-      bossDamageMultiplier
+      bossDamageMultiplier *
+      damageReductionMultiplier
     )
   );
 
   const isCritical = randomBetween(1, 100) <= criticalChance;
-  const damage = isCritical ? Math.round(rawDamage * 1.75) : rawDamage;
+  let damage = isCritical ? Math.round(rawDamage * 1.75) : rawDamage;
+
+  if (attackerSide === 'monster') {
+    const defenderMaxHp = getPlayerMaxHp();
+    const maxHitRate = attacker.isBoss ? 0.16 : 0.105;
+    const maxHitDamage = Math.max(1, Math.round(defenderMaxHp * maxHitRate));
+    damage = Math.min(damage, maxHitDamage);
+  }
 
   let totalDamage = damage;
 
   defender.hp = Math.max(0, defender.hp - damage);
 
-  const isPlayerMagicHit = attackerSide === 'player' && damageType === 'magic';
+  const isPlayerMagicHit = isSpellCast;
 
   if (isPlayerMagicHit) {
-    const receiverCard = document.querySelector('.monster-card');
-    const visualInfo = getSpellVisualInfo();
-
-    receiverCard?.style.setProperty('--spell-color', visualInfo.color);
-    receiverCard?.style.setProperty('--spell-color-soft', visualInfo.softColor);
-
-    if (typeof pulseCombatCard === 'function') {
-      pulseCombatCard(receiverCard, 'combat-card-magic', 820);
-    }
-
     showSpellImpact(damage);
   }
 
@@ -3660,17 +5094,21 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
     } else {
       showCombatIndicator(
         defenderSide,
-        attackerSide === 'player' ? 'playerHit' : 'enemyHit'
+        isMagicWeaponAttack ? 'magicWeaponHit' : (attackerSide === 'player' ? 'playerHit' : 'enemyHit')
       );
     }
   }
 
-  const damageLabel = damageType === 'magic' ? 'dano mágico' : 'dano físico';
+  const damageLabel = damageType === 'magic'
+    ? 'magia'
+    : damageType === 'magicWeapon'
+      ? 'ataque mágico'
+      : 'dano físico';
 
   if (isCritical) {
-    log(`CRÍTICO! ${attackerLabel} causou ${damage} de ${damageLabel} em ${defenderLabel}.`, 'damage', true);
+    log(`CRÍTICO! ${attackerLabel} causou ${formatCompactNumber(damage)} de ${damageLabel} em ${defenderLabel}.`, 'damage', true);
   } else {
-    log(`${attackerLabel} causou ${damage} de ${damageLabel} em ${defenderLabel}.`, 'damage');
+    log(`${attackerLabel} causou ${formatCompactNumber(damage)} de ${damageLabel} em ${defenderLabel}.`, 'damage');
   }
 
   if (
@@ -3686,7 +5124,34 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
       defender.hp = Math.max(0, defender.hp - echoDamage);
       totalDamage += echoDamage;
 
-      log(`Eco Arcano: o dano mágico ecoou e causou mais ${echoDamage} de dano.`, 'damage', true);
+      log(`Eco Arcano: o dano mágico ecoou e causou mais ${formatCompactNumber(echoDamage)} de dano.`, 'damage', true);
+    }
+  }
+
+  if (attackerSide === 'player' && defender.hp > 0) {
+    const canDoubleStrike = (damageType === 'physical' || damageType === 'magicWeapon') && attacker.doubleStrikeChance;
+    const canDoubleMagic = damageType === 'magic' && attacker.doubleMagicChance;
+
+    if (canDoubleStrike && randomBetween(1, 100) <= attacker.doubleStrikeChance) {
+      const extraPercent = attacker.doubleStrikeDamagePercent || 55;
+      const extraDamage = Math.max(1, Math.round(damage * (extraPercent / 100)));
+
+      defender.hp = Math.max(0, defender.hp - extraDamage);
+      totalDamage += extraDamage;
+
+      showCombatIndicator(defenderSide, 'mythicHit');
+      log(`Golpe Duplo Mítico: mais ${formatCompactNumber(extraDamage)} de dano.`, 'damage', true);
+    }
+
+    if (canDoubleMagic && randomBetween(1, 100) <= attacker.doubleMagicChance) {
+      const extraPercent = attacker.doubleMagicDamagePercent || 60;
+      const extraDamage = Math.max(1, Math.round(damage * (extraPercent / 100)));
+
+      defender.hp = Math.max(0, defender.hp - extraDamage);
+      totalDamage += extraDamage;
+
+      showSpellImpact(extraDamage);
+      log(`Magia Dupla Mítica: a magia repetiu e causou mais ${formatCompactNumber(extraDamage)} de dano.`, 'damage', true);
     }
   }
 
@@ -3696,8 +5161,9 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
       const healed = Math.max(1, Math.round(totalDamage * (stealPercent / 100)));
 
       gameState.player.hp = Math.min(getPlayerMaxHp(), gameState.player.hp + healed);
+      showLifeStealVisual(healed);
 
-      log(`Roubo de vida: você recuperou ${healed} HP.`, 'reward');
+      log(`Roubo de vida: você recuperou ${formatCompactNumber(healed)} HP.`, 'reward', true);
     }
   }
 
@@ -3728,6 +5194,14 @@ function getPlayerCombatStats() {
 
     magicEchoChance: getEquipmentBonus('magicEchoChance'),
     magicEchoDamagePercent: getEquipmentBonus('magicEchoDamagePercent'),
+
+    doubleStrikeChance: getEquipmentBonus('doubleStrikeChance'),
+    doubleStrikeDamagePercent: getEquipmentBonus('doubleStrikeDamagePercent'),
+    doubleMagicChance: getEquipmentBonus('doubleMagicChance'),
+    doubleMagicDamagePercent: getEquipmentBonus('doubleMagicDamagePercent'),
+    damageReductionPercent: getEquipmentBonus('damageReductionPercent'),
+    deathWardChance: getEquipmentBonus('deathWardChance'),
+    firstStrikeChance: getEquipmentBonus('firstStrikeChance'),
   };
 }
 
@@ -3749,9 +5223,20 @@ function startTurn() {
     defense: monster.defense,
     agility: monster.agility,
     critChance: monster.isBoss ? 13 : 8,
+    isBoss: monster.isBoss,
+    specialBoss: monster.specialBoss,
   };
 
-  const playerFirst = getPlayerAgility() >= monster.agility;
+  let playerFirst = getPlayerAgility() >= monster.agility;
+
+  if (!playerFirst && playerCombat.firstStrikeChance) {
+    playerFirst = randomBetween(1, 100) <= playerCombat.firstStrikeChance;
+
+    if (playerFirst) {
+      log('Iniciativa Mítica: você agiu antes do inimigo.', 'system', true);
+    }
+  }
+
   const order = playerFirst ? ['player', 'monster'] : ['monster', 'player'];
 
   executeTurnOrder(order, playerCombat, monsterCombat);
@@ -3787,7 +5272,12 @@ function executeTurnOrder(order, playerCombat, monsterCombat) {
       playerCombat.hp = gameState.player.hp;
       monsterCombat.hp = gameState.monster.hp;
 
-      const useMagic = canUseEquippedSpell() && randomBetween(1, 100) <= getPlayerMagicChance();
+      const castSpell = canUseEquippedSpell() && randomBetween(1, 100) <= getPlayerMagicChance();
+      const damageType = castSpell
+        ? 'magic'
+        : isMagicWeaponActive()
+          ? 'magicWeapon'
+          : 'physical';
 
       dealDamage(
         playerCombat,
@@ -3795,7 +5285,7 @@ function executeTurnOrder(order, playerCombat, monsterCombat) {
         'Você',
         gameState.monster.name,
         'player',
-        useMagic ? 'magic' : 'physical'
+        damageType
       );
     } else if (gameState.monster.hp > 0) {
       monsterCombat.hp = gameState.monster.hp;
@@ -3842,6 +5332,16 @@ function checkBattleEnd() {
   }
 
   if (player.hp <= 0) {
+    const deathWardChance = getEquipmentBonus('deathWardChance') || 0;
+
+    if (deathWardChance > 0 && randomBetween(1, 100) <= deathWardChance) {
+      const restoredHp = Math.max(1, Math.round(getPlayerMaxHp() * 0.18));
+      player.hp = restoredHp;
+      showLifeStealVisual(restoredHp);
+      log(`Proteção Mítica: a morte foi evitada e você voltou com ${formatCompactNumber(restoredHp)} HP.`, 'reward', true);
+      return false;
+    }
+
     stopAutoAttack();
     log('Você foi derrotado. Clique em Continuar para recuperar a vida e tentar de novo.', 'system', true);
     return true;
@@ -3893,7 +5393,7 @@ function winBattle(monster) {
     );
   }
 
-  log(`Você derrotou ${monster.name}: +${xpGained} XP e +${coinsGained} moedas.`, 'reward', true);
+  log(`Você derrotou ${monster.name}: +${formatCompactNumber(xpGained)} XP e +${formatMoney(coinsGained)}.`, 'reward', true);
   gainXp(monster.xpReward);
 
   const normalDropChance = clamp(
@@ -3908,7 +5408,10 @@ function winBattle(monster) {
     addGear(createGear(monster.level, monster.isBoss));
   }
 
+  maybeAwardSpecialBossRewards(monster);
+  maybeSpawnMythicRiftAfterBoss(monster);
   maybeDropConsumable(monster);
+  tickDeathRecoveryGraceAfterWin(monster);
 
   tickShopDurationAfterBattle();
   maybeOpenShop(monster.isBoss);
@@ -3938,6 +5441,8 @@ function tickBattleBuffs() {
       buffs[buff] -= 1;
     }
   });
+
+  refreshAutoBuffPotions();
 }
 
 function gainXp(amount, showLog = true) {
@@ -3982,13 +5487,14 @@ function levelUp(showLog = true) {
 }
 
 function getDeathCheckpointStage(currentStage) {
-  if (currentStage <= 1) return 1;
-
   const checkpointInterval = 10;
+  const safeStage = Math.max(1, Number(currentStage) || 1);
+
+  if (safeStage < checkpointInterval) return 1;
 
   return Math.max(
     1,
-    Math.floor((currentStage - 1) / checkpointInterval) * checkpointInterval
+    Math.floor(safeStage / checkpointInterval) * checkpointInterval
   );
 }
 
@@ -4002,6 +5508,7 @@ function continueAfterDeath() {
 
   player.stage = checkpointStage;
   player.hp = getPlayerMaxHp();
+  activateDeathRecoveryGrace(previousStage, checkpointStage);
 
   gameState.monster = createNextEncounter();
   gameState.currentTurn = 'player';
@@ -4009,13 +5516,13 @@ function continueAfterDeath() {
 
   if (checkpointStage < previousStage) {
     log(
-      `Você caiu na dungeon e voltou do Andar ${previousStage} para o checkpoint do Andar ${checkpointStage}. Os inimigos ficaram mais fracos.`,
+      `Você caiu na dungeon e voltou do Andar ${previousStage} para o checkpoint do Andar ${checkpointStage}. Os próximos inimigos ficaram enfraquecidos por ${gameState.player.recoveryGrace.battles} lutas.`,
       'death',
       true
     );
   } else {
     log(
-      `Você caiu na dungeon, mas já estava no primeiro checkpoint. Vida recuperada para tentar novamente.`,
+      `Você caiu na dungeon no checkpoint do Andar ${checkpointStage}. Vida recuperada e os próximos inimigos ficaram enfraquecidos por ${gameState.player.recoveryGrace.battles} lutas.`,
       'death',
       true
     );
@@ -4031,7 +5538,7 @@ function buyShopItem(itemId) {
   if (!item) return;
 
   if (gameState.player.coins < item.cost) {
-    log('Moedas insuficientes para comprar este item.', 'shop');
+    log('Saldo insuficiente para comprar este item.', 'shop');
     return;
   }
 
@@ -4056,6 +5563,12 @@ function useConsumable(itemId) {
   const item = shopCatalog.find((catalogItem) => catalogItem.id === itemId);
   if (!item) return;
 
+  if (getConsumableQuantity(itemId) <= 0) {
+    log(`Você não tem ${item.name} no inventário.`, 'shop', true);
+    updateStats();
+    return;
+  }
+
   const maxHp = getPlayerMaxHp();
 
   if (item.type === 'heal') {
@@ -4069,6 +5582,7 @@ function useConsumable(itemId) {
     gameState.player.hp += healed;
     removeConsumable(itemId);
 
+    showHeroPotionVisual(item, item.shopName || item.name);
     log(`Você usou ${item.name} e recuperou ${healed} HP.`, 'shop', true);
   }
 
@@ -4081,14 +5595,16 @@ function useConsumable(itemId) {
     gameState.player.hp = maxHp;
     removeConsumable(itemId);
 
+    showHeroPotionVisual(item, item.shopName || item.name);
     log(`Você usou ${item.name} e restaurou toda a vida.`, 'shop', true);
   }
 
   if (item.type === 'skillPoint') {
-    gameState.player.skillPoints += 1;
+    const points = getTrainingScrollSkillPoints();
+    gameState.player.skillPoints += points;
     removeConsumable(itemId);
 
-    log(`Você leu ${item.name} e ganhou 1 ponto de habilidade.`, 'shop', true);
+    log(`Você leu ${item.name} e ganhou ${points} ponto(s) de habilidade.`, 'shop', true);
   }
 
   if (item.type === 'buff') {
@@ -4098,6 +5614,7 @@ function useConsumable(itemId) {
     );
 
     removeConsumable(itemId);
+    showHeroPotionVisual(item, item.shopName || item.name);
 
     log(`${item.name} ativada por ${item.duration} lutas.`, 'shop', true);
   }
@@ -4116,7 +5633,7 @@ function useConsumable(itemId) {
     removeConsumable(itemId);
 
     if (typeof showCombatIndicator === 'function') {
-      showCombatIndicator('monster', 'playerHit');
+      showCombatIndicator('monster', 'arcaneBombHit');
     }
 
     log(`${item.name} causou ${damage} de dano em ${gameState.monster.name}.`, 'damage', true);
@@ -4125,6 +5642,10 @@ function useConsumable(itemId) {
       updateStats();
       return;
     }
+  }
+
+  if (item.type === 'material') {
+    log(`${item.name} é material de melhoria e não pode ser usado diretamente.`, 'system', true);
   }
 
   if (item.type === 'specialBoss') {
@@ -4185,7 +5706,7 @@ function sellUnequippedGear() {
   const totalItems = unequippedItems.length;
 
   const confirmSell = confirm(
-    `Vender ${totalItems} equipamento(s) não equipado(s) por ${totalValue} moedas?`
+    `Vender ${totalItems} equipamento(s) não equipado(s) por ${formatMoneyText(totalValue)}?`
   );
 
   if (!confirmSell) return;
@@ -4199,7 +5720,7 @@ function sellUnequippedGear() {
   gameState.player.coins += totalValue;
 
   log(
-    `Venda automática: ${totalItems} equipamento(s) vendidos por ${totalValue} moedas.`,
+    `Venda automática: ${totalItems} equipamento(s) vendidos por ${formatMoney(totalValue)}.`,
     'shop',
     true
   );
@@ -4223,7 +5744,7 @@ function sellGear(uidToSell) {
   gameState.player.coins += item.value;
   gameState.inventory.gear.splice(index, 1);
   normalizePlayerHp();
-  log(`Você vendeu ${formatGearName(item)} por ${item.value} moedas.`, 'shop', true);
+  log(`Você vendeu ${formatGearName(item)} por ${formatMoney(item.value)}.`, 'shop', true);
   updateStats();
 }
 
@@ -4263,7 +5784,7 @@ function spendSkillPoints(stat) {
   gameState.ui.appliedStats[stat] = (gameState.ui.appliedStats[stat] || 0) + amount;
 
   log(
-    `Habilidade: ${amount} ponto(s) gastos em ${meta.label}, concedendo +${gain}${meta.suffix}.`,
+    `Habilidade: ${amount} ponto(s) gastos em ${meta.label}, concedendo +${formatCompactNumber(gain)}${meta.suffix}.`,
     'reward'
   );
 
@@ -4391,7 +5912,7 @@ function renderPrestigeModal() {
     </div>
 
     <div class="prestige-card">
-      <strong>Moedas permanentes</strong>
+      <strong class="money-title">${coinIconHtml()}<span>Bônus permanente</span></strong>
       <span>${formatBonusPercent(reward.coinBonus)}</span>
     </div>
 
@@ -4612,6 +6133,249 @@ function resetGame() {
   updateStats();
 }
 
+
+function ensureAchievementNoticeStack() {
+  let stack = document.getElementById('achievement-notice-stack');
+
+  if (!stack) {
+    stack = document.createElement('div');
+    stack.id = 'achievement-notice-stack';
+    document.body.appendChild(stack);
+  }
+
+  return stack;
+}
+
+function showAchievementNotice({ title = 'Aviso', subtitle = '', message = '', type = 'default' } = {}) {
+  const stack = ensureAchievementNoticeStack();
+  const notice = document.createElement('div');
+  notice.className = `achievement-notice ${type}`;
+
+  notice.innerHTML = `
+    <div class="achievement-notice-icon">${type === 'mythic' ? '🌌' : type === 'fragment' ? '💠' : '✨'}</div>
+    <div class="achievement-notice-body">
+      <strong>${escapeAttr(title)}</strong>
+      ${subtitle ? `<span>${escapeAttr(subtitle)}</span>` : ''}
+      <p>${escapeAttr(message)}</p>
+    </div>
+    <button type="button" class="achievement-notice-ok">Ok</button>
+  `;
+
+  notice.querySelector('.achievement-notice-ok')?.addEventListener('click', () => {
+    notice.remove();
+  });
+
+  stack.appendChild(notice);
+}
+
+function ensureMythicChoiceModal() {
+  let modal = document.getElementById('mythic-choice-modal');
+
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'mythic-choice-modal';
+    modal.className = 'modal-backdrop mythic-choice-backdrop';
+    modal.hidden = true;
+    modal.innerHTML = `
+      <div class="modal-card mythic-choice-modal-card">
+        <div class="modal-header">
+          <div>
+            <span class="eyebrow">Recompensa Mítica</span>
+            <h2>Escolha 1 item Mítico</h2>
+            <p>Você pode ficar com apenas uma opção. Passe o mouse em cima dos itens para ver os efeitos especiais.</p>
+          </div>
+        </div>
+        <div id="mythic-choice-list" class="mythic-choice-list"></div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  return modal;
+}
+
+function createMythicChoiceCard(item, index) {
+  const card = document.createElement('button');
+  const specialEffect = getMythicSpecialEffectSummary(item);
+
+  card.type = 'button';
+  card.className = 'gear-modal-item mythic-choice-card';
+  card.dataset.tooltip = getGearTooltip(item);
+  card.dataset.choiceIndex = String(index);
+  card.dataset.rarity = 'mythic';
+
+  card.innerHTML = `
+    <span class="mythic-choice-aura" aria-hidden="true"></span>
+
+    <div class="mythic-choice-image-area">
+      ${gearImageTag(item)}
+    </div>
+
+    <div class="mythic-choice-info">
+      <strong class="rarity-mythic">${escapeAttr(item.name)}</strong>
+      <p>${escapeAttr(specialEffect)}</p>
+    </div>
+
+    <span class="mythic-choice-action">Escolher</span>
+  `;
+
+  return card;
+}
+
+function openMythicChoiceModal(monster, choices) {
+  const modal = ensureMythicChoiceModal();
+  const list = modal.querySelector('#mythic-choice-list');
+  if (!list) return;
+
+  list.innerHTML = '';
+
+  choices.forEach((item, index) => {
+    const card = createMythicChoiceCard(item, index);
+    card.addEventListener('click', () => {
+      const selected = choices[index];
+      hideFloatingTooltip();
+      addGear(selected);
+      modal.hidden = true;
+      list.innerHTML = '';
+      log(`Você escolheu ${formatGearName(selected)}. As outras opções Míticas desapareceram.`, 'reward', true);
+      showAchievementNotice({
+        title: 'Item Mítico escolhido',
+        subtitle: selected.name,
+        message: 'As outras 2 opções foram perdidas. O item escolhido foi enviado para seus equipamentos.',
+        type: 'mythic',
+      });
+      saveGame();
+      updateStats();
+    });
+    list.appendChild(card);
+  });
+
+  modal.hidden = false;
+}
+
+function getMythicRiftChance() {
+  const since = Math.max(0, gameState.player.bossesSinceMythicRift || 0);
+  return clamp(
+    (gameConfig.mythicRiftBaseChance || 5) + since * (gameConfig.mythicRiftChanceGain || 3),
+    0,
+    100
+  );
+}
+
+function ensureMythicRiftState() {
+  gameState.mythicRift ??= {
+    active: false,
+    chance: 0,
+    sourceBoss: '',
+  };
+}
+
+function maybeSpawnMythicRiftAfterBoss(monster) {
+  if (!monster?.isBoss || monster.specialBoss) return;
+
+  ensureMythicRiftState();
+
+  if (gameState.mythicRift.active) {
+    renderMythicRiftIndicator();
+    return;
+  }
+
+  const since = Math.max(0, gameState.player.bossesSinceMythicRift || 0) + 1;
+  gameState.player.bossesSinceMythicRift = since;
+
+  const chance = getMythicRiftChance();
+  const guaranteed = since >= (gameConfig.mythicRiftGuaranteeBosses || 5);
+  const opened = guaranteed || randomBetween(1, 100) <= chance;
+
+  if (!opened) {
+    return;
+  }
+
+  gameState.mythicRift = {
+    active: true,
+    chance,
+    sourceBoss: monster.name,
+  };
+  gameState.player.bossesSinceMythicRift = 0;
+
+  log('Uma Fenda Mítica surgiu discretamente na dungeon. Clique nela quando quiser chamar um boss especial.', 'boss', true);
+  renderMythicRiftIndicator();
+}
+
+function ensureMythicRiftIndicator() {
+  let indicator = document.getElementById('mythic-rift-indicator');
+
+  if (!indicator) {
+    indicator = document.createElement('button');
+    indicator.id = 'mythic-rift-indicator';
+    indicator.type = 'button';
+    indicator.className = 'mythic-rift-indicator';
+    indicator.addEventListener('click', invokeMythicRiftBoss);
+    document.body.appendChild(indicator);
+  }
+
+  return indicator;
+}
+
+function renderMythicRiftIndicator() {
+  ensureMythicRiftState();
+  const indicator = ensureMythicRiftIndicator();
+
+  if (!gameState.mythicRift.active) {
+    indicator.hidden = true;
+    return;
+  }
+
+  indicator.hidden = false;
+  indicator.title = 'Clique para invocar um boss especial';
+  indicator.innerHTML = `
+    <span class="mythic-rift-orb" aria-hidden="true">◈</span>
+    <span class="mythic-rift-text">
+      <strong>Fenda Mítica</strong>
+      <small>Boss especial à espreita</small>
+    </span>
+  `;
+}
+
+function hideMythicRiftIndicator() {
+  const indicator = document.getElementById('mythic-rift-indicator');
+  if (indicator) indicator.hidden = true;
+}
+
+function invokeMythicRiftBoss() {
+  ensureMythicRiftState();
+
+  if (!gameState.mythicRift.active) return;
+
+  if (gameState.actionInProgress || gameState.player.hp <= 0) {
+    showAchievementNotice({
+      title: 'Fenda Mítica instável',
+      subtitle: 'Aguarde um instante',
+      message: 'Espere o turno terminar para invocar o boss especial.',
+      type: 'default',
+    });
+    return;
+  }
+
+  hideFloatingTooltip();
+  gameState.monster = createMonster(true, true);
+  gameState.currentTurn = 'player';
+  gameState.mythicRift.active = false;
+  hideMythicRiftIndicator();
+
+  log(`A Fenda Mítica se abriu: ${gameState.monster.name} apareceu!`, 'boss', true);
+  showAchievementNotice({
+    title: 'Fenda Mítica aberta',
+    subtitle: gameState.monster.name,
+    message: 'Um boss especial foi invocado.',
+    type: 'mythic',
+  });
+
+  saveGame();
+  updateStats();
+}
+
+
 function ensureFloatingTooltip() {
   let tooltip = document.getElementById('floating-item-tooltip');
 
@@ -4663,6 +6427,9 @@ function hideFloatingTooltip() {
   if (!tooltip) return;
 
   tooltip.classList.remove('visible');
+  tooltip.dataset.owner = '';
+  tooltip.style.left = '-9999px';
+  tooltip.style.top = '-9999px';
 }
 
 function bindEvents() {
@@ -4743,23 +6510,35 @@ function bindEvents() {
     resumeOfflineProgressIfNeeded();
   });
 
-  document.addEventListener('pointerover', (event) => {
-    const item = event.target.closest('.inventory-item[data-tooltip], .shop-item[data-tooltip]');
-    if (!item) return;
-
-    showFloatingTooltip(item.dataset.tooltip, event);
-  });
-
   document.addEventListener('pointermove', (event) => {
-    moveFloatingTooltip(event);
+    const item = event.target.closest('.inventory-item[data-tooltip], .shop-item[data-tooltip], .equipment-slot[data-tooltip], .gear-modal-item[data-tooltip]');
+
+    if (!item) {
+      hideFloatingTooltip();
+      return;
+    }
+
+    const tooltip = ensureFloatingTooltip();
+
+    if (tooltip.dataset.owner !== item.dataset.tooltip || !tooltip.classList.contains('visible')) {
+      tooltip.dataset.owner = item.dataset.tooltip || '';
+      showFloatingTooltip(item.dataset.tooltip, event);
+    } else {
+      moveFloatingTooltip(event);
+    }
   });
 
   document.addEventListener('pointerout', (event) => {
-    const item = event.target.closest('.inventory-item[data-tooltip], .shop-item[data-tooltip]');
+    const item = event.target.closest('.inventory-item[data-tooltip], .shop-item[data-tooltip], .equipment-slot[data-tooltip], .gear-modal-item[data-tooltip]');
     if (!item) return;
 
-    hideFloatingTooltip();
+    if (!item.contains(event.relatedTarget)) {
+      hideFloatingTooltip();
+    }
   });
+
+  window.addEventListener('blur', hideFloatingTooltip);
+  window.addEventListener('scroll', hideFloatingTooltip, true);
 
   document.addEventListener('click', (event) => {
     if (event.target.closest('[data-buy], [data-use], .tab-button, .mini-button')) {
@@ -4810,7 +6589,7 @@ function initializeGame() {
   updateStats();
 
   if (!loaded) {
-    log('Bem-vindo! Derrote monstros para ganhar XP, moedas e equipamentos.', 'system', true);
+    log('Bem-vindo! Derrote monstros para ganhar XP, ouro e equipamentos.', 'system', true);
   } else {
     log('Save carregado com sucesso.', 'system');
   }

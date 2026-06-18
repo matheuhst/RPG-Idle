@@ -998,7 +998,7 @@ button:disabled {
 
 /* Remove o tooltip antigo, porque agora o tooltip é flutuante via JS */
 .item-tooltip {
-  display: none !important;
+  display: none;
 }
 
 /* Base da imagem: sem borda, sem fundo */
@@ -2395,11 +2395,11 @@ button:disabled {
 }
 
 .monster-card.spell-target-glow {
-  border-color: var(--spell-color, rgba(247, 201, 85, 0.85)) !important;
+  border-color: var(--spell-color, rgba(247, 201, 85, 0.85));
   box-shadow:
     0 0 0 1px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
     0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
-    var(--shadow) !important;
+    var(--shadow);
   animation: spellCardPulse 0.88s ease-out;
 }
 
@@ -2835,11 +2835,11 @@ body.biome-infiniteVoid {
 }
 
 .monster-card.spell-target-glow {
-  border-color: var(--spell-color, var(--biome-accent)) !important;
+  border-color: var(--spell-color, var(--biome-accent));
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 54%, transparent),
     0 0 38px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
-    var(--shadow) !important;
+    var(--shadow);
 }
 
 .spell-impact-fire {
@@ -2907,12 +2907,12 @@ body.biome-infiniteVoid {
 }
 
 .monster-card.spell-target-glow {
-  border-color: var(--spell-color, var(--biome-accent)) !important;
+  border-color: var(--spell-color, var(--biome-accent));
   box-shadow:
     0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 56%, transparent),
     0 0 42px var(--spell-color-soft, rgba(247, 201, 85, 0.30)),
     inset 0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.18)),
-    var(--shadow) !important;
+    var(--shadow);
   animation: spellCardPulse 0.88s ease-out;
 }
 
@@ -3011,12 +3011,12 @@ body.biome-infiniteVoid {
 }
 
 .monster-card.spell-target-glow {
-  border-color: var(--spell-color, var(--biome-accent)) !important;
+  border-color: var(--spell-color, var(--biome-accent));
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 58%, transparent),
     inset 0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.18)),
-    var(--shadow) !important;
-  animation: spellCardGlowStable 0.86s ease-out !important;
+    var(--shadow);
+  animation: spellCardGlowStable 0.86s ease-out;
 }
 
 .monster-card.spell-target-glow::after {
@@ -3039,21 +3039,21 @@ body.biome-infiniteVoid {
 }
 
 .monster-card > .spell-impact {
-  position: absolute !important;
-  left: 50% !important;
-  top: 47% !important;
-  z-index: 8 !important;
-  display: grid !important;
-  place-items: center !important;
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  z-index: 8;
+  display: grid;
+  place-items: center;
   width: 96px;
   height: 96px;
-  margin: 0 !important;
-  padding: 0 !important;
+  margin: 0;
+  padding: 0;
   transform: translate(-50%, -50%);
   pointer-events: none;
   color: var(--spell-color, #fff);
   contain: layout paint;
-  animation: spellImpactFloatUpStable 0.9s ease-out forwards !important;
+  animation: spellImpactFloatUpStable 0.9s ease-out forwards;
 }
 
 .monster-card > .spell-impact img {
@@ -3077,7 +3077,7 @@ body.biome-infiniteVoid {
 }
 
 .monster-card > .spell-impact strong {
-  display: none !important;
+  display: none;
 }
 
 .spell-impact-wind {
@@ -3138,12 +3138,12 @@ body.biome-infiniteVoid {
 }
 
 .monster-card.spell-target-glow {
-  border-color: var(--spell-color, var(--biome-accent)) !important;
+  border-color: var(--spell-color, var(--biome-accent));
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--spell-color, #f7c955) 58%, transparent),
     inset 0 0 30px var(--spell-color-soft, rgba(247, 201, 85, 0.18)),
-    var(--shadow) !important;
-  animation: spellCardGlowOnly 0.82s ease-out !important;
+    var(--shadow);
+  animation: spellCardGlowOnly 0.82s ease-out;
 }
 
 .monster-card.spell-target-glow::after {
@@ -3157,7 +3157,7 @@ body.biome-infiniteVoid {
     radial-gradient(circle at 50% 45%, var(--spell-color-soft, rgba(247, 201, 85, 0.24)), transparent 44%),
     linear-gradient(135deg, color-mix(in srgb, var(--spell-color, #f7c955) 12%, transparent), transparent 58%);
   opacity: 0;
-  animation: spellCardOverlayOnly 0.82s ease-out !important;
+  animation: spellCardOverlayOnly 0.82s ease-out;
 }
 
 .monster-card.spell-target-glow > *:not(.spell-impact) {
@@ -3167,25 +3167,25 @@ body.biome-infiniteVoid {
 
 /* Esconde qualquer impacto antigo que tenha sido colocado dentro do card em saves/abas abertas. */
 .monster-card > .spell-impact {
-  display: none !important;
+  display: none;
 }
 
 .spell-impact-screen {
-  position: fixed !important;
-  left: var(--spell-x, 50vw) !important;
-  top: var(--spell-y, 45vh) !important;
-  z-index: 9999 !important;
-  display: grid !important;
-  place-items: center !important;
-  width: 96px !important;
-  height: 96px !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  position: fixed;
+  left: var(--spell-x, 50vw);
+  top: var(--spell-y, 45vh);
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin: 0;
+  padding: 0;
   transform: translate(-50%, -50%);
   pointer-events: none;
   color: var(--spell-color, #fff);
   contain: layout paint size style;
-  animation: spellImpactScreenFloat 0.9s ease-out forwards !important;
+  animation: spellImpactScreenFloat 0.9s ease-out forwards;
 }
 
 .spell-impact-screen img {
@@ -3209,12 +3209,12 @@ body.biome-infiniteVoid {
 }
 
 .spell-impact-screen strong {
-  display: none !important;
+  display: none;
 }
 
 .spell-impact-wind {
-  --spell-color: rgba(255, 255, 255, 0.98) !important;
-  --spell-color-soft: rgba(255, 255, 255, 0.30) !important;
+  --spell-color: rgba(255, 255, 255, 0.98);
+  --spell-color-soft: rgba(255, 255, 255, 0.30);
 }
 
 @keyframes spellCardGlowOnly {
@@ -3263,16 +3263,16 @@ body.biome-infiniteVoid {
 .monster-card.spell-target-glow > .combat-indicator,
 .hero-card > .combat-indicator,
 .monster-card > .combat-indicator {
-  position: absolute !important;
-  top: 45% !important;
-  left: 50% !important;
-  right: auto !important;
-  bottom: auto !important;
-  z-index: 60 !important;
-  width: auto !important;
-  height: auto !important;
-  margin: 0 !important;
-  padding: 0 !important;
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  z-index: 60;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
   transform: translate(-50%, -50%) scale(0.7);
   pointer-events: none;
 }
@@ -3280,11 +3280,11 @@ body.biome-infiniteVoid {
 /* A animação da magia já mostra a imagem equipada, então qualquer indicador de ataque
    que sobrar no card durante o brilho fica escondido. */
 .monster-card.spell-target-glow .combat-indicator {
-  display: none !important;
+  display: none;
 }
 
 .spell-impact-screen {
-  z-index: 9999 !important;
+  z-index: 9999;
 }
 
 
@@ -3300,21 +3300,21 @@ body.biome-infiniteVoid {
 /* Mantém qualquer indicador antigo fora do fluxo para nunca aumentar card. */
 .hero-card > .combat-indicator,
 .monster-card > .combat-indicator {
-  display: none !important;
+  display: none;
 }
 
 .combat-indicator-screen {
-  position: fixed !important;
-  left: var(--combat-x, 50vw) !important;
-  top: var(--combat-y, 45vh) !important;
-  z-index: 9998 !important;
-  width: 82px !important;
-  height: 82px !important;
-  display: grid !important;
-  place-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  pointer-events: none !important;
+  position: fixed;
+  left: var(--combat-x, 50vw);
+  top: var(--combat-y, 45vh);
+  z-index: 9998;
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
   color: #fff;
   font-size: 4rem;
   line-height: 1;
@@ -3347,15 +3347,15 @@ body.biome-infiniteVoid {
 }
 
 .combat-card-hit {
-  animation: combatCardHitStable 0.42s ease-out !important;
+  animation: combatCardHitStable 0.42s ease-out;
 }
 
 .combat-card-dodge {
-  animation: combatCardDodgeStable 0.48s ease-out !important;
+  animation: combatCardDodgeStable 0.48s ease-out;
 }
 
 .combat-card-critical {
-  animation: combatCardCriticalStable 0.62s ease-out !important;
+  animation: combatCardCriticalStable 0.62s ease-out;
 }
 
 @keyframes combatScreenPopStable {
@@ -3464,11 +3464,11 @@ body.biome-infiniteVoid {
    ================================ */
 
 .combat-card-action {
-  animation: combatCardActionStable 0.54s ease-out !important;
+  animation: combatCardActionStable 0.54s ease-out;
 }
 
 .combat-card-cast {
-  animation: combatCardCastStable 0.76s ease-out !important;
+  animation: combatCardCastStable 0.76s ease-out;
 }
 
 @keyframes combatCardActionStable {
@@ -3514,21 +3514,21 @@ body.biome-infiniteVoid {
    ================================ */
 
 .monster-card .monster-portrait {
-  min-height: clamp(230px, 24vw, 330px) !important;
-  margin: 14px 0 12px !important;
-  padding: 8px !important;
-  display: grid !important;
-  place-items: center !important;
-  overflow: hidden !important;
+  min-height: clamp(230px, 24vw, 330px);
+  margin: 14px 0 12px;
+  padding: 8px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
   isolation: isolate;
 }
 
 .monster-card .monster-image {
-  width: min(100%, 340px) !important;
-  max-width: 100% !important;
-  max-height: clamp(220px, 23vw, 320px) !important;
-  object-fit: contain !important;
-  object-position: center !important;
+  width: min(100%, 340px);
+  max-width: 100%;
+  max-height: clamp(220px, 23vw, 320px);
+  object-fit: contain;
+  object-position: center;
   transform: scale(1.08);
   transform-origin: center;
   image-rendering: pixelated;
@@ -3539,29 +3539,29 @@ body.biome-infiniteVoid {
 }
 
 .monster-card .monster-fallback-icon {
-  font-size: clamp(4.6rem, 8vw, 7rem) !important;
+  font-size: clamp(4.6rem, 8vw, 7rem);
 }
 
 @media (max-width: 1180px) {
   .monster-card .monster-portrait {
-    min-height: clamp(220px, 30vw, 300px) !important;
+    min-height: clamp(220px, 30vw, 300px);
   }
 
   .monster-card .monster-image {
-    width: min(100%, 310px) !important;
-    max-height: clamp(210px, 28vw, 290px) !important;
+    width: min(100%, 310px);
+    max-height: clamp(210px, 28vw, 290px);
   }
 }
 
 @media (max-width: 720px) {
   .monster-card .monster-portrait {
-    min-height: 215px !important;
-    margin: 12px 0 !important;
+    min-height: 215px;
+    margin: 12px 0;
   }
 
   .monster-card .monster-image {
-    width: min(100%, 260px) !important;
-    max-height: 245px !important;
+    width: min(100%, 260px);
+    max-height: 245px;
     transform: scale(1.04);
   }
 }
@@ -3583,20 +3583,20 @@ body.biome-infiniteVoid {
 }
 
 .combat-card-hit {
-  animation: receiverCardHitMove 0.58s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+  animation: receiverCardHitMove 0.58s cubic-bezier(0.2, 0.95, 0.25, 1) both;
 }
 
 .combat-card-dodge {
-  animation: receiverCardDodgeMove 0.66s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+  animation: receiverCardDodgeMove 0.66s cubic-bezier(0.2, 0.95, 0.25, 1) both;
 }
 
 .combat-card-critical {
-  animation: receiverCardCriticalMove 0.72s cubic-bezier(0.18, 0.95, 0.25, 1) both !important;
+  animation: receiverCardCriticalMove 0.72s cubic-bezier(0.18, 0.95, 0.25, 1) both;
 }
 
 .combat-card-magic,
 .monster-card.spell-target-glow.combat-card-magic {
-  animation: receiverCardMagicMove 0.82s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+  animation: receiverCardMagicMove 0.82s cubic-bezier(0.2, 0.95, 0.25, 1) both;
 }
 
 @keyframes receiverCardHitMove {
@@ -3729,29 +3729,29 @@ body.biome-infiniteVoid {
 }
 
 .combat-card-hit {
-  animation: receiverCardHitMove 0.58s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+  animation: receiverCardHitMove 0.58s cubic-bezier(0.2, 0.95, 0.25, 1) both;
 }
 
 .combat-card-dodge {
-  animation: receiverCardDodgeMove 0.66s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+  animation: receiverCardDodgeMove 0.66s cubic-bezier(0.2, 0.95, 0.25, 1) both;
 }
 
 .combat-card-critical {
-  animation: receiverCardCriticalMove 0.72s cubic-bezier(0.18, 0.95, 0.25, 1) both !important;
+  animation: receiverCardCriticalMove 0.72s cubic-bezier(0.18, 0.95, 0.25, 1) both;
 }
 
 .combat-card-magic,
 .monster-card.spell-target-glow.combat-card-magic {
-  animation: receiverCardMagicMove 0.82s cubic-bezier(0.2, 0.95, 0.25, 1) both !important;
+  animation: receiverCardMagicMove 0.82s cubic-bezier(0.2, 0.95, 0.25, 1) both;
 }
 
 .monster-card.spell-target-glow {
-  border-color: var(--spell-color, rgba(247, 201, 85, 0.85)) !important;
+  border-color: var(--spell-color, rgba(247, 201, 85, 0.85));
   box-shadow:
     0 0 0 1px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
     0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
     inset 0 0 24px var(--spell-color-soft, rgba(247, 201, 85, 0.16)),
-    var(--shadow) !important;
+    var(--shadow);
 }
 
 @keyframes receiverCardHitMove {
@@ -3949,5 +3949,2341 @@ body.biome-infiniteVoid {
     filter: brightness(1);
     border-color: var(--border);
     box-shadow: var(--shadow);
+  }
+}
+
+/* ================================
+   AJUSTES FINAIS — MAGIA, ROUBO DE VIDA, POÇÕES, HABILIDADES
+   ================================ */
+
+.combat-card-arcane-hit {
+  animation: receiverCardArcaneHitMove 0.62s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.combat-card-heal {
+  animation: receiverCardHealPulse 0.78s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.combat-card-potion {
+  animation: receiverCardPotionPulse 0.9s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+@keyframes receiverCardArcaneHitMove {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  16% {
+    transform: translate3d(-7px, 0, 0) rotate(-0.55deg);
+    filter: brightness(1.14);
+    border-color: rgba(155, 119, 255, 0.88);
+    box-shadow:
+      0 0 0 1px rgba(155, 119, 255, 0.42),
+      0 0 30px rgba(155, 119, 255, 0.30),
+      inset 0 0 24px rgba(155, 119, 255, 0.18),
+      var(--shadow);
+  }
+
+  36% {
+    transform: translate3d(6px, 0, 0) rotate(0.45deg);
+    border-color: rgba(155, 119, 255, 0.68);
+    box-shadow:
+      0 0 0 1px rgba(155, 119, 255, 0.32),
+      0 0 24px rgba(155, 119, 255, 0.22),
+      inset 0 0 18px rgba(155, 119, 255, 0.14),
+      var(--shadow);
+  }
+
+  58% {
+    transform: translate3d(-4px, 0, 0) rotate(-0.25deg);
+    border-color: rgba(155, 119, 255, 0.48);
+    box-shadow:
+      0 0 0 1px rgba(155, 119, 255, 0.24),
+      0 0 17px rgba(155, 119, 255, 0.16),
+      var(--shadow);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    filter: brightness(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+}
+
+@keyframes receiverCardHealPulse {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+    filter: brightness(1);
+  }
+
+  28% {
+    transform: translate3d(0, -3px, 0) scale(1.006);
+    border-color: rgba(99, 220, 145, 0.9);
+    box-shadow:
+      0 0 0 1px rgba(99, 220, 145, 0.4),
+      0 0 30px rgba(99, 220, 145, 0.28),
+      inset 0 0 24px rgba(99, 220, 145, 0.18),
+      var(--shadow);
+    filter: brightness(1.12);
+  }
+
+  62% {
+    transform: translate3d(0, 1px, 0) scale(1.002);
+    box-shadow:
+      0 0 0 1px rgba(99, 220, 145, 0.24),
+      0 0 18px rgba(99, 220, 145, 0.16),
+      var(--shadow);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+    filter: brightness(1);
+  }
+}
+
+@keyframes receiverCardPotionPulse {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+    filter: brightness(1);
+  }
+
+  24% {
+    transform: translate3d(0, -4px, 0) scale(1.006);
+    border-color: var(--potion-color, rgba(155, 119, 255, 0.9));
+    box-shadow:
+      0 0 0 1px var(--potion-color-soft, rgba(155, 119, 255, 0.32)),
+      0 0 32px var(--potion-color-soft, rgba(155, 119, 255, 0.28)),
+      inset 0 0 25px var(--potion-color-soft, rgba(155, 119, 255, 0.18)),
+      var(--shadow);
+    filter: brightness(1.13);
+  }
+
+  58% {
+    transform: translate3d(0, 1px, 0) scale(1.002);
+    box-shadow:
+      0 0 0 1px var(--potion-color-soft, rgba(155, 119, 255, 0.24)),
+      0 0 18px var(--potion-color-soft, rgba(155, 119, 255, 0.16)),
+      var(--shadow);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+    filter: brightness(1);
+  }
+}
+
+.potion-use-indicator-screen,
+.life-steal-indicator-screen {
+  position: fixed;
+  left: var(--potion-x, var(--life-x, 50%));
+  top: var(--potion-y, var(--life-y, 50%));
+  z-index: 9998;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+
+.potion-use-indicator-screen {
+  animation: potionUseFloat 0.95s ease-out forwards;
+}
+
+.life-steal-indicator-screen {
+  animation: lifeStealFloat 0.9s ease-out forwards;
+}
+
+.potion-use-indicator-screen img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter:
+    drop-shadow(0 12px 24px rgba(0, 0, 0, 0.42))
+    drop-shadow(0 0 18px var(--potion-color, rgba(155, 119, 255, 0.9)));
+}
+
+.potion-use-indicator-screen span,
+.life-steal-indicator-screen span {
+  font-size: 2.4rem;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.42));
+}
+
+.potion-use-indicator-screen strong,
+.life-steal-indicator-screen strong {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 11, 24, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 0.86rem;
+  white-space: nowrap;
+}
+
+.life-steal-indicator-screen small {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(99, 220, 145, 0.18);
+  color: rgba(235, 255, 242, 0.92);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+@keyframes potionUseFloat {
+  0% { opacity: 0; transform: translate(-50%, -42%) scale(0.72); }
+  22% { opacity: 1; transform: translate(-50%, -56%) scale(1.08); }
+  100% { opacity: 0; transform: translate(-50%, -94%) scale(0.9); }
+}
+
+@keyframes lifeStealFloat {
+  0% { opacity: 0; transform: translate(-50%, -38%) scale(0.72); }
+  20% { opacity: 1; transform: translate(-50%, -54%) scale(1.08); }
+  100% { opacity: 0; transform: translate(-50%, -90%) scale(0.92); }
+}
+
+.hero-quick-actions {
+  margin-top: 12px;
+  display: grid;
+  gap: 8px;
+}
+
+.hero-bomb-button {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: 16px;
+  color: #fff;
+  background:
+    radial-gradient(circle at top left, rgba(255, 93, 103, 0.34), transparent 42%),
+    linear-gradient(135deg, rgba(155, 119, 255, 0.46), rgba(255, 93, 103, 0.36));
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 16px 32px rgba(255, 93, 103, 0.18);
+}
+
+.hero-bomb-button strong {
+  min-width: 42px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.skill-toolbar {
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.amount-chip {
+  min-width: 50px;
+  border-radius: 14px;
+  color: rgba(248, 245, 255, 0.88);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.045));
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.amount-chip.active {
+  color: #17111f;
+  background: linear-gradient(135deg, #ffe08a, #f29a4a);
+  border-color: rgba(247, 201, 85, 0.56);
+  box-shadow:
+    0 0 0 1px rgba(247, 201, 85, 0.20),
+    0 12px 24px rgba(247, 201, 85, 0.18);
+}
+
+.clean-skill-row,
+.skill-row {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(155, 119, 255, 0.12), transparent 42%),
+    rgba(255, 255, 255, 0.052);
+  border: 1px solid rgba(255, 255, 255, 0.095);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+.clean-skill-row::before,
+.skill-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--accent), var(--purple));
+}
+
+.skill-next-gain {
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #f8f5ff;
+  background: rgba(155, 119, 255, 0.16);
+  border: 1px solid rgba(155, 119, 255, 0.22);
+  font-weight: 900;
+}
+
+.clean-skill-button,
+.skill-apply-button {
+  color: #17111f;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f7c955, #f29a4a);
+  box-shadow: 0 12px 24px rgba(247, 201, 85, 0.18);
+}
+
+.monster-stat-coins {
+  grid-column: 1 / -1;
+  min-height: 54px;
+  background:
+    radial-gradient(circle at top left, rgba(247, 201, 85, 0.16), transparent 46%),
+    rgba(247, 201, 85, 0.07);
+  border-color: rgba(247, 201, 85, 0.22);
+}
+
+.monster-stat-coins .monster-stat-label,
+.monster-stat-coins .monster-stat-value {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+.monster-stat-coins .monster-stat-value {
+  max-width: 58%;
+  color: #ffd15f;
+}
+
+#floating-item-tooltip:not(.visible) {
+  left: -9999px;
+  top: -9999px;
+}
+
+.combat-indicator-screen.magicWeaponHit {
+  color: #d9c7ff;
+  filter:
+    drop-shadow(0 0 14px rgba(155, 119, 255, 0.42))
+    drop-shadow(0 16px 22px rgba(0, 0, 0, 0.48));
+}
+
+/* ================================
+   AJUSTE — BOMBA ARCANA + HABILIDADES
+   ================================ */
+
+.hero-quick-actions {
+  margin-top: 12px;
+}
+
+.hero-bomb-button {
+  width: 100%;
+  min-height: 54px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  color: #f6d7a0;
+  background:
+    radial-gradient(circle at top left, rgba(255, 93, 103, 0.20), transparent 44%),
+    linear-gradient(135deg, rgba(35, 25, 48, 0.92), rgba(27, 19, 40, 0.96));
+  border: 1px solid rgba(247, 201, 85, 0.20);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 24px rgba(0, 0, 0, 0.18);
+}
+
+.hero-bomb-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  border-color: rgba(247, 201, 85, 0.34);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 18px rgba(255, 93, 103, 0.14),
+    0 16px 28px rgba(0, 0, 0, 0.22);
+}
+
+.hero-bomb-button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.995);
+}
+
+.hero-bomb-visual {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: rgba(255, 93, 103, 0.10);
+  border: 1px solid rgba(255, 93, 103, 0.20);
+  overflow: visible;
+}
+
+.hero-bomb-image {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 7px 10px rgba(0, 0, 0, 0.32));
+}
+
+.hero-bomb-fallback {
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.hero-bomb-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+  text-align: left;
+}
+
+.hero-bomb-button {
+  isolation: isolate;
+}
+
+.hero-bomb-title {
+  color: #fff;
+  font-weight: 950;
+  line-height: 1.05;
+  text-shadow: none;
+}
+
+.hero-bomb-copy small {
+  color: rgba(247, 201, 85, 0.58);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.hero-bomb-count {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+.hero-bomb-button:disabled {
+  opacity: 0.54;
+  filter: grayscale(0.3);
+}
+
+/* Volta os cards das habilidades para um visual limpo: sem faixa colorida lateral. */
+.clean-skill-row,
+.skill-row {
+  position: relative;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  box-shadow: none;
+}
+
+.clean-skill-row::before,
+.skill-row::before {
+  display: none;
+  content: none;
+}
+
+.skill-next-gain {
+  color: rgba(247, 201, 85, 0.86);
+  background: rgba(247, 201, 85, 0.075);
+  border: 1px solid rgba(247, 201, 85, 0.14);
+  box-shadow: none;
+}
+
+.clean-skill-button,
+.skill-apply-button {
+  color: #1c1424;
+  background: linear-gradient(135deg, #f7c955, #f2a64f);
+  box-shadow: 0 10px 18px rgba(247, 201, 85, 0.14);
+}
+
+/* Foco no que você pediu: botões 1 / 5 / 10 / Max mais bonitos e sem texto branco. */
+.skill-toolbar {
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.amount-chip {
+  min-width: 52px;
+  min-height: 34px;
+  padding: 8px 13px;
+  border-radius: 999px;
+  color: rgba(247, 201, 85, 0.92);
+  background: rgba(247, 201, 85, 0.075);
+  border: 1px solid rgba(247, 201, 85, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+  font-weight: 950;
+}
+
+.amount-chip:hover:not(:disabled) {
+  transform: translateY(-1px);
+  color: #f7c955;
+  background: rgba(247, 201, 85, 0.12);
+  border-color: rgba(247, 201, 85, 0.28);
+  box-shadow: 0 8px 16px rgba(247, 201, 85, 0.08);
+}
+
+.amount-chip.active {
+  color: #1c1424;
+  background: linear-gradient(135deg, #f7c955, #f2a64f);
+  border-color: rgba(247, 201, 85, 0.48);
+  box-shadow:
+    0 0 0 1px rgba(247, 201, 85, 0.16),
+    0 10px 20px rgba(247, 201, 85, 0.13);
+}
+
+@media (max-width: 720px) {
+  .hero-bomb-button {
+    grid-template-columns: 40px minmax(0, 1fr) auto;
+  }
+
+  .amount-chip-group {
+    width: 100%;
+  }
+
+  .amount-chip {
+    flex: 1 1 64px;
+  }
+}
+
+/* ================================
+   AJUSTE FINO — CONTADOR DA BOMBA ARCANA
+   ================================ */
+
+.hero-bomb-button {
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+}
+
+.hero-bomb-copy {
+  align-content: center;
+}
+
+.hero-bomb-copy small {
+  display: none;
+}
+
+.hero-bomb-count {
+  min-width: 46px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  color: #24152f;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.55), transparent 44%),
+    linear-gradient(135deg, #ffe08a, #f7c955 52%, #f2a64f);
+  border: 1px solid rgba(255, 229, 143, 0.82);
+  font-size: 0.86rem;
+  font-weight: 950;
+  text-align: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 0 16px rgba(247, 201, 85, 0.24),
+    0 8px 16px rgba(0, 0, 0, 0.22);
+  opacity: 1;
+  filter: none;
+}
+
+.hero-bomb-button:disabled {
+  opacity: 1;
+  filter: none;
+  cursor: not-allowed;
+  background:
+    radial-gradient(circle at top left, rgba(255, 93, 103, 0.12), transparent 44%),
+    linear-gradient(135deg, rgba(35, 25, 48, 0.76), rgba(27, 19, 40, 0.84));
+  border-color: rgba(247, 201, 85, 0.14);
+}
+
+.hero-bomb-button:disabled .hero-bomb-visual,
+.hero-bomb-button:disabled .hero-bomb-title {
+  opacity: 0.62;
+}
+
+.hero-bomb-button:disabled .hero-bomb-count {
+  color: #2a1834;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.46), transparent 44%),
+    linear-gradient(135deg, #f4d071, #d9a945);
+  border-color: rgba(244, 208, 113, 0.68);
+  opacity: 1;
+}
+
+/* ================================
+   BOMBA ARCANA — imagem sem quadrado e maior
+   ================================ */
+
+.hero-bomb-button {
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  min-height: 74px;
+  padding: 11px 14px;
+}
+
+.hero-bomb-visual {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.hero-bomb-image {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  display: block;
+
+  background: transparent;
+  border: none;
+  box-shadow: none;
+
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35));
+}
+
+.hero-bomb-fallback {
+  font-size: 2rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* ================================
+   PRIORIDADES ORGANIZADAS SEM
+   Mantém o visual dos ajustes finais usando ordem de cascata.
+   ================================ */
+
+.item-tooltip {
+  display: none;
+}
+
+.monster-card.spell-target-glow {
+  animation: spellCardGlowOnly 0.82s ease-out;
+  border-color: var(--spell-color, rgba(247, 201, 85, 0.85));
+  box-shadow: 0 0 0 1px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
+    0 0 34px var(--spell-color-soft, rgba(247, 201, 85, 0.28)),
+    inset 0 0 24px var(--spell-color-soft, rgba(247, 201, 85, 0.16)),
+    var(--shadow);
+}
+
+.monster-card > .spell-impact {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  z-index: 8;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  animation: spellImpactFloatUpStable 0.9s ease-out forwards;
+  display: none;
+}
+
+.monster-card > .spell-impact strong {
+  display: none;
+}
+
+.monster-card.spell-target-glow::after {
+  animation: spellCardOverlayOnly 0.82s ease-out;
+}
+
+.spell-impact-screen {
+  position: fixed;
+  left: var(--spell-x, 50vw);
+  top: var(--spell-y, 45vh);
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  margin: 0;
+  padding: 0;
+  animation: spellImpactScreenFloat 0.9s ease-out forwards;
+  z-index: 9999;
+}
+
+.spell-impact-screen strong {
+  display: none;
+}
+
+.spell-impact-wind {
+  --spell-color: rgba(255, 255, 255, 0.98);
+  --spell-color-soft: rgba(255, 255, 255, 0.30);
+}
+
+.monster-card.spell-target-glow > .combat-indicator,
+.hero-card > .combat-indicator,
+.monster-card > .combat-indicator {
+  position: absolute;
+  top: 45%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  z-index: 60;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+
+.monster-card.spell-target-glow .combat-indicator {
+  display: none;
+}
+
+.hero-card > .combat-indicator,
+.monster-card > .combat-indicator {
+  display: none;
+}
+
+.combat-indicator-screen {
+  position: fixed;
+  left: var(--combat-x, 50vw);
+  top: var(--combat-y, 45vh);
+  z-index: 9998;
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.combat-card-hit {
+  animation: receiverCardHitMove 0.58s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.combat-card-dodge {
+  animation: receiverCardDodgeMove 0.66s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.combat-card-critical {
+  animation: receiverCardCriticalMove 0.72s cubic-bezier(0.18, 0.95, 0.25, 1) both;
+}
+
+.combat-card-action {
+  animation: combatCardActionStable 0.54s ease-out;
+}
+
+.combat-card-cast {
+  animation: combatCardCastStable 0.76s ease-out;
+}
+
+.monster-card .monster-portrait {
+  min-height: clamp(230px, 24vw, 330px);
+  margin: 14px 0 12px;
+  padding: 8px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.monster-card .monster-image {
+  width: min(100%, 340px);
+  max-width: 100%;
+  max-height: clamp(220px, 23vw, 320px);
+  object-fit: contain;
+  object-position: center;
+}
+
+.monster-card .monster-fallback-icon {
+  font-size: clamp(4.6rem, 8vw, 7rem);
+}
+
+.combat-card-magic,
+.monster-card.spell-target-glow.combat-card-magic {
+  animation: receiverCardMagicMove 0.82s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.combat-card-arcane-hit {
+  animation: receiverCardArcaneHitMove 0.62s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.combat-card-heal {
+  animation: receiverCardHealPulse 0.78s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.combat-card-potion {
+  animation: receiverCardPotionPulse 0.9s cubic-bezier(0.2, 0.95, 0.25, 1) both;
+}
+
+.monster-stat-coins {
+  background: radial-gradient(circle at top left, rgba(247, 201, 85, 0.16), transparent 46%),
+    rgba(247, 201, 85, 0.07);
+  border-color: rgba(247, 201, 85, 0.22);
+}
+
+#floating-item-tooltip:not(.visible) {
+  left: -9999px;
+  top: -9999px;
+}
+
+.hero-bomb-button {
+  color: #f6d7a0;
+  background: radial-gradient(circle at top left, rgba(255, 93, 103, 0.20), transparent 44%),
+    linear-gradient(135deg, rgba(35, 25, 48, 0.92), rgba(27, 19, 40, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 24px rgba(0, 0, 0, 0.18);
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  min-height: 74px;
+  padding: 11px 14px;
+}
+
+.hero-bomb-button:hover:not(:disabled) {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 18px rgba(255, 93, 103, 0.14),
+    0 16px 28px rgba(0, 0, 0, 0.22);
+}
+
+.clean-skill-row,
+.skill-row {
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  box-shadow: none;
+}
+
+.clean-skill-row::before,
+.skill-row::before {
+  display: none;
+  content: none;
+}
+
+.skill-next-gain {
+  color: rgba(247, 201, 85, 0.86);
+  background: rgba(247, 201, 85, 0.075);
+  border: 1px solid rgba(247, 201, 85, 0.14);
+  box-shadow: none;
+}
+
+.clean-skill-button,
+.skill-apply-button {
+  color: #1c1424;
+  background: linear-gradient(135deg, #f7c955, #f2a64f);
+  box-shadow: 0 10px 18px rgba(247, 201, 85, 0.14);
+}
+
+.skill-toolbar {
+  padding: 10px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.amount-chip {
+  padding: 8px 13px;
+  border-radius: 999px;
+  color: rgba(247, 201, 85, 0.92);
+  background: rgba(247, 201, 85, 0.075);
+  border: 1px solid rgba(247, 201, 85, 0.16);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+.amount-chip:hover:not(:disabled) {
+  color: #f7c955;
+  background: rgba(247, 201, 85, 0.12);
+  border-color: rgba(247, 201, 85, 0.28);
+  box-shadow: 0 8px 16px rgba(247, 201, 85, 0.08);
+}
+
+.amount-chip.active {
+  color: #1c1424;
+  background: linear-gradient(135deg, #f7c955, #f2a64f);
+  border-color: rgba(247, 201, 85, 0.48);
+  box-shadow: 0 0 0 1px rgba(247, 201, 85, 0.16),
+    0 10px 20px rgba(247, 201, 85, 0.13);
+}
+
+.hero-bomb-copy small {
+  display: none;
+}
+
+.hero-bomb-count {
+  min-width: 46px;
+  padding: 7px 11px;
+  border-radius: 999px;
+  color: #24152f;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.55), transparent 44%),
+    linear-gradient(135deg, #ffe08a, #f7c955 52%, #f2a64f);
+  border: 1px solid rgba(255, 229, 143, 0.82);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 0 16px rgba(247, 201, 85, 0.24),
+    0 8px 16px rgba(0, 0, 0, 0.22);
+  opacity: 1;
+  filter: none;
+}
+
+.hero-bomb-button:disabled {
+  opacity: 1;
+  filter: none;
+  background: radial-gradient(circle at top left, rgba(255, 93, 103, 0.12), transparent 44%),
+    linear-gradient(135deg, rgba(35, 25, 48, 0.76), rgba(27, 19, 40, 0.84));
+  border-color: rgba(247, 201, 85, 0.14);
+}
+
+.hero-bomb-button:disabled .hero-bomb-count {
+  color: #2a1834;
+  background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.46), transparent 44%),
+    linear-gradient(135deg, #f4d071, #d9a945);
+  border-color: rgba(244, 208, 113, 0.68);
+  opacity: 1;
+}
+
+.hero-bomb-visual {
+  width: 62px;
+  height: 62px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.hero-bomb-image {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  display: block;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.hero-bomb-fallback {
+  font-size: 2rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+@media (max-width: 1180px) {
+  .monster-card .monster-portrait {
+    min-height: clamp(220px, 30vw, 300px);
+  }
+
+  .monster-card .monster-image {
+    width: min(100%, 310px);
+    max-height: clamp(210px, 28vw, 290px);
+  }
+
+}
+
+@media (max-width: 720px) {
+  .monster-card .monster-portrait {
+    min-height: 215px;
+    margin: 12px 0;
+  }
+
+  .monster-card .monster-image {
+    width: min(100%, 260px);
+    max-height: 245px;
+  }
+
+}
+
+/* ================================
+   BOMBA ARCANA — contraste fixo e legível
+   ================================ */
+
+.hero-card .hero-bomb-button {
+  grid-template-columns: 62px minmax(0, 1fr) auto;
+  min-height: 74px;
+  padding: 11px 14px;
+
+  color: #ffe7a3;
+  background:
+    radial-gradient(circle at 18% 20%, rgba(155, 119, 255, 0.24), transparent 42%),
+    linear-gradient(135deg, #24142f, #181020 58%, #120b19);
+
+  border: 1px solid rgba(247, 201, 85, 0.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 18px rgba(155, 119, 255, 0.12),
+    0 12px 24px rgba(0, 0, 0, 0.22);
+}
+
+.hero-card .hero-bomb-button:hover:not(:disabled) {
+  filter: brightness(1.06);
+  border-color: rgba(247, 201, 85, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.11),
+    0 0 22px rgba(155, 119, 255, 0.18),
+    0 16px 30px rgba(0, 0, 0, 0.26);
+}
+
+.hero-card .hero-bomb-title {
+  color: #ffe08a;
+  font-weight: 950;
+  line-height: 1.05;
+  letter-spacing: 0.01em;
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.75),
+    0 0 12px rgba(247, 201, 85, 0.18);
+  mix-blend-mode: normal;
+}
+
+.hero-card .hero-bomb-count {
+  min-width: 46px;
+  padding: 7px 11px;
+  border-radius: 999px;
+
+  color: #1b1024;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.55), transparent 44%),
+    linear-gradient(135deg, #ffe08a, #f7c955 52%, #f2a64f);
+
+  border: 1px solid rgba(255, 229, 143, 0.78);
+  font-size: 0.86rem;
+  font-weight: 950;
+  text-align: center;
+  opacity: 1;
+  filter: none;
+  mix-blend-mode: normal;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    0 0 14px rgba(247, 201, 85, 0.22),
+    0 8px 16px rgba(0, 0, 0, 0.22);
+}
+
+.hero-card .hero-bomb-button:disabled {
+  opacity: 1;
+  filter: grayscale(0.08) brightness(0.82);
+  cursor: not-allowed;
+}
+
+.hero-card .hero-bomb-button:disabled .hero-bomb-title,
+.hero-card .hero-bomb-button:disabled .hero-bomb-visual {
+  opacity: 0.62;
+}
+
+.hero-card .hero-bomb-button:disabled .hero-bomb-count {
+  opacity: 1;
+  color: #201426;
+  background: linear-gradient(135deg, #e8c35e, #c99736);
+  border-color: rgba(232, 195, 94, 0.55);
+}
+
+/* ================================
+   AJUSTE DE LAYOUT — NÍVEL NO HERÓI E MOEDAS NA LOJA
+   ================================ */
+
+.hero-card .hero-level-card-badge {
+  color: #f3ecff;
+  background:
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.13), transparent 42%),
+    linear-gradient(135deg, rgba(155, 119, 255, 0.34), rgba(82, 185, 255, 0.16));
+  border-color: rgba(190, 160, 255, 0.34);
+  font-weight: 950;
+  letter-spacing: 0.01em;
+}
+
+.shop-card .shop-coin-balance {
+  min-height: 38px;
+  padding: 9px 13px;
+  color: #f3ecff;
+  background:
+    radial-gradient(circle at top left, rgba(247, 201, 85, 0.16), transparent 45%),
+    rgba(255, 255, 255, 0.055);
+  border-color: rgba(247, 201, 85, 0.26);
+  font-weight: 850;
+}
+
+.shop-card .shop-coin-balance strong {
+  color: #ffe08a;
+  font-weight: 950;
+  text-shadow: 0 0 10px rgba(247, 201, 85, 0.18);
+}
+
+@media (max-width: 720px) {
+  .shop-card .card-title {
+    align-items: stretch;
+  }
+
+  .shop-card .shop-coin-balance {
+    justify-content: center;
+  }
+}
+
+/* ================================
+   BALANCEAMENTO UI — inventário, dinheiro e compactação
+   ================================ */
+
+.shop-coin-balance strong,
+.monster-stat-coins .monster-stat-value,
+.shop-card .shop-item button,
+.gear-actions button,
+.inventory-card .item-actions button {
+  font-variant-numeric: tabular-nums;
+}
+
+.gear-section-header {
+  display: grid;
+  gap: 4px;
+  margin: 10px 0 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at top left, rgba(155, 119, 255, 0.13), transparent 46%),
+    rgba(255, 255, 255, 0.035);
+  border: 1px solid color-mix(in srgb, var(--biome-accent) 22%, rgba(255, 255, 255, 0.08));
+}
+
+.gear-section-header strong {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 950;
+}
+
+.gear-section-header span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.3;
+}
+
+.compact-empty-state {
+  min-height: auto;
+  padding: 10px 12px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.equipped-gear-item {
+  border-color: rgba(99, 220, 145, 0.28);
+  background:
+    radial-gradient(circle at top left, rgba(99, 220, 145, 0.10), transparent 44%),
+    rgba(255, 255, 255, 0.045);
+}
+
+.equipped-gear-item button:disabled {
+  opacity: 1;
+  color: rgba(248, 245, 255, 0.82);
+  background: rgba(99, 220, 145, 0.12);
+  border: 1px solid rgba(99, 220, 145, 0.24);
+  box-shadow: none;
+}
+
+.journey-gear-item {
+  border-color: color-mix(in srgb, var(--biome-accent) 18%, rgba(255, 255, 255, 0.08));
+}
+
+.gear-preview small {
+  display: inline-block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+/* ================================
+   MODAL DE EQUIPAMENTOS — visual melhorado
+   ================================ */
+
+.gear-modal-card {
+  width: min(980px, 100%);
+  max-height: min(760px, 90vh);
+  padding: 24px;
+  border-radius: 28px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at top center, rgba(255, 214, 120, 0.07), transparent 30%),
+    radial-gradient(circle at left center, rgba(168, 118, 255, 0.06), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)),
+    rgba(17, 13, 26, 0.94);
+  border: 1px solid rgba(255, 210, 120, 0.18);
+  box-shadow:
+    0 32px 80px rgba(0, 0, 0, 0.48),
+    0 0 0 1px rgba(255,255,255,0.03) inset;
+}
+
+.gear-modal-card .modal-header {
+  align-items: center;
+  padding-bottom: 14px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+
+.gear-modal-card .modal-header h2 {
+  font-size: 2rem;
+  line-height: 1.05;
+}
+
+.gear-modal-card .modal-header p {
+  font-size: 0.98rem;
+  color: rgba(235, 235, 245, 0.72);
+}
+
+.gear-modal-card .modal-list {
+  padding-right: 10px;
+  gap: 16px;
+}
+
+.gear-modal-card .modal-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.gear-modal-card .modal-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255,255,255,0.16);
+}
+
+.gear-modal-section {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.gear-modal-section-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 2px 0;
+}
+
+.gear-modal-section-header h3 {
+  margin: 0;
+  font-size: 1.08rem;
+  color: #f7d889;
+}
+
+.gear-modal-section-header p {
+  margin: 0;
+  color: rgba(230, 232, 240, 0.65);
+  font-size: 0.9rem;
+}
+
+.gear-modal-section-list {
+  display: grid;
+  gap: 12px;
+}
+
+.gear-modal-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)),
+    rgba(20, 18, 29, 0.92);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 8px 24px rgba(0,0,0,0.18),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease;
+}
+
+.gear-modal-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 214, 120, 0.22);
+  box-shadow:
+    0 12px 28px rgba(0,0,0,0.24),
+    0 0 20px rgba(168, 118, 255, 0.08);
+}
+
+.gear-modal-item[data-equipped="true"] {
+  border-color: rgba(115, 215, 140, 0.28);
+  background:
+    radial-gradient(circle at left center, rgba(115, 215, 140, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015)),
+    rgba(20, 18, 29, 0.95);
+}
+
+.gear-modal-item-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.gear-modal-item-media {
+  flex: 0 0 auto;
+}
+
+.gear-modal-item-media .gear-image-frame {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 44%),
+    rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.gear-modal-item-media .gear-image {
+  width: 84%;
+  height: 84%;
+  object-fit: contain;
+}
+
+.gear-modal-item-text {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.gear-modal-item-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gear-modal-item-name {
+  margin: 0;
+  font-size: 1.06rem;
+  line-height: 1.15;
+  font-weight: 900;
+  min-width: 0;
+}
+
+.gear-modal-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.gear-modal-rarity,
+.gear-modal-equipped-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.gear-modal-rarity {
+  color: #f6e4b2;
+  background: rgba(247, 201, 85, 0.12);
+  border: 1px solid rgba(247, 201, 85, 0.24);
+}
+
+.gear-modal-equipped-badge {
+  color: #d9ffe4;
+  background: rgba(95, 210, 125, 0.13);
+  border: 1px solid rgba(95, 210, 125, 0.28);
+}
+
+.gear-modal-item-meta,
+.gear-modal-item-stats {
+  margin: 0;
+  font-size: 0.92rem;
+  color: rgba(233, 235, 242, 0.68);
+}
+
+.gear-modal-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.gear-modal-item-stats {
+  color: rgba(245, 245, 255, 0.88);
+}
+
+.gear-modal-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.gear-modal-item-actions button {
+  min-width: 112px;
+}
+
+.gear-modal-item-actions button[disabled] {
+  opacity: 1;
+  cursor: default;
+  color: #f5e5b4;
+  background: linear-gradient(135deg, rgba(219, 170, 88, 0.75), rgba(161, 108, 45, 0.75));
+  border: 1px solid rgba(255, 214, 120, 0.24);
+}
+
+.gear-modal-card .modal-header-actions .danger-button {
+  background: linear-gradient(135deg, #b24444, #7c2525);
+  border: 1px solid rgba(255, 112, 112, 0.16);
+}
+
+.gear-modal-card .modal-header-actions .mini-button {
+  min-height: 40px;
+  border-radius: 999px;
+}
+
+@media (max-width: 860px) {
+  .gear-modal-item {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .gear-modal-item-topline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .gear-modal-badges {
+    justify-content: flex-start;
+  }
+
+  .gear-modal-item-actions {
+    justify-content: flex-start;
+  }
+}
+
+/* ================================
+   ÍCONE DE MOEDA — proporção corrigida
+   ================================ */
+
+.coin-icon {
+  width: 15px;
+  height: 15px;
+  max-width: 15px;
+  max-height: 15px;
+  aspect-ratio: 1 / 1;
+  display: inline-block;
+  object-fit: contain;
+  vertical-align: -2px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.32));
+}
+
+.money-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  white-space: nowrap;
+  line-height: 1;
+}
+
+.money-inline .coin-icon {
+  flex: 0 0 15px;
+}
+
+.money-positive {
+  gap: 4px;
+}
+
+.coin-balance {
+  gap: 7px;
+}
+
+.coin-balance .coin-icon,
+.shop-coin-balance .coin-icon {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+  flex-basis: 18px;
+}
+
+.shop-card .shop-item > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-card .shop-item > button .money-inline,
+.item-actions button .money-inline,
+.gear-actions button .money-inline,
+.gear-modal-item-actions button .money-inline {
+  gap: 5px;
+}
+
+.shop-card .shop-item > button .coin-icon,
+.item-actions button .coin-icon,
+.gear-actions button .coin-icon,
+.gear-modal-item-actions button .coin-icon {
+  width: 14px;
+  height: 14px;
+  max-width: 14px;
+  max-height: 14px;
+  flex-basis: 14px;
+  vertical-align: -2px;
+}
+
+.monster-stat-coins .monster-stat-main .stat-icon {
+  background: rgba(247, 201, 85, 0.12);
+}
+
+.monster-stat-coins .stat-icon .coin-icon,
+.monster-stat-coins .monster-stat-main .coin-icon {
+  width: 16px;
+  height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+}
+
+.monster-stat-coins .monster-stat-value .coin-icon {
+  width: 14px;
+  height: 14px;
+  max-width: 14px;
+  max-height: 14px;
+}
+
+.offline-card .money-title .coin-icon,
+.prestige-card .money-title .coin-icon {
+  width: 18px;
+  height: 18px;
+  max-width: 18px;
+  max-height: 18px;
+}
+
+/* ================================
+   HOVER DE EQUIPAMENTOS — usa tooltip flutuante simples
+   ================================ */
+
+.equipment-slot[data-tooltip],
+.gear-modal-item[data-tooltip],
+.inventory-item[data-tooltip],
+.shop-item[data-tooltip] {
+  cursor: help;
+}
+
+.equipment-slot .item-info,
+.gear-modal-item .item-info,
+.inventory-item .item-info {
+  display: none;
+}
+
+#floating-item-tooltip {
+  white-space: pre-line;
+}
+
+/* ================================
+   RARIDADE MÍTICA + BOSS ESPECIAL
+   ================================ */
+
+.rarity-mythic {
+  color: #ffd9ff;
+  text-shadow:
+    0 0 10px rgba(255, 119, 255, 0.32),
+    0 0 18px rgba(155, 119, 255, 0.22);
+}
+
+.equipment-slot[data-rarity="mythic"],
+.inventory-item[data-rarity="mythic"],
+.gear-modal-item[data-rarity="mythic"] {
+  border-color: rgba(255, 119, 255, 0.36);
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 119, 255, 0.12), transparent 34%),
+    radial-gradient(circle at 90% 20%, rgba(82, 185, 255, 0.09), transparent 30%),
+    rgba(255, 255, 255, 0.045);
+  box-shadow:
+    0 0 22px rgba(255, 119, 255, 0.10),
+    var(--shadow);
+}
+
+.gear-modal-item[data-rarity="mythic"] .gear-modal-rarity,
+.equipment-slot[data-rarity="mythic"] .gear-slot-label {
+  color: #ffe6ff;
+  background: rgba(255, 119, 255, 0.12);
+  border-color: rgba(255, 119, 255, 0.28);
+}
+
+.gear-image-frame .gear-image[alt*="Mítico"],
+.gear-modal-item[data-rarity="mythic"] .gear-image,
+.equipment-slot[data-rarity="mythic"] .gear-image {
+  filter:
+    drop-shadow(0 0 10px rgba(255, 119, 255, 0.28))
+    drop-shadow(0 10px 16px rgba(0, 0, 0, 0.34));
+}
+
+/* ================================
+   CORREÇÃO VISUAL — STATUS DO INIMIGO
+   Evita cortar "Agilidade" e valores compactos.
+   ================================ */
+
+.monster-card #monster-stats {
+  gap: 10px;
+}
+
+.monster-card .monster-stat-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.monster-card .monster-stat-main {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.monster-card .monster-stat-label {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.08;
+  font-size: 0.86rem;
+}
+
+.monster-card .monster-stat-value {
+  min-width: 3.1rem;
+  max-width: none;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  text-align: right;
+}
+
+@media (max-width: 520px) {
+  .monster-card #monster-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ================================
+   BOSS ESPECIAL: AVISO + ESCOLHA MÍTICA
+   ================================ */
+
+#achievement-notice-stack {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 10050;
+  display: grid;
+  gap: 12px;
+  width: min(420px, calc(100vw - 28px));
+  pointer-events: none;
+}
+
+.achievement-notice {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at top left, rgba(247, 201, 85, 0.17), transparent 42%),
+    rgba(18, 13, 28, 0.98);
+  border: 1px solid rgba(247, 201, 85, 0.22);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.52);
+}
+
+.achievement-notice.mythic {
+  background:
+    radial-gradient(circle at top left, rgba(255, 221, 127, 0.22), transparent 42%),
+    radial-gradient(circle at bottom right, rgba(155, 119, 255, 0.22), transparent 45%),
+    rgba(18, 13, 28, 0.99);
+  border-color: rgba(255, 221, 127, 0.38);
+}
+
+.achievement-notice.fragment {
+  background:
+    radial-gradient(circle at top left, rgba(82, 185, 255, 0.18), transparent 42%),
+    rgba(18, 13, 28, 0.98);
+  border-color: rgba(82, 185, 255, 0.26);
+}
+
+.achievement-notice-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.35rem;
+}
+
+.achievement-notice-body {
+  min-width: 0;
+}
+
+.achievement-notice-body strong,
+.achievement-notice-body span,
+.achievement-notice-body p {
+  display: block;
+}
+
+.achievement-notice-body strong {
+  color: #fff7d0;
+  font-size: 0.98rem;
+}
+
+.achievement-notice-body span {
+  margin-top: 2px;
+  color: rgba(248, 245, 255, 0.72);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.achievement-notice-body p {
+  margin: 5px 0 0;
+  color: rgba(248, 245, 255, 0.86);
+  font-size: 0.86rem;
+  line-height: 1.35;
+}
+
+.achievement-notice-ok {
+  padding: 9px 13px;
+  min-width: 48px;
+  font-size: 0.84rem;
+}
+
+.mythic-choice-backdrop {
+  z-index: 10020;
+}
+
+.mythic-choice-modal-card {
+  width: min(980px, 96vw);
+  background:
+    radial-gradient(circle at top left, rgba(255, 221, 127, 0.12), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(155, 119, 255, 0.16), transparent 40%),
+    #151022;
+}
+
+.mythic-choice-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.mythic-choice-card {
+  width: 100%;
+  min-height: 260px;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+  justify-items: center;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 24px;
+  color: var(--text);
+  text-align: center;
+  background:
+    radial-gradient(circle at top, rgba(255, 221, 127, 0.15), transparent 42%),
+    rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 221, 127, 0.28);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.26);
+}
+
+.mythic-choice-card:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  border-color: rgba(255, 221, 127, 0.55);
+}
+
+.mythic-choice-card .gear-image-frame {
+  width: 86px;
+  height: 86px;
+}
+
+.mythic-choice-info {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.mythic-choice-info strong {
+  font-size: 1.02rem;
+  line-height: 1.12;
+}
+
+.mythic-choice-info small,
+.mythic-choice-label {
+  color: rgba(248, 245, 255, 0.72);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.mythic-choice-info p {
+  max-height: 72px;
+  overflow: hidden;
+  margin: 4px 0 0;
+  color: rgba(248, 245, 255, 0.84);
+  font-size: 0.82rem;
+  line-height: 1.32;
+}
+
+.mythic-choice-action {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  color: #17111f;
+  background: linear-gradient(135deg, #ffe27a, #d8b4ff);
+  font-weight: 950;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 900px) {
+  .mythic-choice-list {
+    grid-template-columns: 1fr;
+  }
+
+  .mythic-choice-card {
+    min-height: auto;
+  }
+}
+
+/* ================================
+   RECOMPENSA MÍTICA — tela bonita e limpa
+   ================================ */
+
+.mythic-choice-backdrop {
+  z-index: 10020;
+  padding: 28px;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(155, 119, 255, 0.20), transparent 34%),
+    rgba(4, 3, 12, 0.74);
+}
+
+.mythic-choice-modal-card {
+  width: min(1060px, 96vw);
+  max-height: min(760px, 92vh);
+  overflow: visible;
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 221, 127, 0.18), transparent 34%),
+    radial-gradient(circle at 88% 12%, rgba(82, 185, 255, 0.13), transparent 36%),
+    linear-gradient(180deg, rgba(25, 17, 42, 0.98), rgba(13, 10, 25, 0.98));
+  border: 1px solid rgba(255, 221, 127, 0.24);
+  box-shadow:
+    0 34px 100px rgba(0, 0, 0, 0.58),
+    0 0 42px rgba(155, 119, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.mythic-choice-modal-card .modal-header {
+  padding-bottom: 2px;
+}
+
+.mythic-choice-modal-card .eyebrow {
+  color: #ffe27a;
+  text-shadow: 0 0 16px rgba(255, 226, 122, 0.26);
+}
+
+.mythic-choice-modal-card h2 {
+  font-size: clamp(1.6rem, 2.8vw, 2.35rem);
+  letter-spacing: -0.03em;
+}
+
+.mythic-choice-modal-card .modal-header p {
+  max-width: 720px;
+  color: rgba(248, 245, 255, 0.78);
+}
+
+.mythic-choice-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  align-items: stretch;
+}
+
+.mythic-choice-modal-card .mythic-choice-card {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 360px;
+  display: grid;
+  grid-template-rows: 152px minmax(108px, auto) auto;
+  justify-items: stretch;
+  align-items: stretch;
+  gap: 16px;
+  padding: 18px;
+  overflow: hidden;
+  border-radius: 28px;
+  color: var(--text);
+  text-align: left;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.025)),
+    rgba(18, 13, 31, 0.94);
+  border: 1px solid rgba(255, 221, 127, 0.24);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transform: translateY(0);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    filter 0.18s ease;
+}
+
+.mythic-choice-modal-card .mythic-choice-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 50% 20%, rgba(255, 226, 122, 0.24), transparent 22%),
+    radial-gradient(circle at 82% 18%, rgba(82, 185, 255, 0.20), transparent 28%),
+    radial-gradient(circle at 20% 82%, rgba(255, 119, 255, 0.15), transparent 34%);
+  opacity: 0.78;
+}
+
+.mythic-choice-modal-card .mythic-choice-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: 27px;
+  background:
+    linear-gradient(180deg, rgba(12, 9, 24, 0.36), rgba(12, 9, 24, 0.76));
+}
+
+.mythic-choice-modal-card .mythic-choice-card:hover {
+  transform: translateY(-4px);
+  filter: brightness(1.05);
+  border-color: rgba(255, 226, 122, 0.62);
+  box-shadow:
+    0 24px 62px rgba(0, 0, 0, 0.44),
+    0 0 32px rgba(255, 226, 122, 0.16),
+    0 0 42px rgba(155, 119, 255, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.mythic-choice-aura {
+  position: absolute;
+  inset: auto -35% -34% -35%;
+  height: 180px;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, rgba(82, 185, 255, 0.20), transparent 64%);
+  pointer-events: none;
+}
+
+.mythic-choice-image-area {
+  display: grid;
+  place-items: center;
+  min-height: 146px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at center, rgba(255, 226, 122, 0.14), transparent 46%),
+    rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mythic-choice-image-area .gear-image-frame {
+  width: 112px;
+  height: 112px;
+  display: grid;
+  place-items: center;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 38% 24%, rgba(255, 255, 255, 0.16), transparent 34%),
+    rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 226, 122, 0.18);
+  box-shadow:
+    0 16px 36px rgba(0, 0, 0, 0.34),
+    0 0 24px rgba(255, 119, 255, 0.10);
+}
+
+.mythic-choice-image-area .gear-image {
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter:
+    drop-shadow(0 0 12px rgba(255, 221, 127, 0.18))
+    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.42));
+}
+
+.mythic-choice-image-area .gear-fallback-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.42));
+}
+
+.mythic-choice-info {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mythic-choice-info strong {
+  min-height: 2.45em;
+  display: flex;
+  align-items: flex-end;
+  font-size: clamp(1.08rem, 1.6vw, 1.34rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.mythic-choice-info p {
+  min-height: 4.65em;
+  margin: 0;
+  padding: 12px 13px;
+  border-radius: 18px;
+  color: rgba(248, 245, 255, 0.88);
+  font-size: 0.91rem;
+  font-weight: 800;
+  line-height: 1.28;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.mythic-choice-info p::before {
+  content: "Especial";
+  display: block;
+  margin-bottom: 5px;
+  color: #ffe27a;
+  font-size: 0.72rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mythic-choice-action {
+  width: 100%;
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: auto;
+  padding: 10px 16px;
+  border-radius: 16px;
+  color: #17111f;
+  background: linear-gradient(135deg, #ffe27a, #d8b4ff);
+  box-shadow: 0 12px 26px rgba(255, 226, 122, 0.16);
+  font-weight: 950;
+  font-size: 0.92rem;
+}
+
+@media (max-width: 900px) {
+  .mythic-choice-modal-card {
+    max-height: 90vh;
+    overflow: auto;
+  }
+
+  .mythic-choice-list {
+    grid-template-columns: 1fr;
+  }
+
+  .mythic-choice-modal-card .mythic-choice-card {
+    min-height: auto;
+    grid-template-rows: auto auto auto;
+  }
+
+  .mythic-choice-info strong,
+  .mythic-choice-info p {
+    min-height: 0;
+  }
+}
+
+/* ================================
+   AJUSTE FINAL — escolha mítica: imagem limpa + tooltip acima da janela
+   ================================ */
+
+/* O tooltip estava atrás do modal mítico: o modal usa z-index 10020. */
+#floating-item-tooltip {
+  z-index: 11050;
+}
+
+/* Mantém a área da arte, mas tira a “caixa branca” em volta da imagem. */
+.mythic-choice-modal-card .mythic-choice-image-area {
+  min-height: 158px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  background:
+    radial-gradient(circle at center, rgba(255, 226, 122, 0.12), transparent 42%),
+    radial-gradient(circle at center, rgba(82, 185, 255, 0.10), transparent 62%);
+  border: 0;
+}
+
+.mythic-choice-modal-card .mythic-choice-image-area .gear-image-frame {
+  width: min(170px, 100%);
+  height: 130px;
+  display: grid;
+  place-items: center;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.mythic-choice-modal-card .mythic-choice-image-area .gear-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter:
+    drop-shadow(0 0 14px rgba(255, 221, 127, 0.20))
+    drop-shadow(0 14px 20px rgba(0, 0, 0, 0.48));
+}
+
+.mythic-choice-modal-card .mythic-choice-image-area .gear-fallback-icon {
+  display: grid;
+  place-items: center;
+  width: 92px;
+  height: 92px;
+  font-size: 3.2rem;
+  line-height: 1;
+  background: transparent;
+  filter:
+    drop-shadow(0 0 12px rgba(255, 221, 127, 0.20))
+    drop-shadow(0 12px 16px rgba(0, 0, 0, 0.42));
+}
+
+/* Dá um pouco mais de respiro para o card sem poluir com atributo demais. */
+.mythic-choice-modal-card .mythic-choice-card {
+  grid-template-rows: 166px minmax(104px, auto) auto;
+}
+
+.mythic-choice-modal-card .mythic-choice-card[data-tooltip] {
+  cursor: help;
+}
+
+@media (max-width: 900px) {
+  .mythic-choice-modal-card .mythic-choice-card {
+    grid-template-rows: auto auto auto;
+  }
+
+  .mythic-choice-modal-card .mythic-choice-image-area .gear-image-frame {
+    height: 118px;
+  }
+}
+
+.mythic-choice-info p {
+  font-weight: 500;
+}
+
+.mythic-choice-info .rarity-mythic {
+  color: #ff4d5f;
+  text-shadow:
+    0 0 10px rgba(255, 77, 95, 0.38),
+    0 0 18px rgba(255, 170, 95, 0.22);
+}
+
+/* Caixa do efeito especial na escolha mítica */
+.mythic-choice-special,
+.mythic-choice-info p {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(5, 12, 28, 0.34);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(248, 245, 255, 0.78);
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.3;
+  box-shadow: none;
+}
+
+/* Remove destaque exagerado da palavra ESPECIAL */
+.mythic-choice-special strong,
+.mythic-choice-info p strong,
+.mythic-choice-info p::first-line {
+  color: rgba(255, 223, 120, 0.82);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Deixa o texto depois mais apagado, mas legível */
+.mythic-choice-info p {
+  opacity: 0.86;
+}
+
+.mythic-choice-card .gear-image-frame {
+  width: 100%;
+  min-height: 150px;
+  display: grid;
+  place-items: center;
+  margin: 0 0 18px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.mythic-choice-card .gear-image {
+  width: min(128px, 70%);
+  height: 128px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.42));
+}
+
+.mythic-choice-card .gear-fallback-icon {
+  font-size: 3.4rem;
+  line-height: 1;
+}
+
+/*.rarity-mythic {
+  color: #ff4d5f;
+  text-shadow:
+    0 0 10px rgba(255, 77, 95, 0.38),
+    0 0 18px rgba(255, 170, 95, 0.22);
+}*/
+/* ================================
+   FENDA MÍTICA — convite discreto de boss especial
+   ================================ */
+
+.mythic-rift-indicator {
+  position: fixed;
+  right: clamp(16px, 3vw, 32px);
+  bottom: clamp(16px, 3vw, 32px);
+  z-index: 9400;
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 12px 15px 12px 12px;
+  border-radius: 999px;
+  color: #f8f5ff;
+  background:
+    radial-gradient(circle at 18% 50%, rgba(255, 77, 95, 0.30), transparent 42%),
+    radial-gradient(circle at 45% 50%, rgba(155, 119, 255, 0.34), transparent 58%),
+    rgba(15, 10, 28, 0.88);
+  border: 1px solid rgba(255, 223, 122, 0.24);
+  box-shadow:
+    0 0 0 1px rgba(155, 119, 255, 0.18),
+    0 18px 46px rgba(0, 0, 0, 0.46),
+    0 0 28px rgba(155, 119, 255, 0.24);
+  backdrop-filter: blur(10px);
+  animation: mythicRiftFloat 2.4s ease-in-out infinite;
+}
+
+.mythic-rift-indicator[hidden] {
+  display: none;
+}
+
+.mythic-rift-indicator:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.08);
+}
+
+.mythic-rift-orb {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 999px;
+  color: #ffe27a;
+  background:
+    radial-gradient(circle, rgba(255, 226, 122, 0.90), rgba(255, 77, 95, 0.28) 38%, rgba(82, 185, 255, 0.18) 68%, rgba(255, 255, 255, 0.08));
+  font-size: 1.3rem;
+  text-shadow: 0 0 14px rgba(255, 226, 122, 0.85);
+  box-shadow:
+    inset 0 0 18px rgba(255, 255, 255, 0.18),
+    0 0 24px rgba(255, 77, 95, 0.38),
+    0 0 34px rgba(82, 185, 255, 0.22);
+}
+
+.mythic-rift-orb::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 226, 122, 0.22);
+  opacity: 0.75;
+  animation: mythicRiftPulse 1.8s ease-out infinite;
+}
+
+.mythic-rift-text {
+  display: grid;
+  gap: 2px;
+  text-align: left;
+  line-height: 1.05;
+}
+
+.mythic-rift-text strong {
+  color: #ff4d5f;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
+  text-shadow:
+    0 0 10px rgba(255, 77, 95, 0.45),
+    0 0 18px rgba(255, 226, 122, 0.16);
+}
+
+.mythic-rift-text small {
+  color: rgba(248, 245, 255, 0.70);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+@keyframes mythicRiftFloat {
+  0%, 100% { translate: 0 0; }
+  50% { translate: 0 -4px; }
+}
+
+@keyframes mythicRiftPulse {
+  0% {
+    transform: scale(0.92);
+    opacity: 0.72;
+  }
+
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .mythic-rift-indicator {
+    right: 12px;
+    bottom: 12px;
+    padding: 10px 12px 10px 10px;
+  }
+
+  .mythic-rift-orb {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  .mythic-rift-text small {
+    display: none;
   }
 }

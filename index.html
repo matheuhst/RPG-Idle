@@ -18,8 +18,6 @@
       </div>
 
       <div class="status-line">
-        <span class="badge" id="hero-level">Nível 1</span>
-        <span class="coin-balance">💰 <strong id="coin-display">0</strong> moedas</span>
         <span class="badge" id="stage-display">Andar 1</span>
         <span class="biome-badge" id="biome-display"><span>Bioma atual</span><strong>Catacumbas Úmidas</strong></span>
         <span class="badge" id="prestige-title">Sem Prestígio</span>
@@ -49,9 +47,9 @@
         <div class="card-title">
           <div>
             <h2>Herói</h2>
-            <p class="card-subtitle">Status, vida, XP e poder total.</p>
+            <p class="card-subtitle">Status, vida e experiência.</p>
           </div>
-          <span class="power-badge" id="player-power">Poder 0</span>
+          <span class="power-badge hero-level-card-badge" id="player-power">Nível 1</span>
         </div>
 
         <div class="bar-group">
@@ -121,7 +119,7 @@
             <h3>Loja</h3>
             <p class="card-subtitle" id="shop-status">Nenhuma loja</p>
           </div>
-          <span class="badge">Itens</span>
+          <span class="coin-balance shop-coin-balance"><img class="coin-icon" src="assets/itens/moeda.png" alt="Moeda" loading="lazy" decoding="async" onerror="this.hidden=true;" /> <strong id="coin-display">0</strong></span>
         </div>
 
         <p id="shop-message" class="shop-message">Derrote monstros para encontrar uma loja aleatória.</p>
@@ -165,7 +163,7 @@
       </article>
     </section>
     <div id="gear-modal" class="modal-backdrop" hidden>
-      <div class="modal-card">
+      <div class="modal-card gear-modal-card">
         <div class="modal-header">
           <div>
             <h2>Equipamentos encontrados</h2>
