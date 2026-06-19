@@ -6448,3 +6448,596 @@ body.biome-infiniteVoid {
     padding: 11px 12px;
   }
 }
+
+
+/* ================================
+   NOTIFICAÇÕES — anti-spam e agrupamento
+   ================================ */
+
+.game-log-notice-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+
+.game-log-notice-count {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  color: #17111f;
+  background: linear-gradient(135deg, #f7c955, #d8b4ff);
+  font-size: 0.68rem;
+  font-weight: 950;
+  line-height: 1.35;
+  box-shadow: 0 7px 14px rgba(247, 201, 85, 0.18);
+}
+
+.game-log-notice.is-bumped {
+  animation: gameLogNoticeBump 0.18s ease both;
+}
+
+@keyframes gameLogNoticeBump {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+  45% {
+    transform: translateX(-4px) scale(1.018);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* ================================
+   NOTIFICAÇÕES — modo estável anti-lag
+   ================================ */
+
+#game-log-notice-stack {
+  top: 14px;
+  right: 14px;
+  gap: 7px;
+  width: min(330px, calc(100vw - 24px));
+  pointer-events: none;
+  contain: layout style paint;
+}
+
+.game-log-notice {
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.34);
+  backdrop-filter: none;
+  animation: gameLogNoticeIn 0.14s ease both;
+  contain: content;
+  will-change: opacity, transform;
+}
+
+.game-log-notice.is-leaving {
+  animation: gameLogNoticeOut 0.16s ease forwards;
+}
+
+.game-log-notice-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 11px;
+  font-size: 0.96rem;
+}
+
+.game-log-notice-body strong {
+  margin-bottom: 2px;
+  font-size: 0.68rem;
+  letter-spacing: 0.055em;
+}
+
+.game-log-notice-body p {
+  font-size: 0.78rem;
+  font-weight: 620;
+  line-height: 1.22;
+}
+
+.game-log-notice-count {
+  padding: 1px 6px;
+  font-size: 0.62rem;
+}
+
+.game-log-notice.is-bumped {
+  animation: none;
+}
+
+@media (max-width: 720px) {
+  #game-log-notice-stack {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+  }
+}
+
+
+/* ================================
+   CARDS POR RARIDADE — padrão visual
+   Cada slot equipado puxa a cor da raridade do item.
+   ================================ */
+
+.equipment-slot[data-rarity],
+.inventory-item[data-rarity],
+.gear-modal-item[data-rarity] {
+  --rarity-card-color: rgba(216, 216, 228, 0.78);
+  --rarity-card-strong: #f3f1ff;
+  --rarity-card-glow: rgba(216, 216, 228, 0.14);
+  --rarity-card-bg-a: rgba(216, 216, 228, 0.10);
+  --rarity-card-bg-b: rgba(255, 255, 255, 0.035);
+  --rarity-card-chip: rgba(255, 255, 255, 0.085);
+
+  border-color: color-mix(in srgb, var(--rarity-card-color) 72%, transparent);
+  background:
+    radial-gradient(circle at 16% 18%, var(--rarity-card-bg-a), transparent 38%),
+    linear-gradient(135deg, var(--rarity-card-bg-b), rgba(10, 7, 18, 0.38));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--rarity-card-color) 16%, transparent) inset,
+    0 0 24px var(--rarity-card-glow),
+    0 16px 36px rgba(0, 0, 0, 0.30);
+}
+
+.equipment-slot[data-rarity="common"],
+.inventory-item[data-rarity="common"],
+.gear-modal-item[data-rarity="common"] {
+  --rarity-card-color: #d8d8e4;
+  --rarity-card-strong: #f0eff9;
+  --rarity-card-glow: rgba(216, 216, 228, 0.10);
+  --rarity-card-bg-a: rgba(216, 216, 228, 0.10);
+  --rarity-card-bg-b: rgba(216, 216, 228, 0.045);
+  --rarity-card-chip: rgba(216, 216, 228, 0.12);
+}
+
+.equipment-slot[data-rarity="uncommon"],
+.inventory-item[data-rarity="uncommon"],
+.gear-modal-item[data-rarity="uncommon"] {
+  --rarity-card-color: #65e09b;
+  --rarity-card-strong: #a8ffc7;
+  --rarity-card-glow: rgba(101, 224, 155, 0.18);
+  --rarity-card-bg-a: rgba(101, 224, 155, 0.18);
+  --rarity-card-bg-b: rgba(18, 70, 42, 0.28);
+  --rarity-card-chip: rgba(101, 224, 155, 0.16);
+}
+
+.equipment-slot[data-rarity="rare"],
+.inventory-item[data-rarity="rare"],
+.gear-modal-item[data-rarity="rare"] {
+  --rarity-card-color: #62bdff;
+  --rarity-card-strong: #a9dcff;
+  --rarity-card-glow: rgba(98, 189, 255, 0.20);
+  --rarity-card-bg-a: rgba(98, 189, 255, 0.18);
+  --rarity-card-bg-b: rgba(18, 56, 95, 0.28);
+  --rarity-card-chip: rgba(98, 189, 255, 0.16);
+}
+
+.equipment-slot[data-rarity="epic"],
+.inventory-item[data-rarity="epic"],
+.gear-modal-item[data-rarity="epic"] {
+  --rarity-card-color: #bd82ff;
+  --rarity-card-strong: #d8b7ff;
+  --rarity-card-glow: rgba(189, 130, 255, 0.22);
+  --rarity-card-bg-a: rgba(189, 130, 255, 0.20);
+  --rarity-card-bg-b: rgba(62, 34, 95, 0.32);
+  --rarity-card-chip: rgba(189, 130, 255, 0.18);
+}
+
+.equipment-slot[data-rarity="legendary"],
+.inventory-item[data-rarity="legendary"],
+.gear-modal-item[data-rarity="legendary"] {
+  --rarity-card-color: #ffd15f;
+  --rarity-card-strong: #ffe49a;
+  --rarity-card-glow: rgba(255, 209, 95, 0.24);
+  --rarity-card-bg-a: rgba(255, 209, 95, 0.20);
+  --rarity-card-bg-b: rgba(96, 58, 12, 0.32);
+  --rarity-card-chip: rgba(255, 209, 95, 0.20);
+}
+
+.equipment-slot[data-rarity="mythic"],
+.inventory-item[data-rarity="mythic"],
+.gear-modal-item[data-rarity="mythic"] {
+  --rarity-card-color: #ff4f66;
+  --rarity-card-strong: #ff7586;
+  --rarity-card-glow: rgba(255, 79, 102, 0.28);
+  --rarity-card-bg-a: rgba(255, 79, 102, 0.24);
+  --rarity-card-bg-b: rgba(86, 8, 24, 0.46);
+  --rarity-card-chip: rgba(255, 79, 102, 0.20);
+}
+
+/* Nome do item: mais legível em todos os cards */
+.rarity-common {
+  color: #f1f0fa;
+}
+
+.rarity-uncommon {
+  color: #8fffb8;
+}
+
+.rarity-rare {
+  color: #9ed9ff;
+}
+
+.rarity-epic {
+  color: #d3adff;
+}
+
+.rarity-legendary {
+  color: #ffe28a;
+}
+
+.rarity-mythic {
+  color: #ff6b7d;
+  text-shadow:
+    0 0 8px rgba(255, 79, 102, 0.42),
+    0 0 16px rgba(255, 34, 64, 0.22);
+}
+
+.equipment-slot[data-rarity] .gear-item-name,
+.equipment-slot[data-rarity] .gear-item-name span,
+.inventory-item[data-rarity] .item-name-line,
+.inventory-item[data-rarity] .item-name-line span,
+.gear-modal-item[data-rarity] .gear-modal-item-name,
+.gear-modal-item[data-rarity] .gear-modal-item-name span {
+  color: var(--rarity-card-strong);
+  font-weight: 950;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.38);
+}
+
+.equipment-slot[data-rarity="mythic"] .gear-item-name,
+.equipment-slot[data-rarity="mythic"] .gear-item-name span,
+.inventory-item[data-rarity="mythic"] .item-name-line,
+.inventory-item[data-rarity="mythic"] .item-name-line span,
+.gear-modal-item[data-rarity="mythic"] .gear-modal-item-name,
+.gear-modal-item[data-rarity="mythic"] .gear-modal-item-name span {
+  color: #ff6b7d;
+  text-shadow:
+    0 0 8px rgba(255, 79, 102, 0.42),
+    0 1px 10px rgba(0, 0, 0, 0.42);
+}
+
+.equipment-slot[data-rarity] .gear-slot-label,
+.gear-modal-item[data-rarity] .gear-modal-rarity {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 7px;
+  border-radius: 7px;
+  color: #fff7fb;
+  background: var(--rarity-card-chip);
+  border: 1px solid color-mix(in srgb, var(--rarity-card-color) 42%, transparent);
+  font-weight: 950;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.42);
+}
+
+.equipment-slot[data-rarity] .gear-item-meta,
+.inventory-item[data-rarity] p,
+.gear-modal-item[data-rarity] .gear-modal-item-meta,
+.gear-modal-item[data-rarity] .gear-modal-item-stats {
+  color: rgba(255, 250, 255, 0.82);
+  font-weight: 680;
+}
+
+.equipment-slot[data-rarity="mythic"] .gear-item-meta,
+.inventory-item[data-rarity="mythic"] p,
+.gear-modal-item[data-rarity="mythic"] .gear-modal-item-meta,
+.gear-modal-item[data-rarity="mythic"] .gear-modal-item-stats {
+  color: rgba(255, 235, 239, 0.88);
+}
+
+.equipment-slot[data-rarity] .gear-image,
+.inventory-item[data-rarity] .gear-image,
+.gear-modal-item[data-rarity] .gear-image {
+  filter:
+    drop-shadow(0 0 9px color-mix(in srgb, var(--rarity-card-color) 42%, transparent))
+    drop-shadow(0 10px 16px rgba(0, 0, 0, 0.38));
+}
+
+.equipment-slot[data-rarity="mythic"] .gear-image,
+.inventory-item[data-rarity="mythic"] .gear-image,
+.gear-modal-item[data-rarity="mythic"] .gear-image {
+  filter:
+    drop-shadow(0 0 12px rgba(255, 79, 102, 0.50))
+    drop-shadow(0 12px 18px rgba(0, 0, 0, 0.42));
+}
+
+/* ================================
+   MITICO — TOOLTIP RICO + FEEDBACK VISUAL
+   ================================ */
+
+#floating-item-tooltip.rich-gear-tooltip {
+  width: min(430px, calc(100vw - 28px));
+  max-width: min(430px, calc(100vw - 28px));
+  padding: 0;
+  white-space: normal;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 79, 102, 0.18), transparent 34%),
+    radial-gradient(circle at 88% 10%, rgba(247, 201, 85, 0.11), transparent 30%),
+    rgba(14, 9, 22, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.58),
+    0 0 28px rgba(255, 79, 102, 0.12);
+}
+
+.gear-tooltip-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+
+.gear-tooltip-card.is-mythic {
+  border-top: 3px solid rgba(255, 79, 102, 0.85);
+}
+
+.gear-tooltip-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.gear-tooltip-head strong {
+  font-size: 1rem;
+  line-height: 1.1;
+  font-weight: 950;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+}
+
+.gear-tooltip-head span,
+.gear-tooltip-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  color: rgba(255, 247, 250, 0.92);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.gear-tooltip-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.gear-tooltip-section {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.gear-tooltip-section small {
+  color: rgba(255, 217, 225, 0.82);
+  font-size: 0.66rem;
+  font-weight: 950;
+  letter-spacing: 0.10em;
+}
+
+.gear-tooltip-section.mythic-power {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(255, 79, 102, 0.20), transparent 38%),
+    rgba(255, 79, 102, 0.075);
+  border-color: rgba(255, 79, 102, 0.24);
+}
+
+.gear-tooltip-section.mythic-power p,
+.gear-tooltip-note,
+.gear-tooltip-gains {
+  margin: 0;
+  color: rgba(255, 245, 248, 0.88);
+  font-size: 0.78rem;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.gear-tooltip-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gear-tooltip-chip {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: rgba(255, 248, 252, 0.94);
+  background: rgba(255, 255, 255, 0.085);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.73rem;
+  font-weight: 850;
+  line-height: 1.15;
+}
+
+.gear-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 9px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.055);
+}
+
+.gear-tooltip-row span {
+  color: rgba(255, 245, 248, 0.72);
+  font-size: 0.75rem;
+  font-weight: 820;
+}
+
+.gear-tooltip-row strong {
+  color: #fff5f7;
+  font-size: 0.78rem;
+  font-weight: 950;
+  text-align: right;
+}
+
+.gear-tooltip-row.danger {
+  background: rgba(255, 79, 102, 0.12);
+  border: 1px solid rgba(255, 79, 102, 0.18);
+}
+
+.gear-tooltip-row.danger strong {
+  color: #ff8997;
+}
+
+.gear-tooltip-row.muted {
+  opacity: 0.82;
+}
+
+.gear-tooltip-gains {
+  padding: 8px 9px;
+  border-radius: 11px;
+  background: rgba(99, 220, 145, 0.08);
+  border: 1px solid rgba(99, 220, 145, 0.12);
+}
+
+.mythic-effect-activation {
+  position: fixed;
+  left: var(--mythic-effect-x);
+  top: var(--mythic-effect-y);
+  z-index: 10120;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 8px;
+  min-width: 150px;
+  max-width: 260px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  color: #fff7fb;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 79, 102, 0.34), transparent 42%),
+    rgba(18, 8, 18, 0.94);
+  border: 1px solid rgba(255, 79, 102, 0.42);
+  box-shadow:
+    0 20px 44px rgba(0, 0, 0, 0.42),
+    0 0 32px rgba(255, 79, 102, 0.24);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: mythicEffectPop 1.7s cubic-bezier(0.18, 0.95, 0.25, 1) both;
+}
+
+.mythic-effect-activation span {
+  grid-row: span 2;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  color: #ffecf0;
+  background: rgba(255, 79, 102, 0.20);
+  border: 1px solid rgba(255, 79, 102, 0.35);
+  font-size: 1.15rem;
+}
+
+.mythic-effect-activation strong {
+  font-size: 0.84rem;
+  line-height: 1.1;
+  font-weight: 950;
+  letter-spacing: 0.02em;
+}
+
+.mythic-effect-activation small {
+  color: rgba(255, 233, 238, 0.82);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.combat-card-mythic {
+  animation: mythicCardPulse 0.76s cubic-bezier(0.18, 0.95, 0.25, 1) both;
+}
+
+@keyframes mythicEffectPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -42%) scale(0.78);
+    filter: brightness(0.9);
+  }
+
+  16% {
+    opacity: 1;
+    transform: translate(-50%, -58%) scale(1.06);
+    filter: brightness(1.18);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -70%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -92%) scale(0.96);
+  }
+}
+
+@keyframes mythicCardPulse {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: brightness(1);
+  }
+
+  32% {
+    transform: translate3d(0, -2px, 0) scale(1.018);
+    filter: brightness(1.18);
+    border-color: rgba(255, 79, 102, 0.78);
+    box-shadow:
+      0 0 0 1px rgba(255, 79, 102, 0.35),
+      0 0 34px rgba(255, 79, 102, 0.24),
+      var(--shadow);
+  }
+
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: brightness(1);
+  }
+}
+
+/* deixa a escrita mítica mais clara sem fugir do padrão vermelho */
+.equipment-slot[data-rarity="mythic"] .gear-item-name,
+.equipment-slot[data-rarity="mythic"] .gear-item-name span,
+.inventory-item[data-rarity="mythic"] .item-name-line,
+.inventory-item[data-rarity="mythic"] .item-name-line span,
+.gear-modal-item[data-rarity="mythic"] .gear-modal-item-name,
+.gear-modal-item[data-rarity="mythic"] .gear-modal-item-name span {
+  color: #ff8d9a;
+  text-shadow:
+    0 0 7px rgba(255, 79, 102, 0.36),
+    0 1px 12px rgba(0, 0, 0, 0.58);
+}
+
+/* ================================
+   FIX: fallback/emoji de equipamento
+   ================================ */
+/* Algumas regras da tela de escolha mítica definiam display no fallback e acabavam
+   ignorando o atributo hidden. Com isso o emoji aparecia por cima da imagem.
+   Esta regra garante: se a imagem carregou, o fallback fica realmente escondido. */
+.gear-fallback-icon[hidden],
+.gear-image-frame .gear-fallback-icon[hidden],
+.mythic-choice-card .gear-fallback-icon[hidden],
+.mythic-choice-modal-card .gear-fallback-icon[hidden],
+.mythic-choice-image-area .gear-fallback-icon[hidden] {
+  display: none !important;
+}
+
+/* Quando a imagem falhar, o JS remove o hidden pelo onerror e aí o fallback aparece centralizado. */
+.mythic-choice-image-area .gear-fallback-icon:not([hidden]),
+.mythic-choice-card .gear-fallback-icon:not([hidden]) {
+  display: grid;
+  place-items: center;
+}

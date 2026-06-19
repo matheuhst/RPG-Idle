@@ -83,10 +83,19 @@ const gameConfig = {
   offlineMaxBattles: 70,
   spellDamageMultiplier: 1.85,
 
-  mythicRiftBaseChance: 5,
-  mythicRiftChanceGain: 3,
-  mythicRiftGuaranteeBosses: 5,
-  mythicUpgradeCoinCostMultiplier: 0.25,
+  // Fenda Mítica: chance fixa e baixa. Sem aumento progressivo.
+  mythicRiftBaseChance: 2,
+  mythicRiftChanceGain: 0,
+  mythicRiftGuaranteeBosses: 999,
+
+  // Mítico melhora pouco em nível, mas ganha muito status. O bloqueio real é Fragmento.
+  mythicUpgradeCoinCostMultiplier: 0.55,
+  mythicUpgradeFragmentBaseCost: 5,
+  mythicUpgradeFragmentMaxCost: 50,
+
+  // Boss especial precisa ser respeitado, sem virar parede impossível.
+  specialBossHpMultiplier: 1.24,
+  specialBossAttackMultiplier: 1.10,
 };
 
 const rarities = [
@@ -111,40 +120,55 @@ const enemyImageByName = {
   'Lobo da Névoa': 'loboNevoa.png',
   'Esqueleto Antigo': 'esqueletoAntigo.png',
   'Orc Guerreiro': 'orcGuerreiro.png',
-  'Mago Sombrio': 'magoSombrio.png',
+  'Lesma Necrótica': 'lesmaNecrotica.png',
 
   // Minas Abandonadas
   'Golem de Pedra': 'golemPedra.png',
   'Morcego Ferrugento': 'morcegoFerrugento.png',
   'Mineiro Amaldiçoado': 'mineiroAmaldicoado.png',
   'Aranha das Minas': 'aranhaMinas.png',
+  'Rato das Profundezas': 'ratoProfundezas.png',
+  'Elemental de Carvão': 'elementalCarvao.png',
 
   // Templo Submerso
   'Guarda Abissal': 'guardaAbissal.png',
   'Sereia Corrompida': 'sereiaCorrompida.png',
   'Caranguejo Colossal': 'caranguejoColossal.png',
+  'Cavaleiro das Marés': 'cavaleiroMares.png', //
+  'Anêmona Carnívora': 'anemonaCarnivora.png', //
+  'Profeta das Profundezas': 'profetaProfundezas.png', //
 
   // Torre Arcana
   'Mago Fraturado': 'magoFraturado.png',
   'Sentinela Rúnico': 'sentinelaRunico.png',
   'Livro Vivo': 'livroVivo.png',
   'Cristal Mágico': 'cristalMagico.png',
+  'Mago Sombrio': 'magoSombrio.png', //
+  'Mão do Feiticeiro': 'maoFeiticeiro.png', //
 
   // Mecânicos / Arcanos
   'Golem de Engrenagens': 'golemEngrenagens.png',
   'Drone Arcano': 'droneArcano.png',
   'Armadura Vazia': 'armaduraVazia.png',
+  'Rato de Cobre': 'ratoCobre.png', //
+  'Cão de Aço': 'caoAco.png', //
+  'Autômato Duelista': 'automatoDuelista.png', //
 
   // Inferno de Cinzas
   'Demônio de Cinzas': 'demonioCinzas.png',
   'Dragão Carbonizado': 'dragaoCarbonizado.png',
   'Cavaleiro Queimado': 'cavaleiroQueimado.png',
+  'Lobo de Fuligem': 'loboFuligem.png',
+  'Anjo Caído das Brasas': 'anjoCaidoBrasas.png', //
+  'Golem de Obsidiana': 'golemObsidiana.png', //
 
   // Vazio Infinito
   'Sombra Sem Nome': 'sombraSemNome.png',
   'Avatar Quebrado': 'avatarQuebrado.png',
   'Herói Corrompido': 'heroiCorrompido.png',
   'Devorador do Fim': 'devoradorFim.png',
+  'Colecionador de Memórias': 'colecionadorMemorias.png', //
+  'Guardião do Limite': 'guardiaoLimite.png', // FOTO
 
   // Bosses
   'Rei Goblin': 'reiGoblin.png',
@@ -155,12 +179,12 @@ const enemyImageByName = {
   'Sacerdote Abissal': 'sacerdoteAbissal.png',
   'Arquimago Fraturado': 'arquimagoFraturado.png',
   'Biblioteca Viva': 'bibliotecaViva.png',
-  'Titã de Engrenagens': 'titaEngrenagens.png',
-  'Núcleo Rúnico': 'nucleoRunico.png',
-  'Dragão de Cinzas': 'dragaoCinzas.png',
-  'General Infernal': 'generalInfernal.png',
-  'Avatar do Vazio': 'avatarVazio.png',
-  'Herói Corrompido Supremo': 'heroiCorrompidoSupremo.png',
+  'Titã de Engrenagens': 'titaEngrenagens.png', // 
+  'Núcleo Rúnico': 'nucleoRunico.png', //
+  'Dragão de Cinzas': 'dragaoCinzas.png', //
+  'General Infernal': 'generalInfernal.png', //
+  'Avatar do Vazio': 'avatarVazio.png', //
+  'O Anti-Herói': 'antiHeroi.png', //
 
   // Bosses especiais
   'Guardião do Pergaminho': 'guardiaoPergaminho.png',
@@ -1359,9 +1383,8 @@ const dungeonBiomes = [
       { name: 'Goblin Ladrão', icon: '👺', type: 'Humanoide', hp: 1, attack: 1.02, defense: 0.88, agility: 1.18, resist: { physical: 1, magic: 1 } },
       { name: 'Lobo da Névoa', icon: '🐺', type: 'Fera', hp: 1.04, attack: 1.08, defense: 0.8, agility: 1.25, resist: { physical: 1, magic: 1 } },
       { name: 'Esqueleto Antigo', icon: '💀', type: 'Morto-vivo', hp: 1.12, attack: 1, defense: 1.08, agility: 0.78, resist: { physical: 0.95, magic: 1.1 } },
-
       { name: 'Orc Guerreiro', icon: '🔨', type: 'Brutamontes', hp: 1.28, attack: 1.18, defense: 1.12, agility: 0.7, resist: { physical: 0.95, magic: 1.05 } },
-      { name: 'Mago Sombrio', icon: '🧙', type: 'Arcano', hp: 0.9, attack: 1.34, defense: 0.82, agility: 0.95, resist: { physical: 1.12, magic: 0.82 } },
+      { name: 'Lesma Necrótica', icon: '🐌', type: 'Molusco', hp: 1.22, attack: 0.88, defense: 1.18, agility: 0.58, resist: { physical: 1.18, magic: 0.72 } }, //fazer essa imagem
     ],
   },
 
@@ -1377,6 +1400,8 @@ const dungeonBiomes = [
       { name: 'Morcego Ferrugento', icon: '🦇', type: 'Fera', hp: 0.86, attack: 0.95, defense: 0.7, agility: 1.55, resist: { physical: 1, magic: 1 } },
       { name: 'Mineiro Amaldiçoado', icon: '⛏️', type: 'Morto-vivo', hp: 1.12, attack: 1.16, defense: 1.05, agility: 0.85, resist: { physical: 1, magic: 1.08 } },
       { name: 'Aranha das Minas', icon: '🕷️', type: 'Inseto', hp: 0.95, attack: 1.02, defense: 0.88, agility: 1.35, resist: { physical: 1.05, magic: 0.95 } },
+      { name: 'Rato das Profundezas', icon: '🐀', type: 'Fera', hp: 0.72, attack: 1.18, defense: 0.55, agility: 1.45, resist: { physical: 0.95, magic: 1.08 } },//
+      { name: 'Elemental de Carvão', icon: '🪨', type: 'Elemental', hp: 1.15, attack: 1.08, defense: 1.28, agility: 0.62, resist: { physical: 0.88, magic: 1.18 } },//
     ],
   },
 
@@ -1391,6 +1416,9 @@ const dungeonBiomes = [
       { name: 'Guarda Abissal', icon: '🔱', type: 'Aquático', hp: 1.18, attack: 1.14, defense: 1.02, agility: 1.02, resist: { physical: 1, magic: 0.95, trident: 1.2 } },
       { name: 'Sereia Corrompida', icon: '🧜', type: 'Arcano', hp: 0.95, attack: 1.25, defense: 0.82, agility: 1.12, resist: { physical: 1.1, magic: 0.8 } },
       { name: 'Caranguejo Colossal', icon: '🦀', type: 'Fera', hp: 1.4, attack: 1, defense: 1.35, agility: 0.58, resist: { physical: 0.9, magic: 1.1 } },
+      { name: 'Cavaleiro das Marés', icon: '🌊', type: 'Humanoide', hp: 1.08, attack: 1.22, defense: 1.05, agility: 0.88, resist: { physical: 0.92, magic: 1.12 } },//
+      { name: 'Anêmona Carnívora', icon: '🌺', type: 'Planta', hp: 1.28, attack: 1.16, defense: 0.95, agility: 0.48, resist: { physical: 1.08, magic: 0.88 } },//
+      { name: 'Profeta das Profundezas', icon: '🔮', type: 'Cultista', hp: 0.96, attack: 1.32, defense: 0.72, agility: 0.82, resist: { physical: 1.15, magic: 0.78 } },//
     ],
   },
 
@@ -1406,21 +1434,25 @@ const dungeonBiomes = [
       { name: 'Sentinela Rúnico', icon: '🛡️', type: 'Construto Arcano', hp: 1.25, attack: 1.08, defense: 1.22, agility: 0.78, resist: { physical: 0.9, magic: 0.85 } },
       { name: 'Livro Vivo', icon: '📖', type: 'Arcano', hp: 0.85, attack: 1.2, defense: 0.72, agility: 1.25, resist: { physical: 1.2, magic: 0.7 } },
       { name: 'Cristal Mágico', icon: '🔮', type: 'Cristal', hp: 1.1, attack: 1.25, defense: 1.05, agility: 0.55, resist: { physical: 1.15, magic: 0.65 } },
+      { name: 'Mago Sombrio', icon: '🧙', type: 'Arcano', hp: 0.9, attack: 1.34, defense: 0.82, agility: 0.95, resist: { physical: 1.12, magic: 0.82 } },
+      { name: 'Mão do Feiticeiro', icon: '✋', type: 'Aberração', hp: 0.74, attack: 1.26, defense: 0.52, agility: 1.38, resist: { physical: 1.1, magic: 0.82 } },//
     ],
   },
 
   {
     id: 'mechanicArcane',
-    name: 'Fortaleza Autômata',
+    name: 'Torre Autômata',
     minStage: 301,
     maxStage: 520,
     theme: 'machine',
     preferredDrops: ['hammer', 'crystal', 'bracelet', 'spell'],
     enemies: [
       { name: 'Golem de Engrenagens', icon: '⚙️', type: 'Mecânico', hp: 1.35, attack: 1.12, defense: 1.25, agility: 0.75, resist: { physical: 0.85, magic: 1.1 } },
-      { name: 'Sentinela Rúnico', icon: '🛡️', type: 'Mecânico Arcano', hp: 1.25, attack: 1.18, defense: 1.18, agility: 0.92, resist: { physical: 0.95, magic: 0.85 } },
       { name: 'Drone Arcano', icon: '🛸', type: 'Mecânico', hp: 0.92, attack: 1.15, defense: 0.82, agility: 1.55, resist: { physical: 1.05, magic: 0.95 } },
       { name: 'Armadura Vazia', icon: '🛡️', type: 'Armadura Viva', hp: 1.18, attack: 1.05, defense: 1.32, agility: 0.72, resist: { physical: 0.9, magic: 1.08 } },
+      { name: 'Rato de Cobre', icon: '🐀', type: 'Fera', hp: 0.82, attack: 1.12, defense: 0.88, agility: 1.32, resist: { physical: 0.9, magic: 1.14 } },//
+      { name: 'Cão de Aço', icon: '🐺', type: 'Constructo', hp: 1.05, attack: 1.24, defense: 1.22, agility: 0.82, resist: { physical: 0.84, magic: 1.16 } },//
+      { name: 'Autômato Duelista', icon: '🤖', type: 'Constructo', hp: 0.92, attack: 1.36, defense: 1.04, agility: 1.18, resist: { physical: 0.88, magic: 1.12 } },//
     ],
   },
 
@@ -1435,6 +1467,9 @@ const dungeonBiomes = [
       { name: 'Demônio de Cinzas', icon: '👹', type: 'Demônio', hp: 1.2, attack: 1.35, defense: 0.95, agility: 1.05, resist: { physical: 1, magic: 0.9 } },
       { name: 'Dragão Carbonizado', icon: '🐉', type: 'Dragão', hp: 1.55, attack: 1.38, defense: 1.12, agility: 0.82, resist: { physical: 0.95, magic: 0.85 } },
       { name: 'Cavaleiro Queimado', icon: '🔥', type: 'Humanoide', hp: 1.25, attack: 1.18, defense: 1.22, agility: 0.92, resist: { physical: 0.95, magic: 1.05 } },
+      { name: 'Lobo de Fuligem', icon: '🐺', type: 'Fera', hp: 0.9, attack: 1.28, defense: 0.78, agility: 1.26, resist: { physical: 1.08, magic: 0.88 } },//
+      { name: 'Anjo Caído das Brasas', icon: '🪽', type: 'Celestial', hp: 1.18, attack: 1.38, defense: 0.96, agility: 1.08, resist: { physical: 1.1, magic: 0.78 } },//
+      { name: 'Golem de Obsidiana', icon: '🗿', type: 'Constructo', hp: 1.42, attack: 1.14, defense: 1.48, agility: 0.42, resist: { physical: 0.78, magic: 1.12 } },//
     ],
   },
 
@@ -1450,44 +1485,60 @@ const dungeonBiomes = [
       { name: 'Avatar Quebrado', icon: '👤', type: 'Avatar', hp: 1.35, attack: 1.35, defense: 1.15, agility: 1.1, resist: { physical: 0.95, magic: 0.95 } },
       { name: 'Herói Corrompido', icon: '🗡️', type: 'Eco Sombrio', hp: 1.4, attack: 1.42, defense: 1.12, agility: 1.16, resist: { physical: 1, magic: 1 } },
       { name: 'Devorador do Fim', icon: '🕳️', type: 'Entidade', hp: 1.7, attack: 1.45, defense: 1.25, agility: 0.9, resist: { physical: 0.9, magic: 0.9 } },
+      { name: 'Colecionador de Memórias', icon: '🧠', type: 'Aberração', hp: 1.6, attack: 1.44, defense: 1.01, agility: 0.94, resist: { physical: 1.16, magic: 0.76 } },//
+      { name: 'Guardião do Limite', icon: '🛡️', type: 'Sentinela', hp: 1.95, attack: 1.68, defense: 1.38, agility: 0.96, resist: { physical: 0.86, magic: 0.92 } }, //
     ],
   },
 ];
 
 const bossPools = {
   catacombs: [
-    { name: 'Rei Goblin', icon: '👑', type: 'Boss', hp: 1.35, attack: 1.22, defense: 1.05, agility: 0.95, resist: { physical: 1, magic: 1 } },
+    { name: 'Rei Goblin', icon: '👑', type: 'Boss Goblin', hp: 1.35, attack: 1.22, defense: 1.05, agility: 0.95, resist: { physical: 1, magic: 1 } },
     { name: 'Lorde dos Ossos', icon: '💀', type: 'Boss Morto-vivo', hp: 1.45, attack: 1.18, defense: 1.2, agility: 0.75, resist: { physical: 0.95, magic: 1.1 } },
+    { name: 'O Rei Afogado', icon: '👑', type: 'Boss Morto-vivo', hp: 1.75, attack: 1.42, defense: 1.28, agility: 0.72, resist: { physical: 0.92, magic: 0.82 } },//
+    { name: 'O Vigia da Cripta', icon: '👁️', type: 'Boss Humanoide', hp: 1.55, attack: 1.58, defense: 1.12, agility: 0.96, resist: { physical: 0.86, magic: 1.08 } },//
   ],
 
   abandonedMines: [
     { name: 'Colosso das Minas', icon: '🪨', type: 'Boss Construto', hp: 1.75, attack: 1.2, defense: 1.45, agility: 0.55, resist: { physical: 0.82, magic: 1.18 } },
     { name: 'Rainha das Aranhas', icon: '🕷️', type: 'Boss Fera', hp: 1.35, attack: 1.25, defense: 1, agility: 1.28, resist: { physical: 1, magic: 1 } },
+    { name: 'Escavador Cego', icon: '⛏️', type: 'Boss Sentinela', hp: 1.68, attack: 1.46, defense: 1.34, agility: 0.64, resist: { physical: 0.82, magic: 1.12 } },
+    { name: 'Devorador de Túneis', icon: '🪱', type: 'Boss Besta', hp: 1.86, attack: 1.38, defense: 1.18, agility: 0.78, resist: { physical: 1.08, magic: 0.84 } },
   ],
 
   sunkenTemple: [
     { name: 'Leviatã Menor', icon: '🐍', type: 'Boss Aquático', hp: 1.65, attack: 1.3, defense: 1.12, agility: 0.95, resist: { physical: 1, magic: 0.9, trident: 1.25 } },
     { name: 'Sacerdote Abissal', icon: '🔱', type: 'Boss Arcano', hp: 1.3, attack: 1.45, defense: 0.95, agility: 1.08, resist: { physical: 1.1, magic: 0.75 } },
+    { name: 'Arauto da Maré', icon: '🌊', type: 'Boss Aquático', hp: 1.62, attack: 1.54, defense: 1.08, agility: 0.92, resist: { physical: 1.08, magic: 0.82 } },
+    { name: 'Guardião Coralino', icon: '🪸', type: 'Boss Aquático', hp: 1.82, attack: 1.34, defense: 1.46, agility: 0.58, resist: { physical: 0.84, magic: 1.1 } },
   ],
 
   brokenTower: [
     { name: 'Arquimago Fraturado', icon: '🧙', type: 'Boss Arcano', hp: 1.4, attack: 1.55, defense: 0.95, agility: 1.05, resist: { physical: 1.15, magic: 0.65 } },
     { name: 'Biblioteca Viva', icon: '📚', type: 'Boss Arcano', hp: 1.55, attack: 1.35, defense: 1.05, agility: 0.82, resist: { physical: 1.12, magic: 0.7 } },
+    { name: 'Mestre das Runas', icon: '🔯', type: 'Boss Arcano', hp: 1.58, attack: 1.62, defense: 1.02, agility: 0.88, resist: { physical: 1.12, magic: 0.78 } },
+    { name: 'Sentinela de Mana', icon: '🛡️', type: 'Boss Arcano', hp: 1.72, attack: 1.44, defense: 1.26, agility: 0.74, resist: { physical: 0.9, magic: 0.82 } },
   ],
 
   mechanicArcane: [
     { name: 'Titã de Engrenagens', icon: '⚙️', type: 'Boss Mecânico', hp: 1.8, attack: 1.28, defense: 1.4, agility: 0.7, resist: { physical: 0.82, magic: 1.1 } },
-    { name: 'Núcleo Rúnico', icon: '🔮', type: 'Boss Arcano', hp: 1.5, attack: 1.48, defense: 1.2, agility: 0.88, resist: { physical: 1.05, magic: 0.7 } },
+    { name: 'Núcleo Rúnico', icon: '🔮', type: 'Boss Híbrido', hp: 1.5, attack: 1.48, defense: 1.2, agility: 0.88, resist: { physical: 1.05, magic: 0.7 } },
+    { name: 'Executor Hidráulico', icon: '⚙️', type: 'Boss Mecânico', hp: 1.76, attack: 1.52, defense: 1.38, agility: 0.68, resist: { physical: 0.84, magic: 1.14 } },
+    { name: 'Titã de Vapor', icon: '♨️', type: 'Boss Mecânico', hp: 1.94, attack: 1.48, defense: 1.52, agility: 0.54, resist: { physical: 0.8, magic: 1.08 } },
   ],
 
   ashHell: [
     { name: 'Dragão de Cinzas', icon: '🐉', type: 'Boss Dragão', hp: 1.8, attack: 1.48, defense: 1.18, agility: 0.86, resist: { physical: 0.95, magic: 0.85 } },
     { name: 'General Infernal', icon: '🔥', type: 'Boss Demônio', hp: 1.55, attack: 1.52, defense: 1.12, agility: 1.05, resist: { physical: 1, magic: 0.9 } },
+    { name: 'Tirano Vulcânico', icon: '🌋', type: 'Boss Vulcânico', hp: 1.88, attack: 1.64, defense: 1.24, agility: 0.76, resist: { physical: 0.9, magic: 0.78 } },
+    { name: 'O Último Incêndio', icon: '🔥', type: 'Boss Elemental', hp: 1.64, attack: 1.78, defense: 0.96, agility: 1.02, resist: { physical: 1.12, magic: 0.74 } },
   ],
 
   infiniteVoid: [
     { name: 'Avatar do Vazio', icon: '🌌', type: 'Boss Entidade', hp: 1.9, attack: 1.6, defense: 1.25, agility: 1.05, resist: { physical: 0.9, magic: 0.9 } },
-    { name: 'Herói Corrompido Supremo', icon: '🗡️', type: 'Boss Espelho', hp: 1.75, attack: 1.7, defense: 1.22, agility: 1.18, resist: { physical: 1, magic: 1 } },
+    { name: 'O Fim dos Tempos', icon: '🗡️', type: 'Boss Tempo', hp: 1.75, attack: 1.7, defense: 1.22, agility: 1.18, resist: { physical: 1, magic: 1 } },
+    { name: 'A Última Sombra', icon: '🌑', type: 'Boss Sombra', hp: 1.7, attack: 1.72, defense: 1.08, agility: 1.12, resist: { physical: 1.14, magic: 0.76 } },
+    { name: 'O Inominável', icon: '🕳️', type: 'Boss Entidade', hp: 1.98, attack: 1.68, defense: 1.34, agility: 0.86, resist: { physical: 0.88, magic: 0.72 } },
   ],
 };
 
@@ -1788,6 +1839,15 @@ function createMonster(isBoss = false, specialBoss = false) {
     xpReward: Math.round((45 + level * 18 + effectiveStage * 3) * (isBoss ? 2.6 : 1) * biomeScaling),
     coinReward: Math.round((18 + level * 8.5 + effectiveStage * 2.4) * (isBoss ? 3.2 : 1) * biomeScaling),
   };
+
+  if (specialBoss) {
+    monster.type = `${monster.type} • Mítico`;
+    monster.maxHp = Math.round(monster.maxHp * (gameConfig.specialBossHpMultiplier || 1.24));
+    monster.attack = Math.round(monster.attack * (gameConfig.specialBossAttackMultiplier || 1.10));
+    monster.defense = Math.round(monster.defense * 1.04);
+    monster.xpReward = Math.round(monster.xpReward * 1.18);
+    monster.coinReward = Math.round(monster.coinReward * 1.14);
+  }
 
   monster.hp = monster.maxHp;
   return applyMonsterBalanceModifiers(monster, {
@@ -2423,7 +2483,16 @@ function getMythicUpgradeFragmentCost(item) {
   if (!isMythicGear(item)) return 0;
 
   const upgrades = Math.max(0, (item.level || 1) - (item.mythicBaseLevel || item.level || 1));
-  return clamp(1 + Math.floor(upgrades / 12), 1, 6);
+  const baseCost = gameConfig.mythicUpgradeFragmentBaseCost || 5;
+  const maxCost = gameConfig.mythicUpgradeFragmentMaxCost || 50;
+
+  // Mítico é para ser uma decisão rara: as primeiras melhorias já custam caro
+  // e o preço sobe rápido conforme o mesmo item é lapidado.
+  return clamp(
+    baseCost + Math.floor(upgrades * 1.4) + Math.floor(upgrades / 4) * 2,
+    baseCost,
+    maxCost
+  );
 }
 
 function spendMythicFragments(amount) {
@@ -2694,7 +2763,7 @@ function getGearUpgradeCost(item) {
   if (isMythicGear(item)) {
     return Math.max(
       120,
-      Math.round(normalCost * (gameConfig.mythicUpgradeCoinCostMultiplier || 0.25))
+      Math.round(normalCost * (gameConfig.mythicUpgradeCoinCostMultiplier || 0.55))
     );
   }
 
@@ -2893,6 +2962,10 @@ function upgradeEquippedGear(slot) {
   gameState.equipment[slot] = item;
 
   const fragmentText = fragmentCost > 0 ? ` e ${fragmentCost} Fragmento(s) Mítico(s)` : '';
+
+  if (isMythicGear(item)) {
+    showMythicEffectActivation('Forja Mítica', `-${fragmentCost} Fragmento(s)`, 'player');
+  }
 
   log(
     `Forja concluída! ${formatGearName(item)} subiu para o nível ${item.level} usando ${formatMoney(cost)}${fragmentText}. Ganhos: ${formatStats(gains)}.`,
@@ -3401,6 +3474,9 @@ function getSpellVisualInfo(spellItem = getActiveSpellItem()) {
 function applySpellGlow(card, visualInfo, className) {
   if (!card) return;
 
+  const glowId = `${Date.now()}-${Math.random()}`;
+
+  card.dataset.spellGlowId = glowId;
   card.style.setProperty('--spell-color', visualInfo.color);
   card.style.setProperty('--spell-color-soft', visualInfo.softColor);
 
@@ -3409,7 +3485,10 @@ function applySpellGlow(card, visualInfo, className) {
   card.classList.add(className);
 
   setTimeout(() => {
+    if (card.dataset.spellGlowId !== glowId) return;
+
     card.classList.remove(className);
+    delete card.dataset.spellGlowId;
   }, 1300);
 }
 
@@ -3465,7 +3544,9 @@ function showSpellImpact(damage = 0) {
     }, 2000);
   };
 
-  queueCardEffect(monsterCard, runSpellVisual, 2000, 120);
+  // O card do inimigo precisa reagir no exato momento do dano.
+  // Fila aqui deixava o brilho/ícone atrasado quando havia vários hits seguidos.
+  runSpellVisual();
 }
 
 function itemImageTag(item) {
@@ -3519,10 +3600,6 @@ function getConsumableTooltip(item) {
     return `${item.name}: causa dano imediato no monstro atual.`;
   }
 
-  if (item.type === 'material') {
-    log(`${item.name} é material de melhoria e não pode ser usado diretamente.`, 'system', true);
-  }
-
   if (item.type === 'specialBoss') {
     return `${item.name}: invoca um boss especial.`;
   }
@@ -3549,12 +3626,98 @@ Custo atual: ${formatMoneyText(getGearUpgradeCost(item))} + ${getMythicUpgradeFr
 Você tem: ${getMythicFragmentQuantity()} Fragmento(s).` : ''}`;
 }
 
+function getGearTooltipHtml(item) {
+  const rarity = getRarityById(item.rarity);
+  const slot = gearSlots[item.slot] || item.slot;
+  const isMythic = isMythicGear(item);
+  const stats = formatStats(item.stats || {})
+    .split(' • ')
+    .filter(Boolean)
+    .map((line) => `<span class="gear-tooltip-chip">${escapeAttr(line)}</span>`)
+    .join('');
+
+  const upgradeCost = getGearUpgradeCost(item);
+  const fragmentCost = getMythicUpgradeFragmentCost(item);
+  const fragmentQty = getMythicFragmentQuantity();
+  const forgePreview = getForgeUpgradePreview(item);
+  const specialEffect = isMythic ? getMythicSpecialEffectSummary(item) : '';
+
+  const upgradeRows = isMythic
+    ? `
+      <div class="gear-tooltip-row danger"><span>Fragmentos</span><strong>${fragmentCost} necessário(s)</strong></div>
+      <div class="gear-tooltip-row"><span>Você tem</span><strong>${fragmentQty} Fragmento(s)</strong></div>
+      <div class="gear-tooltip-note">Melhoria mítica: sobe só +1 nível, mas ganha muito mais status. O custo de Fragmentos aumenta a cada melhoria.</div>
+    `
+    : '';
+
+  return `
+    <div class="gear-tooltip-card ${isMythic ? 'is-mythic' : ''}">
+      <div class="gear-tooltip-head">
+        <strong class="${escapeAttr(rarity.className)}">${escapeAttr(item.name)}</strong>
+        <span>${escapeAttr(rarity.name)}</span>
+      </div>
+
+      <div class="gear-tooltip-meta">
+        <span>${escapeAttr(slot)}</span>
+        <span>Nv. ${formatCompactNumber(item.level)}</span>
+      </div>
+
+      ${isMythic ? `
+        <div class="gear-tooltip-section mythic-power">
+          <small>HABILIDADE MÍTICA</small>
+          <p>${escapeAttr(specialEffect)}</p>
+        </div>
+      ` : ''}
+
+      <div class="gear-tooltip-section">
+        <small>STATUS ATUAIS</small>
+        <div class="gear-tooltip-chips">${stats}</div>
+      </div>
+
+      <div class="gear-tooltip-section">
+        <small>PRÓXIMA MELHORIA</small>
+        <div class="gear-tooltip-row"><span>Moedas</span><strong>${escapeAttr(formatMoneyText(upgradeCost))}</strong></div>
+        ${upgradeRows}
+        <div class="gear-tooltip-gains">${escapeAttr(forgePreview)}</div>
+      </div>
+
+      <div class="gear-tooltip-row muted"><span>Venda</span><strong>${escapeAttr(formatMoneyText(item.value))}</strong></div>
+    </div>
+  `;
+}
+
 function formatGearName(item) {
   const rarity = getRarityById(item.rarity);
   return `<span class="${rarity.className}">${item.name}</span>`;
 }
 
+let pendingSaveTimer = null;
+let lastDeferredSaveAt = 0;
+
+function requestSaveGame() {
+  const now = Date.now();
+
+  if (pendingSaveTimer) return;
+
+  if (now - lastDeferredSaveAt > 1200) {
+    lastDeferredSaveAt = now;
+    saveGame();
+    return;
+  }
+
+  pendingSaveTimer = window.setTimeout(() => {
+    pendingSaveTimer = null;
+    lastDeferredSaveAt = Date.now();
+    saveGame();
+  }, 900);
+}
+
 function saveGame() {
+  if (pendingSaveTimer) {
+    window.clearTimeout(pendingSaveTimer);
+    pendingSaveTimer = null;
+  }
+
   gameState.lastSaveAt = Date.now();
 
   const saveData = structuredCloneSafe({
@@ -3973,33 +4136,223 @@ function getLogNoticeTitle(type = 'system') {
   return titles[type] || titles.system;
 }
 
-function showLogNotice(message, type = 'system', important = false) {
-  const stack = ensureLogNoticeStack();
-  const notice = document.createElement('div');
-  const cleanMessage = String(message || '').trim();
-  const duration = important ? 4600 : type === 'damage' ? 2400 : 3400;
+const logNoticeCooldowns = new Map();
+const maxLogNoticesOnScreen = 2;
+const logNoticeCooldownWindowMs = 1400;
 
+function getPlainLogNoticeText(message) {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = String(message || '');
+
+  return (wrapper.textContent || wrapper.innerText || String(message || ''))
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function shouldSuppressLogNotice(message, type = 'system', important = false) {
+  const plainText = getPlainLogNoticeText(message);
+
+  // A partir daqui, notificação é só para evento realmente importante.
+  // Mensagens comuns continuam podendo existir internamente via log(), mas não viram DOM/animacão.
+  if (!important) return true;
+
+  // Combate acontece o tempo todo no automático. O feedback visual do card já cobre isso.
+  if (type === 'damage') return true;
+
+  const routinePatterns = [
+    /material de melhoria/i,
+    /você derrotou .*\+.*xp/i,
+    /roubo de vida/i,
+    /eco arcano/i,
+    /golpe duplo/i,
+    /magia dupla/i,
+    /iniciativa mítica/i,
+    /auto ataque ligado/i,
+    /save carregado/i,
+    /você encontrou .*nv\./i,
+    /loja ainda aberta/i,
+    /sua vida já está cheia/i,
+  ];
+
+  if (routinePatterns.some((pattern) => pattern.test(plainText))) return true;
+
+  if (/mas guardou no inventário/i.test(plainText) && !/mítico|épico|lendário/i.test(plainText)) {
+    return true;
+  }
+
+  // Tipos que podem aparecer como toast quando marcados como importantes.
+  const allowedTypes = new Set([
+    'boss',
+    'death',
+    'drop',
+    'level',
+    'offline',
+    'shop',
+    'buy',
+    'equip',
+    'system-important',
+    'reward',
+  ]);
+
+  if (!allowedTypes.has(type)) {
+    return !/fenda|prestígio|checkpoint|balanceamento|masmorra|limite|proteção mítica/i.test(plainText);
+  }
+
+  // Recompensa só aparece quando é algo especial, não a cada luta vencida.
+  if (type === 'reward') {
+    return !/mítico|fragmento|drop|nível|equipamento|equipado|proteção|relíquia|prestígio|escolheu|vendeu|épico|lendário/i.test(plainText);
+  }
+
+  return false;
+}
+
+function getLogNoticeKey(message, type = 'system', important = false) {
+  const plainText = getPlainLogNoticeText(message);
+
+  return [
+    type,
+    important ? '1' : '0',
+    plainText.slice(0, 160),
+  ].join('|');
+}
+
+function getLogNoticeDuration(type = 'system', important = false) {
+  if (type === 'death' || type === 'boss' || type === 'system-important') return 2800;
+  if (important) return 2200;
+
+  return 1400;
+}
+
+function pruneLogNoticeCooldowns(now = Date.now()) {
+  if (logNoticeCooldowns.size <= 80) return;
+
+  for (const [key, timestamp] of logNoticeCooldowns.entries()) {
+    if (now - timestamp > 12000 || logNoticeCooldowns.size > 80) {
+      logNoticeCooldowns.delete(key);
+    }
+  }
+}
+
+function scheduleLogNoticeDismiss(notice, duration) {
+  if (!notice) return;
+
+  if (notice.dismissTimer) {
+    window.clearTimeout(notice.dismissTimer);
+  }
+
+  notice.dismissTimer = window.setTimeout(() => dismissLogNotice(notice), duration);
+}
+
+function updateLogNoticeCount(notice) {
+  const count = Number(notice.dataset.count || 1);
+  const countBadge = notice.querySelector('.game-log-notice-count');
+
+  if (!countBadge) return;
+
+  countBadge.textContent = `x${count}`;
+  countBadge.hidden = count <= 1;
+}
+
+function bumpExistingLogNotice(notice, duration, stack, latestMessage = '') {
+  const count = Number(notice.dataset.count || 1) + 1;
+  notice.dataset.count = String(count);
+  notice.dataset.leaving = 'false';
+  notice.classList.remove('is-leaving');
+  updateLogNoticeCount(notice);
+
+  const messageNode = notice.querySelector('.game-log-notice-body p');
+  if (messageNode && latestMessage) {
+    messageNode.textContent = getPlainLogNoticeText(latestMessage);
+  }
+
+  if (stack.firstElementChild !== notice) {
+    stack.prepend(notice);
+  }
+
+  scheduleLogNoticeDismiss(notice, duration);
+}
+
+function trimLogNoticeStack(stack) {
+  if (!stack) return;
+
+  while (stack.childElementCount > maxLogNoticesOnScreen) {
+    const lastNotice = stack.lastElementChild;
+    if (!lastNotice) break;
+
+    if (lastNotice.dismissTimer) {
+      window.clearTimeout(lastNotice.dismissTimer);
+      lastNotice.dismissTimer = null;
+    }
+
+    lastNotice.remove();
+  }
+}
+
+function showLogNotice(message, type = 'system', important = false) {
+  const cleanMessage = String(message || '').trim();
+  const plainMessage = getPlainLogNoticeText(cleanMessage);
+
+  if (!plainMessage) return;
+  if (shouldSuppressLogNotice(cleanMessage, type, important)) return;
+
+  const stack = ensureLogNoticeStack();
+  const duration = getLogNoticeDuration(type, important);
+  const noticeKey = getLogNoticeKey(cleanMessage, type, important);
+  const now = Date.now();
+  const lastShownAt = logNoticeCooldowns.get(noticeKey) || 0;
+  const existingNotice = Array.from(stack.children).find((child) =>
+    child.dataset.noticeKey === noticeKey && child.dataset.leaving !== 'true'
+  );
+
+  pruneLogNoticeCooldowns(now);
+
+  if (existingNotice) {
+    bumpExistingLogNotice(existingNotice, duration, stack, cleanMessage);
+    logNoticeCooldowns.set(noticeKey, now);
+    trimLogNoticeStack(stack);
+    return;
+  }
+
+  // Anti-lag: se uma mensagem igual acabou de sair da tela, não recria instantaneamente.
+  if (now - lastShownAt < logNoticeCooldownWindowMs) return;
+
+  const notice = document.createElement('div');
   notice.className = `game-log-notice ${type}${important ? ' important' : ''}`;
+  notice.dataset.noticeKey = noticeKey;
+  notice.dataset.count = '1';
   notice.innerHTML = `
     <div class="game-log-notice-icon">${getLogNoticeIcon(type)}</div>
     <div class="game-log-notice-body">
-      <strong>${escapeAttr(getLogNoticeTitle(type))}</strong>
-      <p>${cleanMessage}</p>
+      <div class="game-log-notice-head">
+        <strong>${escapeAttr(getLogNoticeTitle(type))}</strong>
+        <span class="game-log-notice-count" hidden>x1</span>
+      </div>
+      <p></p>
     </div>
   `;
 
+  notice.querySelector('.game-log-notice-body p').textContent = plainMessage;
   notice.addEventListener('click', () => dismissLogNotice(notice));
   stack.prepend(notice);
-
-  while (stack.childElementCount > 6) {
-    dismissLogNotice(stack.lastElementChild, 0);
-  }
-
-  window.setTimeout(() => dismissLogNotice(notice), duration);
+  logNoticeCooldowns.set(noticeKey, now);
+  scheduleLogNoticeDismiss(notice, duration);
+  trimLogNoticeStack(stack);
 }
 
-function dismissLogNotice(notice, delay = 240) {
-  if (!notice || notice.dataset.leaving === 'true') return;
+function dismissLogNotice(notice, delay = 180) {
+  if (!notice) return;
+
+  if (notice.dismissTimer) {
+    window.clearTimeout(notice.dismissTimer);
+    notice.dismissTimer = null;
+  }
+
+  if (delay <= 0) {
+    notice.remove();
+    return;
+  }
+
+  if (notice.dataset.leaving === 'true') return;
 
   notice.dataset.leaving = 'true';
   notice.classList.add('is-leaving');
@@ -4027,14 +4380,24 @@ function renderMonsterPortrait(monster) {
   const portrait = elements.monsterPortrait;
   if (!portrait) return;
 
-  portrait.innerHTML = '';
-
   if (!monster) {
-    portrait.textContent = '👹';
+    if (portrait.dataset.renderKey !== 'empty') {
+      portrait.dataset.renderKey = 'empty';
+      portrait.innerHTML = '';
+      portrait.textContent = '👹';
+    }
     return;
   }
 
   const imagePath = getMonsterImage(monster);
+  const renderKey = `${monster.name}|${imagePath || monster.icon || '👹'}`;
+
+  // Evita recriar a imagem do inimigo a cada updateStats().
+  // Isso reduz bastante travamento quando o automático fica ligado por muito tempo.
+  if (portrait.dataset.renderKey === renderKey) return;
+
+  portrait.dataset.renderKey = renderKey;
+  portrait.innerHTML = '';
 
   if (!imagePath) {
     portrait.textContent = monster.icon || '👹';
@@ -4049,6 +4412,7 @@ function renderMonsterPortrait(monster) {
   image.decoding = 'async';
 
   image.addEventListener('error', () => {
+    portrait.dataset.renderKey = `fallback|${monster.name}`;
     portrait.innerHTML = '';
     portrait.textContent = monster.icon || '👹';
   });
@@ -4132,7 +4496,7 @@ function updateStats() {
   updateButtons();
   renderSkillControls();
 
-  saveGame();
+  requestSaveGame();
 }
 
 function getAutoUseLabel(key) {
@@ -4534,6 +4898,7 @@ Fragmentos Míticos: ${mythicFragmentCost} necessário(s) • você tem ${getMyt
 Melhorar: ${formatMoneyText(cost)}${mythicFragmentLine}
 Ganho na próxima melhoria: ${forgePreview}`;
         row.dataset.tooltip = tooltip;
+        row.dataset.tooltipHtml = getGearTooltipHtml(item);
 
         row.innerHTML = `
           ${gearImageTag(item)}
@@ -4705,6 +5070,7 @@ function renderGearInventory() {
       row.className = 'inventory-item';
       if (item?.rarity) row.dataset.rarity = item.rarity;
       row.dataset.tooltip = getGearTooltip(item);
+      row.dataset.tooltipHtml = getGearTooltipHtml(item);
       row.innerHTML = `
         <div>
           <strong class="item-name-line">
@@ -4738,6 +5104,7 @@ function createGearModalRow(item, equipped = false) {
   row.dataset.rarity = rarity.id;
   row.dataset.equipped = equipped ? 'true' : 'false';
   row.dataset.tooltip = getGearTooltip(item);
+  row.dataset.tooltipHtml = getGearTooltipHtml(item);
 
   row.innerHTML = `
     <div class="gear-modal-item-main">
@@ -4897,7 +5264,7 @@ function queueCardEffect(target, callback, duration = 900, gap = 100) {
   const previous = cardEffectQueues.get(target) || Promise.resolve();
 
   const next = previous
-    .catch(() => {})
+    .catch(() => { })
     .then(() => new Promise((resolve) => {
       callback();
       setTimeout(resolve, duration + gap);
@@ -4918,6 +5285,7 @@ function clearCombatCardEffectClasses(target) {
     'combat-card-critical',
     'combat-card-magic',
     'combat-card-arcane-hit',
+    'combat-card-mythic',
     'combat-card-heal',
     'combat-card-potion'
   );
@@ -4927,13 +5295,19 @@ function pulseCombatCard(target, flashClass, duration = 720, queued = false) {
   if (!target) return Promise.resolve();
 
   const runPulse = () => {
+    const pulseId = `${Date.now()}-${Math.random()}`;
+
+    target.dataset.combatPulseId = pulseId;
     clearCombatCardEffectClasses(target);
 
     void target.offsetWidth;
     target.classList.add(flashClass);
 
     setTimeout(() => {
+      if (target.dataset.combatPulseId !== pulseId) return;
+
       target.classList.remove(flashClass);
+      delete target.dataset.combatPulseId;
     }, duration);
   };
 
@@ -4961,6 +5335,7 @@ function showCombatIndicator(targetSide, resultType) {
     enemyHit: '💥',
     playerDodge: '💨',
     critical: '⚡',
+    mythicHit: '✦',
   };
 
   const isDodge = resultType === 'playerMiss' || resultType === 'playerDodge';
@@ -5003,7 +5378,44 @@ function showCombatIndicator(targetSide, resultType) {
     }, visualDuration);
   };
 
+  // O inimigo recebe hits em sequência no auto. Se todos entrarem na fila,
+  // o emoji e o brilho aparecem tarde demais. No card do inimigo, o feedback
+  // visual substitui o anterior imediatamente. No herói, mantém fila para cura/dano
+  // não ficarem sobrepostos.
+  if (targetSide === 'monster') {
+    runCombatVisual();
+    return;
+  }
+
   queueCardEffect(target, runCombatVisual, visualDuration, 120);
+}
+
+function showMythicEffectActivation(title, detail = '', targetSide = 'monster') {
+  const target =
+    targetSide === 'player'
+      ? document.querySelector('.hero-card')
+      : document.querySelector('.monster-card');
+
+  if (!target) return;
+
+  const center = getCombatTargetCenter(target);
+  const badge = document.createElement('div');
+
+  badge.className = 'mythic-effect-activation';
+  badge.style.setProperty('--mythic-effect-x', `${center.x}px`);
+  badge.style.setProperty('--mythic-effect-y', `${center.y}px`);
+  badge.innerHTML = `
+    <span>✦</span>
+    <strong>${escapeAttr(title)}</strong>
+    ${detail ? `<small>${escapeAttr(detail)}</small>` : ''}
+  `;
+
+  document.body.appendChild(badge);
+  pulseCombatCard(target, 'combat-card-mythic', 760);
+
+  setTimeout(() => {
+    badge.remove();
+  }, 1700);
 }
 
 function getCombatDodgeChance(attacker, defender, attackerSide = 'player') {
@@ -5127,6 +5539,14 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
   const isCritical = randomBetween(1, 100) <= criticalChance;
   let damage = isCritical ? Math.round(rawDamage * 1.75) : rawDamage;
 
+  if (attackerSide === 'monster' && (defender.damageReductionPercent || 0) > 0) {
+    showMythicEffectActivation(
+      'Redução Mítica',
+      `-${formatCompactNumber(defender.damageReductionPercent, 1)}% dano`,
+      'player'
+    );
+  }
+
   if (attackerSide === 'monster') {
     const defenderMaxHp = getPlayerMaxHp();
     const maxHitRate = attacker.isBoss ? 0.16 : 0.105;
@@ -5198,6 +5618,7 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
       totalDamage += extraDamage;
 
       showCombatIndicator(defenderSide, 'mythicHit');
+      showMythicEffectActivation('Golpe Duplo', `+${formatCompactNumber(extraDamage)} dano`, defenderSide);
       log(`Golpe Duplo Mítico: mais ${formatCompactNumber(extraDamage)} de dano.`, 'damage', true);
     }
 
@@ -5209,6 +5630,7 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
       totalDamage += extraDamage;
 
       showSpellImpact(extraDamage);
+      showMythicEffectActivation('Magia Dupla', `+${formatCompactNumber(extraDamage)} dano`, defenderSide);
       log(`Magia Dupla Mítica: a magia repetiu e causou mais ${formatCompactNumber(extraDamage)} de dano.`, 'damage', true);
     }
   }
@@ -5291,6 +5713,7 @@ function startTurn() {
     playerFirst = randomBetween(1, 100) <= playerCombat.firstStrikeChance;
 
     if (playerFirst) {
+      showMythicEffectActivation('Iniciativa', 'você começa o turno', 'monster');
       log('Iniciativa Mítica: você agiu antes do inimigo.', 'system', true);
     }
   }
@@ -5396,6 +5819,7 @@ function checkBattleEnd() {
       const restoredHp = Math.max(1, Math.round(getPlayerMaxHp() * 0.18));
       player.hp = restoredHp;
       showLifeStealVisual(restoredHp);
+      showMythicEffectActivation('Proteção Mítica', `+${formatCompactNumber(restoredHp)} HP`, 'player');
       log(`Proteção Mítica: a morte foi evitada e você voltou com ${formatCompactNumber(restoredHp)} HP.`, 'reward', true);
       return false;
     }
@@ -5703,7 +6127,7 @@ function useConsumable(itemId) {
   }
 
   if (item.type === 'material') {
-    log(`${item.name} é material de melhoria e não pode ser usado diretamente.`, 'system', true);
+    return;
   }
 
   if (item.type === 'specialBoss') {
@@ -6259,6 +6683,7 @@ function createMythicChoiceCard(item, index) {
   card.type = 'button';
   card.className = 'gear-modal-item mythic-choice-card';
   card.dataset.tooltip = getGearTooltip(item);
+  card.dataset.tooltipHtml = getGearTooltipHtml(item);
   card.dataset.choiceIndex = String(index);
   card.dataset.rarity = 'mythic';
 
@@ -6314,7 +6739,7 @@ function openMythicChoiceModal(monster, choices) {
 function getMythicRiftChance() {
   const since = Math.max(0, gameState.player.bossesSinceMythicRift || 0);
   return clamp(
-    (gameConfig.mythicRiftBaseChance || 5) + since * (gameConfig.mythicRiftChanceGain || 3),
+    (gameConfig.mythicRiftBaseChance ?? 5) + since * (gameConfig.mythicRiftChanceGain ?? 3),
     0,
     100
   );
@@ -6342,7 +6767,7 @@ function maybeSpawnMythicRiftAfterBoss(monster) {
   gameState.player.bossesSinceMythicRift = since;
 
   const chance = getMythicRiftChance();
-  const guaranteed = since >= (gameConfig.mythicRiftGuaranteeBosses || 5);
+  const guaranteed = since >= (gameConfig.mythicRiftGuaranteeBosses ?? 5);
   const opened = guaranteed || randomBetween(1, 100) <= chance;
 
   if (!opened) {
@@ -6446,13 +6871,19 @@ function ensureFloatingTooltip() {
   return tooltip;
 }
 
-function showFloatingTooltip(text, event) {
-  if (!text) return;
+function showFloatingTooltip(content, event, rich = false) {
+  if (!content) return;
 
   const tooltip = ensureFloatingTooltip();
-  tooltip.textContent = text;
-  tooltip.classList.add('visible');
+  tooltip.classList.toggle('rich-gear-tooltip', Boolean(rich));
 
+  if (rich) {
+    tooltip.innerHTML = content;
+  } else {
+    tooltip.textContent = content;
+  }
+
+  tooltip.classList.add('visible');
   moveFloatingTooltip(event);
 }
 
@@ -6484,7 +6915,7 @@ function hideFloatingTooltip() {
   const tooltip = document.getElementById('floating-item-tooltip');
   if (!tooltip) return;
 
-  tooltip.classList.remove('visible');
+  tooltip.classList.remove('visible', 'rich-gear-tooltip');
   tooltip.dataset.owner = '';
   tooltip.style.left = '-9999px';
   tooltip.style.top = '-9999px';
@@ -6577,10 +7008,12 @@ function bindEvents() {
     }
 
     const tooltip = ensureFloatingTooltip();
+    const tooltipContent = item.dataset.tooltipHtml || item.dataset.tooltip || '';
+    const richTooltip = Boolean(item.dataset.tooltipHtml);
 
-    if (tooltip.dataset.owner !== item.dataset.tooltip || !tooltip.classList.contains('visible')) {
-      tooltip.dataset.owner = item.dataset.tooltip || '';
-      showFloatingTooltip(item.dataset.tooltip, event);
+    if (tooltip.dataset.owner !== tooltipContent || !tooltip.classList.contains('visible')) {
+      tooltip.dataset.owner = tooltipContent;
+      showFloatingTooltip(tooltipContent, event, richTooltip);
     } else {
       moveFloatingTooltip(event);
     }
