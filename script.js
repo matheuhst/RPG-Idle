@@ -3,6 +3,7 @@ const $$ = (selector) => document.querySelectorAll(selector);
 
 const elements = {
   playerStats: $('#player-stats'),
+  activeBuffsPanel: $('#active-buffs-panel'),
   monsterStats: $('#monster-stats'),
   battleLog: $('#battle-log'),
   attackButton: $('#attack-button'),
@@ -14,15 +15,31 @@ const elements = {
   prestigeTitle: $('#prestige-title'),
   prestigePoints: $('#prestige-points'),
   prestigeModal: $('#prestige-modal'),
+  prestigeMainView: $('#prestige-main-view'),
+  prestigeConfirmationView: $('#prestige-confirmation-view'),
   closePrestigeModalButton: $('#close-prestige-modal-button'),
+  prestigeReviewButton: $('#prestige-review-button'),
+  cancelPrestigeConfirmationButton: $('#cancel-prestige-confirmation-button'),
   confirmPrestigeButton: $('#confirm-prestige-button'),
   prestigeSummary: $('#prestige-summary'),
+  prestigeModalBalance: $('#prestige-modal-balance'),
+  prestigeRelicBalance: $('#prestige-relic-balance'),
+  prestigeConfirmationSummary: $('#prestige-confirmation-summary'),
+  prestigeCountdownText: $('#prestige-countdown-text'),
+  prestigeCountdownBar: $('#prestige-countdown-bar'),
   relicList: $('#relic-list'),
   clearLogButton: $('#clear-log-button'),
   coinDisplay: $('#coin-display'),
+  shopCard: document.querySelector('.shop-card'),
+  shopTitle: $('#shop-title'),
   shopStatus: $('#shop-status'),
   shopMessage: $('#shop-message'),
+  shopMerchantVisual: $('#shop-merchant-visual'),
   shopItemsContainer: $('#shop-items'),
+  shopStayControls: $('#shop-stay-controls'),
+  shopStayText: $('#shop-stay-text'),
+  shopStayProgress: $('#shop-stay-progress'),
+  leaveShopButton: $('#leave-shop-button'),
   inventoryCount: $('#inventory-count'),
   inventoryItemsContainer: $('#inventory-items'),
   skillPointsDisplay: $('#skill-points'),
@@ -56,24 +73,36 @@ const elements = {
   heroAutomation: $('#hero-automation'),
   skillAmountButtons: $('#skill-amount-buttons'),
   skillList: $('#skill-list'),
+  prestigeRushBanner: $('#prestige-rush-banner'),
+  prestigeRushTitle: $('#prestige-rush-title'),
+  prestigeRushText: $('#prestige-rush-text'),
+  prestigeRushProgress: $('#prestige-rush-progress'),
+  prestigeRushCount: $('#prestige-rush-count'),
+  prestigeRushTarget: $('#prestige-rush-target'),
 };
 
 const saveKey = 'idle-rpg-dungeon-infinita-v2';
 // localStorage.removeItem('idle-rpg-dungeon-infinita-v2');
 
 const gameConfig = {
-  turnDelay: 650,
-  enemyTurnDelay: 850,
-  afterTurnDelay: 300,
-  autoAttackDelay: 2200,
+  turnDelay: 150,
+  enemyTurnDelay: 200,
+  afterTurnDelay: 50,
+  autoAttackDelay: 1000,
   importantMessageTime: 5000,
 
   shopKeepBattles: 2,
+  specialShopKeepBattles: 20,
   currentBiomeEnemyChance: 72,
 
   mandatoryBossEvery: 5,
-  prestigeCatchUpNearStage: 8,
-  prestigeCatchUpMaxStageGain: 6,
+  prestigeRushStageStep: 18,
+  prestigeRushMinBosses: 8,
+  prestigeRushMaxBosses: 45,
+
+  // Bosses usam apenas andar e bioma como referência de força.
+  bossHitCap: 0.30,
+  specialBossHitCap: 0.38,
 
   offlineMinSeconds: 60,
   offlineMaxMinutes: 720,
@@ -82,6 +111,11 @@ const gameConfig = {
   offlineRewardRate: 0.45,
   offlineMaxBattles: 70,
   spellDamageMultiplier: 1.85,
+
+  // Regras dinâmicas de combate.
+  echoResistancePerStack: 0.08,
+  echoResistanceMaxStacks: 5,
+  healingRageMaxStacks: 5,
 
   // Fenda Mítica: chance fixa e baixa. Sem aumento progressivo.
   mythicRiftBaseChance: 2,
@@ -97,6 +131,763 @@ const gameConfig = {
   specialBossHpMultiplier: 1.24,
   specialBossAttackMultiplier: 1.10,
 };
+
+
+const buffVisualCatalog = {
+  fury: {
+    itemId: 'furyPotion',
+    name: 'Fúria',
+    icon: '🔥',
+    affectedStat: 'attack',
+    bonusLabel: '+35% Ataque',
+    shortBonus: '+35%',
+    color: '#ff9858',
+  },
+  stone: {
+    itemId: 'stonePotion',
+    name: 'Pedra',
+    icon: '🪨',
+    affectedStat: 'defense',
+    bonusLabel: '+25% Defesa',
+    shortBonus: '+25%',
+    color: '#d7c7a7',
+  },
+  wind: {
+    itemId: 'windPotion',
+    name: 'Vento',
+    icon: '💨',
+    affectedStat: 'agility',
+    bonusLabel: '+25% Agilidade',
+    shortBonus: '+25%',
+    color: '#72ddff',
+  },
+  arcane: {
+    itemId: 'arcanePotion',
+    name: 'Arcana',
+    icon: '🔮',
+    affectedStat: 'magic',
+    bonusLabel: '+30% Magia',
+    shortBonus: '+30%',
+    color: '#b38cff',
+  },
+};
+
+const visualStatMemory = {
+  player: {},
+  monsterId: '',
+  monster: {},
+  buffs: {},
+};
+
+function getAnimationFrame(callback) {
+  if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+    return window.requestAnimationFrame(callback);
+  }
+
+  return setTimeout(() => callback(Date.now()), 16);
+}
+
+function animateDisplayedNumber(element, fromValue, toValue, options = {}) {
+  if (!element) return;
+
+  const from = Number(fromValue);
+  const to = Number(toValue);
+  const duration = Math.max(180, Number(options.duration) || 760);
+  const suffix = options.suffix || '';
+  const formatter = typeof options.formatter === 'function'
+    ? options.formatter
+    : (value) => formatCompactNumber(Math.round(value));
+
+  if (!Number.isFinite(from) || !Number.isFinite(to) || from === to) {
+    element.textContent = `${formatter(to)}${suffix}`;
+    return;
+  }
+
+  const rising = to > from;
+  element.classList.remove('stat-value-rising', 'stat-value-falling');
+  void element.offsetWidth;
+  element.classList.add(rising ? 'stat-value-rising' : 'stat-value-falling');
+
+  const hasNativeAnimationFrame = typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function';
+  const startTime = hasNativeAnimationFrame && typeof performance !== 'undefined' && performance.now
+    ? performance.now()
+    : Date.now();
+
+  const step = (timestamp) => {
+    if (!element.isConnected) return;
+
+    const now = Number(timestamp) || Date.now();
+    const progress = Math.min(1, Math.max(0, (now - startTime) / duration));
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = from + (to - from) * eased;
+
+    element.textContent = `${formatter(current)}${suffix}`;
+
+    if (progress < 1) {
+      getAnimationFrame(step);
+      return;
+    }
+
+    element.textContent = `${formatter(to)}${suffix}`;
+    setTimeout(() => {
+      if (!element.isConnected) return;
+      element.classList.remove('stat-value-rising', 'stat-value-falling');
+    }, 650);
+  };
+
+  getAnimationFrame(step);
+}
+
+function getBuffMaximumDuration(buffKey) {
+  const meta = buffVisualCatalog[buffKey];
+  const item = shopCatalog.find((catalogItem) => catalogItem.id === meta?.itemId);
+  return Math.max(1, Number(item?.duration) || 5);
+}
+
+function getActiveBuffVisuals() {
+  const buffs = gameState.player.buffs || {};
+
+  return Object.entries(buffVisualCatalog)
+    .map(([key, meta]) => ({
+      key,
+      ...meta,
+      remaining: Math.max(0, Number(buffs[key]) || 0),
+      maximum: getBuffMaximumDuration(key),
+    }))
+    .filter((buff) => buff.remaining > 0);
+}
+
+function getBuffVisualForStat(statKey) {
+  return getActiveBuffVisuals().find((buff) => buff.affectedStat === statKey) || null;
+}
+
+// =====================================================
+// FERREIROS E MARCAS DE FORJA
+// Uma única marca permanente por arma. Aplicar outra substitui a anterior.
+// =====================================================
+
+const forgeMerchantCatalog = {
+  consumables: {
+    title: 'Loja',
+    status: 'Mercador de consumíveis',
+    icon: '🧪',
+    className: 'merchant-consumables',
+  },
+  blacksmith: {
+    title: 'Ferreiro Itinerante',
+    status: 'Aprimora a arma física equipada',
+    icon: '⚒️',
+    className: 'merchant-blacksmith',
+  },
+  arcaneSmith: {
+    title: 'Ferreiro Alquimista',
+    status: 'Aprimora a arma mágica equipada',
+    icon: '🔮',
+    className: 'merchant-arcane-smith',
+  },
+};
+
+const physicalForgeTechniquePools = {
+  spear: [
+    {
+      id: 'piercing-tip',
+      name: 'Ponta Perfurante',
+      icon: '🛡️',
+      tone: 'precision',
+      description: 'Transforma a lança em uma resposta direta contra armaduras e bosses resistentes.',
+      summary: ['−12% Ataque', '+30% Ignorar Defesa'],
+      drawback: 'Menos eficiente contra inimigos frágeis.',
+      effects: { attackPercent: -12, armorPenPercent: 30 },
+      power: 4, versatility: 5, risk: 2,
+    },
+    {
+      id: 'hunter-reach',
+      name: 'Alcance do Caçador',
+      icon: '🎯',
+      tone: 'hunter',
+      description: 'A ponta é alongada e balanceada para enfrentar alvos grandes.',
+      summary: ['+8% Ataque', '+24% Dano contra Boss'],
+      drawback: '−8% de dano contra inimigos comuns.',
+      effects: { attackPercent: 8, bossDamagePercent: 24, nonBossDamagePercent: -8 },
+      power: 4, versatility: 3, risk: 2,
+    },
+  ],
+  sword: [
+    {
+      id: 'duelist-guard',
+      name: 'Guarda de Duelo',
+      icon: '⚔️',
+      tone: 'duelist',
+      description: 'A espada passa a favorecer precisão, controle e confrontos contra bosses.',
+      summary: ['+10% Ataque', '+6% Crítico', '+12% contra Boss'],
+      drawback: 'Bônus espalhados, sem explosão imediata.',
+      effects: { attackPercent: 10, critChance: 6, bossDamagePercent: 12 },
+      power: 4, versatility: 5, risk: 1,
+    },
+    {
+      id: 'perfect-edge',
+      name: 'Fio Impecável',
+      icon: '✨',
+      tone: 'balanced',
+      description: 'Uma têmpera limpa e confiável para qualquer situação.',
+      summary: ['+14% Ataque', '+4% Crítico'],
+      drawback: 'Não possui vantagem especializada.',
+      effects: { attackPercent: 14, critChance: 4 },
+      power: 3, versatility: 5, risk: 1,
+    },
+  ],
+  axe: [
+    {
+      id: 'executioner-edge',
+      name: 'Gume do Carrasco',
+      icon: '🩸',
+      tone: 'execution',
+      description: 'O machado sacrifica velocidade para encerrar inimigos feridos rapidamente.',
+      summary: ['+10% Ataque', '+42% abaixo de 35% HP'],
+      drawback: '−12% Agilidade.',
+      effects: { attackPercent: 10, agilityPercent: -12, executeDamagePercent: 42, executeThreshold: 0.35 },
+      power: 5, versatility: 3, risk: 3,
+    },
+    {
+      id: 'guard-breaker',
+      name: 'Quebra-Guarda',
+      icon: '💥',
+      tone: 'breaker',
+      description: 'O peso é redistribuído para atravessar defesa e castigar bosses.',
+      summary: ['−5% Ataque', '+22% Ignorar Defesa', '+14% contra Boss'],
+      drawback: 'Perde dano bruto fora de alvos resistentes.',
+      effects: { attackPercent: -5, armorPenPercent: 22, bossDamagePercent: 14 },
+      power: 4, versatility: 4, risk: 2,
+    },
+  ],
+  dagger: [
+    {
+      id: 'relentless-chain',
+      name: 'Sequência Implacável',
+      icon: '📈',
+      tone: 'combo',
+      description: 'Cada acerto consecutivo na mesma criatura acelera a pressão da adaga.',
+      summary: ['−10% Ataque', '+6% por acerto', 'Máximo: +30%'],
+      drawback: 'A sequência zera quando o golpe é esquivado ou o inimigo muda.',
+      effects: { attackPercent: -10, comboDamagePerHit: 6, comboMaxStacks: 5 },
+      power: 5, versatility: 3, risk: 3,
+    },
+    {
+      id: 'swift-blade',
+      name: 'Lâmina Veloz',
+      icon: '⚡',
+      tone: 'speed',
+      description: 'Uma lâmina menor e mais leve, ideal para críticos e iniciativa.',
+      summary: ['−15% Ataque', '+28% Agilidade', '+8% Crítico'],
+      drawback: 'Cada golpe individual causa menos dano.',
+      effects: { attackPercent: -15, agilityPercent: 28, critChance: 8 },
+      power: 4, versatility: 4, risk: 2,
+    },
+  ],
+  hammer: [
+    {
+      id: 'demolishing-impact',
+      name: 'Impacto Demolidor',
+      icon: '🔨',
+      tone: 'breaker',
+      description: 'A cabeça do martelo recebe peso adicional para esmagar proteção.',
+      summary: ['+18% Ataque', '+18% Ignorar Defesa'],
+      drawback: '−18% Agilidade.',
+      effects: { attackPercent: 18, armorPenPercent: 18, agilityPercent: -18 },
+      power: 5, versatility: 3, risk: 3,
+    },
+    {
+      id: 'defensive-weight',
+      name: 'Peso Defensivo',
+      icon: '🧱',
+      tone: 'guard',
+      description: 'O cabo e a guarda são reforçados para transformar o martelo em apoio defensivo.',
+      summary: ['+12% Ataque', '+18% Defesa'],
+      drawback: '−20% Agilidade.',
+      effects: { attackPercent: 12, defensePercent: 18, agilityPercent: -20 },
+      power: 4, versatility: 4, risk: 3,
+    },
+  ],
+  scythe: [
+    {
+      id: 'harvest',
+      name: 'Colheita',
+      icon: '🌘',
+      tone: 'execution',
+      description: 'A foice é afinada para ceifar inimigos já enfraquecidos.',
+      summary: ['−8% Ataque', '+50% abaixo de 40% HP'],
+      drawback: 'Começa a luta com menos dano.',
+      effects: { attackPercent: -8, executeDamagePercent: 50, executeThreshold: 0.40 },
+      power: 5, versatility: 3, risk: 3,
+    },
+    {
+      id: 'soul-reaper',
+      name: 'Ceifadora de Essência',
+      icon: '💚',
+      tone: 'vampire',
+      description: 'Canais no metal conduzem parte do dano de volta ao herói.',
+      summary: ['−12% Ataque', '+12% Roubo de Vida', '+15% Vida Roubada'],
+      drawback: 'Menor dano bruto por golpe.',
+      effects: { attackPercent: -12, lifeStealChance: 12, lifeStealAmountPercent: 15 },
+      power: 4, versatility: 5, risk: 2,
+    },
+  ],
+  default: [
+    {
+      id: 'tempered-edge',
+      name: 'Fio Temperado',
+      icon: '⚔️',
+      tone: 'balanced',
+      description: 'Uma melhoria simples, estável e útil em qualquer combate.',
+      summary: ['+15% Ataque', '+3% Crítico'],
+      drawback: 'Sem especialização.',
+      effects: { attackPercent: 15, critChance: 3 },
+      power: 3, versatility: 5, risk: 1,
+    },
+  ],
+};
+
+const arcaneForgeTechniquePools = {
+  staff: [
+    {
+      id: 'focused-conductor',
+      name: 'Condutor Concentrado',
+      icon: '🔮',
+      tone: 'arcane',
+      description: 'O fluxo da arma é comprimido para gerar mais poder mágico por ataque.',
+      summary: ['+30% Magia'],
+      drawback: '−15% Agilidade.',
+      effects: { magicPercent: 30, agilityPercent: -15 },
+      power: 5, versatility: 4, risk: 3,
+    },
+    {
+      id: 'runic-conductor',
+      name: 'Condutor Rúnico',
+      icon: 'ᚱ',
+      tone: 'rune',
+      description: 'Runas auxiliam tanto a arma mágica quanto a magia equipada.',
+      summary: ['+18% Magia', '+22% Dano de Magia'],
+      drawback: 'Bônus dividido entre dois tipos de ataque.',
+      effects: { magicPercent: 18, spellDamagePercent: 22 },
+      power: 4, versatility: 5, risk: 1,
+    },
+  ],
+  orb: [
+    {
+      id: 'resonant-core',
+      name: 'Núcleo Ressonante',
+      icon: '🟣',
+      tone: 'resonance',
+      description: 'O núcleo amplifica toda energia mágica enquanto a arma estiver ativa.',
+      summary: ['+16% Magia', '+20% Dano Mágico', '+4% Crítico'],
+      drawback: 'Não oferece defesa ou velocidade.',
+      effects: { magicPercent: 16, magicDamagePercent: 20, critChance: 4 },
+      power: 5, versatility: 4, risk: 1,
+    },
+    {
+      id: 'arcane-prism',
+      name: 'Prisma Arcano',
+      icon: '💠',
+      tone: 'precision',
+      description: 'O cristal refrata magia através das proteções do alvo.',
+      summary: ['−8% Magia', '+28% Ignorar Defesa'],
+      drawback: 'Menos poder contra alvos frágeis.',
+      effects: { magicPercent: -8, armorPenPercent: 28 },
+      power: 4, versatility: 5, risk: 2,
+    },
+  ],
+  book: [
+    {
+      id: 'chained-formula',
+      name: 'Fórmula Encadeada',
+      icon: '📖',
+      tone: 'rune',
+      description: 'As páginas são reescritas para favorecer conjurações longas e destrutivas.',
+      summary: ['+12% Magia', '+30% Dano de Magia'],
+      drawback: '−10% Agilidade.',
+      effects: { magicPercent: 12, spellDamagePercent: 30, agilityPercent: -10 },
+      power: 5, versatility: 4, risk: 2,
+    },
+    {
+      id: 'living-index',
+      name: 'Índice Vivo',
+      icon: '👁️',
+      tone: 'arcane',
+      description: 'O tomo encontra com maior frequência o momento certo para conjurar.',
+      summary: ['+16% Magia', '+12% Chance de Magia'],
+      drawback: 'Não aumenta diretamente o dano físico.',
+      effects: { magicPercent: 16, magicChance: 12 },
+      power: 4, versatility: 5, risk: 1,
+    },
+  ],
+  default: [
+    {
+      id: 'arcane-tempering',
+      name: 'Têmpera Arcana',
+      icon: '✨',
+      tone: 'arcane',
+      description: 'Uma melhoria estável para qualquer arma mágica.',
+      summary: ['+22% Magia', '+5% Chance de Magia'],
+      drawback: 'Sem especialização.',
+      effects: { magicPercent: 22, magicChance: 5 },
+      power: 4, versatility: 5, risk: 1,
+    },
+  ],
+};
+
+const forgeBiomeCatalog = {
+  catacombs: { physicalName: 'Prata Funerária', arcaneName: 'Selo Funerário', icon: '☠️', bonus: 60 },
+  abandonedMines: { physicalName: 'Aço Quebra-Pedra', arcaneName: 'Runa Sísmica', icon: '⛏️', bonus: 60 },
+  sunkenTemple: { physicalName: 'Fio Abissal', arcaneName: 'Catalisador das Marés', icon: '🌊', bonus: 62 },
+  brokenTower: { physicalName: 'Liga Dissipadora', arcaneName: 'Núcleo Fraturado', icon: '🔷', bonus: 62 },
+  mechanicArcane: { physicalName: 'Núcleo Magnético', arcaneName: 'Circuito Rúnico', icon: '⚙️', bonus: 65 },
+  ashHell: { physicalName: 'Metal Consagrado', arcaneName: 'Cinza Santificada', icon: '🔥', bonus: 65 },
+  infiniteVoid: { physicalName: 'Âncora da Realidade', arcaneName: 'Prisma do Vazio', icon: '🌌', bonus: 68 },
+};
+
+function getForgeSmithSlot(type) {
+  return type === 'arcaneSmith' ? 'magicWeapon' : 'physicalWeapon';
+}
+
+function getForgeWeaponArchetype(item) {
+  const name = `${getGearBaseName(item)} ${item?.name || ''}`.toLowerCase();
+
+  if (item?.slot === 'magicWeapon') {
+    if (name.includes('cajado') || name.includes('varinha')) return 'staff';
+    if (name.includes('orbe') || name.includes('cristal')) return 'orb';
+    if (name.includes('livro') || name.includes('tomo') || name.includes('grimório')) return 'book';
+    return 'default';
+  }
+
+  if (name.includes('lança') || name.includes('tridente')) return 'spear';
+  if (name.includes('espada') || name.includes('sabre') || name.includes('katana')) return 'sword';
+  if (name.includes('machado')) return 'axe';
+  if (name.includes('adaga')) return 'dagger';
+  if (name.includes('martelo')) return 'hammer';
+  if (name.includes('foice')) return 'scythe';
+  return 'default';
+}
+
+function getRandomEntry(list) {
+  if (!Array.isArray(list) || !list.length) return null;
+  return list[randomBetween(0, list.length - 1)];
+}
+
+function getForgeOfferCost(weapon, category) {
+  const multipliers = { technique: 0.92, biome: 1.08, experiment: 1.18 };
+  const base = Math.max(120, getGearUpgradeCost(weapon));
+  return Math.max(100, Math.round(base * (multipliers[category] || 1)));
+}
+
+function buildForgeOffer(template, weapon, shopType, category) {
+  const mark = {
+    id: `${shopType}:${template.id}`,
+    name: template.name,
+    icon: template.icon,
+    tone: template.tone || (category === 'biome' ? 'biome' : 'forge'),
+    category,
+    slot: weapon.slot,
+    description: template.description,
+    summary: [...(template.summary || [])],
+    drawback: template.drawback || '',
+    effects: structuredCloneSafe(template.effects || {}),
+  };
+
+  return {
+    id: `forge-offer:${weapon.uid}:${mark.id}:${Date.now()}:${randomBetween(1000, 9999)}`,
+    type: 'forgeOffer',
+    category,
+    cost: getForgeOfferCost(weapon, category),
+    power: template.power || 3,
+    versatility: template.versatility || 3,
+    risk: template.risk || 1,
+    mark,
+  };
+}
+
+function createBiomeForgeTemplate(shopType, biome) {
+  const config = forgeBiomeCatalog[biome.id] || forgeBiomeCatalog.catacombs;
+  const magical = shopType === 'arcaneSmith';
+  const attackName = magical ? 'dano mágico' : 'dano físico';
+
+  return {
+    id: `biome-${biome.id}`,
+    name: magical ? config.arcaneName : config.physicalName,
+    icon: config.icon,
+    tone: 'biome',
+    description: `Uma especialização extrema criada para ${biome.name}. Fora desse bioma, a arma volta ao desempenho normal.`,
+    summary: [`+${config.bonus}% ${attackName} em ${biome.name}`, '+8% Crítico no bioma'],
+    drawback: 'Nenhum bônus fora do bioma gravado.',
+    effects: {
+      biomeDamagePercent: config.bonus,
+      biomeCritChance: 8,
+      targetBiomeId: biome.id,
+      targetBiomeName: biome.name,
+    },
+    power: 5,
+    versatility: 2,
+    risk: 2,
+  };
+}
+
+function createRiskyForgeTemplate(shopType, archetype) {
+  if (shopType === 'arcaneSmith') {
+    return {
+      id: 'unstable-core',
+      name: 'Núcleo Instável',
+      icon: '💥',
+      tone: 'unstable',
+      description: 'O catalisador pode repetir parte do ataque mágico, mas ensina o Eco Adaptativo mais rapidamente.',
+      summary: ['+20% Magia', '30% de repetir 55% do dano'],
+      drawback: 'Bosses recebem +1 carga extra de Eco a cada acerto.',
+      effects: { magicPercent: 20, forgeDoubleHitChance: 30, forgeDoubleHitDamagePercent: 55, echoExtraStacks: 1 },
+      power: 5,
+      versatility: 3,
+      risk: 5,
+    };
+  }
+
+  const names = {
+    spear: ['Lança Bifurcada', '🔱'],
+    sword: ['Lâmina Dupla', '⚔️'],
+    axe: ['Machado de Duplo Gume', '🪓'],
+    dagger: ['Adaga Gêmea', '🗡️'],
+    hammer: ['Cabeça Ressonante', '🔨'],
+    scythe: ['Foice de Duas Luas', '🌙'],
+    default: ['Fio Bifurcado', '⚔️'],
+  };
+  const [name, icon] = names[archetype] || names.default;
+
+  return {
+    id: 'double-edge-experiment',
+    name,
+    icon,
+    tone: 'unstable',
+    description: 'A arma ganha uma segunda área de impacto e pode repetir parte do golpe.',
+    summary: ['+15% Ataque', '30% de repetir 55% do dano'],
+    drawback: 'O alvo recebe +12% de defesa efetiva e bosses ganham +1 Eco extra.',
+    effects: { attackPercent: 15, forgeDoubleHitChance: 30, forgeDoubleHitDamagePercent: 55, enemyDefenseBoostPercent: 12, echoExtraStacks: 1 },
+    power: 5,
+    versatility: 3,
+    risk: 5,
+  };
+}
+
+function createForgeOffers(shopType) {
+  const slot = getForgeSmithSlot(shopType);
+  const weapon = gameState.equipment?.[slot];
+  if (!weapon) return [];
+
+  const archetype = getForgeWeaponArchetype(weapon);
+  const pools = shopType === 'arcaneSmith' ? arcaneForgeTechniquePools : physicalForgeTechniquePools;
+  const techniqueTemplate = getRandomEntry(pools[archetype] || pools.default);
+  const biomeTemplate = createBiomeForgeTemplate(shopType, getDungeonBiome(gameState.player.stage));
+  const riskyTemplate = createRiskyForgeTemplate(shopType, archetype);
+
+  return [
+    buildForgeOffer(techniqueTemplate, weapon, shopType, 'technique'),
+    buildForgeOffer(biomeTemplate, weapon, shopType, 'biome'),
+    buildForgeOffer(riskyTemplate, weapon, shopType, 'experiment'),
+  ];
+}
+
+function getActiveForgeWeapon(slot = gameState.player.activeWeaponSlot) {
+  if (!slot || gameState.player.activeWeaponSlot !== slot) return null;
+  return gameState.equipment?.[slot] || null;
+}
+
+function getActiveForgeMark(slot = gameState.player.activeWeaponSlot) {
+  return getActiveForgeWeapon(slot)?.forgeMark || null;
+}
+
+function getForgeMarkForDamageType(damageType) {
+  if (damageType === 'physical') return getActiveForgeMark('physicalWeapon');
+  if (damageType === 'magicWeapon' || damageType === 'magic') return getActiveForgeMark('magicWeapon');
+  return null;
+}
+
+function getActiveForgeEffect(key) {
+  return Number(getActiveForgeMark()?.effects?.[key]) || 0;
+}
+
+function getForgeEffectForDamageType(damageType, key) {
+  return Number(getForgeMarkForDamageType(damageType)?.effects?.[key]) || 0;
+}
+
+function getForgeDamageMultiplier(mark, defender, damageType) {
+  if (!mark) return 1;
+  const effects = mark.effects || {};
+  let multiplier = 1;
+
+  if (defender?.isBoss) multiplier += (Number(effects.bossDamagePercent) || 0) / 100;
+  if (!defender?.isBoss) multiplier += (Number(effects.nonBossDamagePercent) || 0) / 100;
+
+  if (effects.targetBiomeId && defender?.biomeId === effects.targetBiomeId) {
+    multiplier += (Number(effects.biomeDamagePercent) || 0) / 100;
+  }
+
+  const threshold = Number(effects.executeThreshold) || 0;
+  if (threshold > 0 && defender?.maxHp > 0 && defender.hp / defender.maxHp <= threshold) {
+    multiplier += (Number(effects.executeDamagePercent) || 0) / 100;
+  }
+
+  const comboStacks = Number(defender?.forgeCombo?.stacks) || 0;
+  if (effects.comboDamagePerHit && defender?.forgeCombo?.weaponUid === gameState.equipment?.[gameState.player.activeWeaponSlot]?.uid) {
+    multiplier += (comboStacks * Number(effects.comboDamagePerHit)) / 100;
+  }
+
+  return Math.max(0.25, multiplier);
+}
+
+function advanceForgeCombo(defender, mark) {
+  const effects = mark?.effects || {};
+  if (!effects.comboDamagePerHit || !defender) return;
+  const weapon = gameState.equipment?.[gameState.player.activeWeaponSlot];
+  if (!weapon) return;
+  const maxStacks = Math.max(1, Number(effects.comboMaxStacks) || 5);
+  const previous = defender.forgeCombo?.weaponUid === weapon.uid ? Number(defender.forgeCombo.stacks) || 0 : 0;
+  defender.forgeCombo = { weaponUid: weapon.uid, stacks: clamp(previous + 1, 0, maxStacks) };
+}
+
+function resetForgeCombo(defender, mark) {
+  if (mark?.effects?.comboDamagePerHit && defender) defender.forgeCombo = null;
+}
+
+function isForgeBiomeMarkActive(mark, monster = gameState.monster) {
+  return Boolean(mark?.effects?.targetBiomeId && monster?.biomeId === mark.effects.targetBiomeId);
+}
+
+function getForgeMarkPlainSummary(mark) {
+  if (!mark) return '';
+  const summary = (mark.summary || []).join(' • ');
+  const drawback = mark.drawback ? `\nConsequência: ${mark.drawback}` : '';
+  return `${mark.icon || '⚒️'} ${mark.name}\n${summary}${drawback}`;
+}
+
+function getForgeMarkHtml(mark) {
+  if (!mark) return '';
+  const activeBiome = isForgeBiomeMarkActive(mark);
+  return `
+    <div class="gear-tooltip-section forge-mark-tooltip forge-tone-${escapeAttr(mark.tone || 'forge')}">
+      <small>${escapeAttr(mark.icon || '⚒️')} MARCA DE FORJA ${activeBiome ? '• ATIVA' : ''}</small>
+      <strong>${escapeAttr(mark.name)}</strong>
+      <p>${escapeAttr(mark.description || '')}</p>
+      <div class="forge-mark-tooltip-lines">
+        ${(mark.summary || []).map((line) => `<span>${escapeAttr(line)}</span>`).join('')}
+      </div>
+      ${mark.drawback ? `<em>${escapeAttr(mark.drawback)}</em>` : ''}
+    </div>
+  `;
+}
+
+function getForgeCategoryMeta(category) {
+  const meta = {
+    technique: { label: 'Técnica da arma', icon: '⚔️' },
+    biome: { label: 'Têmpera do bioma', icon: '🏰' },
+    experiment: { label: 'Experimento arriscado', icon: '⚠️' },
+  };
+  return meta[category] || meta.technique;
+}
+
+function renderForgeMeter(label, value, className = '') {
+  return `
+    <div class="forge-meter-row ${className}">
+      <span>${label}</span>
+      <div class="forge-meter-segments">
+        ${Array.from({ length: 5 }, (_, index) => `<i class="${index < value ? 'active' : ''}"></i>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function showForgeEffectActivation(mark, detail = '', targetSide = 'monster', onApply = null) {
+  const target = targetSide === 'player'
+    ? document.querySelector('.hero-card')
+    : document.querySelector('.monster-card');
+
+  if (!target) {
+    if (typeof onApply === 'function') onApply();
+    return Promise.resolve();
+  }
+
+  const runVisual = () => {
+    const center = getCombatTargetCenter(target);
+    const badge = document.createElement('div');
+    badge.className = `forge-effect-activation forge-tone-${mark?.tone || 'forge'}`;
+    badge.style.setProperty('--forge-effect-x', `${center.x}px`);
+    badge.style.setProperty('--forge-effect-y', `${center.y}px`);
+    badge.innerHTML = `
+      <span>${escapeAttr(mark?.icon || '⚒️')}</span>
+      <strong>${escapeAttr(mark?.name || 'Marca de Forja')}</strong>
+      ${detail ? `<small>${escapeAttr(detail)}</small>` : ''}
+    `;
+    document.body.appendChild(badge);
+    pulseCombatCard(target, 'combat-card-forge', 700);
+  };
+
+  return queueCardEffect(target, runVisual, 950, 60, {
+    apply: onApply,
+    applyDelay: typeof onApply === 'function' ? 0 : 620,
+  });
+}
+
+function showForgeCompletion(weapon, mark, previousMark = null) {
+  document.querySelector('.forge-completion-overlay')?.remove();
+  const overlay = document.createElement('div');
+  overlay.className = `forge-completion-overlay forge-tone-${mark.tone || 'forge'}`;
+  overlay.innerHTML = `
+    <div class="forge-completion-sparks" aria-hidden="true"></div>
+    <div class="forge-completion-card">
+      <span class="forge-completion-kicker">⚒️ FORJA CONCLUÍDA</span>
+      <div class="forge-completion-weapon">${gearImageTag(weapon)}</div>
+      <small>${escapeAttr(weapon.name)}</small>
+      <strong>${escapeAttr(mark.icon || '⚒️')} ${escapeAttr(mark.name)}</strong>
+      <div class="forge-completion-lines">
+        ${(mark.summary || []).map((line) => `<span>${escapeAttr(line)}</span>`).join('')}
+      </div>
+      ${previousMark ? `<em>Substituiu: ${escapeAttr(previousMark.name)}</em>` : '<em>Primeira Marca de Forja desta arma</em>'}
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => overlay.classList.add('visible'), 20);
+  setTimeout(() => overlay.classList.add('leaving'), 2100);
+  setTimeout(() => overlay.remove(), 2650);
+}
+
+function applyForgeOffer(offerId) {
+  hideFloatingTooltip();
+  const shopType = gameState.shop.type;
+  const offer = gameState.shop.items.find((entry) => entry.id === offerId && entry.type === 'forgeOffer');
+  if (!offer) return;
+
+  const slot = getForgeSmithSlot(shopType);
+  const weapon = gameState.equipment?.[slot];
+  if (!weapon) {
+    log(`Equipe uma ${gearSlots[slot]} antes de usar este ferreiro.`, 'shop', true);
+    return;
+  }
+
+  if (gameState.player.coins < offer.cost) {
+    log('Saldo insuficiente para aplicar esta Marca de Forja.', 'shop', true);
+    return;
+  }
+
+  const previousMark = weapon.forgeMark ? structuredCloneSafe(weapon.forgeMark) : null;
+  gameState.player.coins -= offer.cost;
+  weapon.forgeMark = structuredCloneSafe(offer.mark);
+  weapon.forgeMark.forgedAtStage = gameState.player.stage;
+  weapon.forgeMark.forgedAtBiome = getDungeonBiome(gameState.player.stage).id;
+
+  log(
+    `${offer.mark.icon || '⚒️'} ${weapon.name} recebeu a Marca de Forja ${offer.mark.name}${previousMark ? `, substituindo ${previousMark.name}` : ''}.`,
+    'reward',
+    true
+  );
+
+  closeShop('A forja foi concluída. O ferreiro recolheu as ferramentas e partiu.');
+  showForgeCompletion(weapon, weapon.forgeMark, previousMark);
+  updateStats();
+}
 
 const rarities = [
   { id: 'common', name: 'Comum', chance: 45, multiplier: 1, className: 'rarity-common' },
@@ -198,6 +989,26 @@ const enemyImageByName = {
   'Duque do Vazio': 'duqueVazio.png',
   'Arauto da Forja Eterna': 'arautoForjaEterna.png',
   'Guardião do Eclipse': 'guardiaoEclipse.png',
+  'O Rei Afogado': 'reiAfogado.png',
+  'O Vigia da Cripta': 'vigiaCripta.png',
+  'Escavador Cego': 'escavadorCego.png',
+  'Devorador de Túneis': 'devoradorTuneis.png',
+
+  'Arauto da Maré': 'arautoMare.png',
+  'Guardião Coralino': 'guardiaoCoralino.png',
+
+  'Mestre das Runas': 'mestreRunas.png',
+  'Sentinela de Mana': 'sentinelaMana.png',
+
+  'Executor Hidráulico': 'executorHidraulico.png',
+  'Titã de Vapor': 'titaVapor.png',
+
+  'Tirano Vulcânico': 'tiranoVulcanico.png',
+  'O Último Incêndio': 'ultimoIncendio.png',
+
+  'O Fim dos Tempos': 'fimTempos.png',
+  'A Última Sombra': 'ultimaSombra.png',
+  'O Inominável': 'inominavel.png',
 };
 
 function getEnemyBaseName(enemyName) {
@@ -803,6 +1614,7 @@ const initialState = {
   monster: null,
   shop: {
     active: false,
+    type: 'consumables',
     items: [],
     encountersLeft: 0,
   },
@@ -829,12 +1641,23 @@ const initialState = {
 
     spell: null,
   },
+  prestigeRush: {
+    active: false,
+    targetStage: 1,
+    totalBosses: 0,
+    bossesRemaining: 0,
+    bossesDefeated: 0,
+    startStage: 1,
+  },
   autoAttack: false,
   autoInterval: null,
   actionInProgress: false,
   currentTurn: 'player',
   activeInventoryTab: 'items',
   lastSaveAt: Date.now(),
+  // Marca o instante exato em que a aba ficou oculta ou a página foi fechada.
+  // Diferente de lastSaveAt, este valor não é sobrescrito por salvamentos em segundo plano.
+  offlineStartedAt: null,
 };
 
 const gameState = structuredCloneSafe(initialState);
@@ -1180,7 +2003,13 @@ function getMaxStageForPlayer() {
   const prestigeBonus = (prestige.count || 0) * 15;
   const bossBonus = Math.floor((player.bossesDefeated || 0) / 10) * 5;
 
-  return Math.max(1, levelLimit + prestigeBonus + bossBonus);
+  // Depois de um prestígio, o antigo recorde continua liberado.
+  // A Marcha dos Bosses serve para retornar até ele, não para lutar contra um teto artificial.
+  const returnFloor = (prestige.count || 0) > 0
+    ? Math.max(1, Number(prestige.highestStage) || 1)
+    : 1;
+
+  return Math.max(1, levelLimit + prestigeBonus + bossBonus, returnFloor);
 }
 
 function normalizeProgressionAfterBalance(showLog = false) {
@@ -1227,34 +2056,92 @@ function advanceStage(amount = 1) {
   return player.stage > previousStage;
 }
 
-function getPrestigeCatchUpStageGain() {
-  const prestige = gameState.prestige || {};
-  const player = gameState.player;
-  const highestStage = prestige.highestStage || 1;
+function ensurePrestigeRushState() {
+  gameState.prestigeRush = {
+    ...structuredCloneSafe(initialState.prestigeRush),
+    ...(gameState.prestigeRush || {}),
+  };
 
-  if ((prestige.count || 0) <= 0 || highestStage <= player.stage) {
-    return 1;
-  }
+  const rush = gameState.prestigeRush;
+  rush.targetStage = Math.max(1, Number(rush.targetStage) || 1);
+  rush.totalBosses = Math.max(0, Number(rush.totalBosses) || 0);
+  rush.bossesRemaining = clamp(Number(rush.bossesRemaining) || 0, 0, rush.totalBosses || 0);
+  rush.bossesDefeated = clamp(Number(rush.bossesDefeated) || 0, 0, rush.totalBosses || 0);
+  rush.active = Boolean(rush.active && rush.bossesRemaining > 0 && gameState.player.stage < rush.targetStage);
 
-  const distanceToRecord = highestStage - player.stage;
-  const nearStage = gameConfig.prestigeCatchUpNearStage || 8;
-
-  if (distanceToRecord <= nearStage) {
-    return 1;
-  }
-
-  let gain = 2;
-
-  if (distanceToRecord > 90) gain = 6;
-  else if (distanceToRecord > 55) gain = 5;
-  else if (distanceToRecord > 30) gain = 4;
-  else if (distanceToRecord > 15) gain = 3;
-
-  return clamp(gain, 1, gameConfig.prestigeCatchUpMaxStageGain || 6);
+  return rush;
 }
 
-function getBossStageAdvanceAmount() {
-  return getPrestigeCatchUpStageGain();
+function calculatePrestigeRushBossCount(targetStage) {
+  const distance = Math.max(0, Number(targetStage) - 1);
+  if (distance <= 0) return 0;
+
+  return clamp(
+    Math.ceil(distance / (gameConfig.prestigeRushStageStep || 18)),
+    gameConfig.prestigeRushMinBosses || 8,
+    gameConfig.prestigeRushMaxBosses || 45
+  );
+}
+
+function startPrestigeBossRush(targetStage = gameState.prestige.highestStage || 1) {
+  const safeTarget = Math.max(1, Math.floor(Number(targetStage) || 1));
+  const totalBosses = calculatePrestigeRushBossCount(safeTarget);
+
+  gameState.prestigeRush = {
+    active: totalBosses > 0 && safeTarget > gameState.player.stage,
+    targetStage: safeTarget,
+    totalBosses,
+    bossesRemaining: totalBosses,
+    bossesDefeated: 0,
+    startStage: gameState.player.stage,
+  };
+
+  return gameState.prestigeRush;
+}
+
+function getPrestigeRushStageGain() {
+  const rush = ensurePrestigeRushState();
+  if (!rush.active) return 1;
+
+  const distance = Math.max(0, rush.targetStage - gameState.player.stage);
+  if (distance <= 0) return 0;
+
+  return Math.max(1, Math.ceil(distance / Math.max(1, rush.bossesRemaining)));
+}
+
+function getBossStageAdvanceAmount(monster = gameState.monster) {
+  return monster?.prestigeRushBoss ? getPrestigeRushStageGain() : 1;
+}
+
+function resolvePrestigeRushBossVictory(monster) {
+  if (!monster?.prestigeRushBoss) return false;
+
+  const rush = ensurePrestigeRushState();
+  rush.bossesDefeated = Math.min(rush.totalBosses, rush.bossesDefeated + 1);
+  rush.bossesRemaining = Math.max(0, rush.totalBosses - rush.bossesDefeated);
+
+  const completed = rush.bossesRemaining <= 0 || gameState.player.stage >= rush.targetStage;
+
+  if (completed) {
+    gameState.player.stage = Math.min(getMaxStageForPlayer(), rush.targetStage);
+    rush.active = false;
+    rush.bossesRemaining = 0;
+    gameState.player.monstersSinceBoss = 0;
+
+    log(
+      `Marcha concluída! Você retornou ao Andar ${gameState.player.stage}. Os encontros normais voltaram a aparecer.`,
+      'system-important',
+      true
+    );
+    return true;
+  }
+
+  log(
+    `Marcha dos Bosses: ${rush.bossesDefeated}/${rush.totalBosses} vencidos. Próximo salto rumo ao Andar ${rush.targetStage}.`,
+    'boss',
+    true
+  );
+  return false;
 }
 
 function getMandatoryBossTarget() {
@@ -1274,6 +2161,17 @@ function shouldSpawnMandatoryBoss() {
 }
 
 function createNextEncounter() {
+  const rush = ensurePrestigeRushState();
+
+  if (rush.active) {
+    const monster = createMonster(true);
+    monster.prestigeRushBoss = true;
+    monster.mandatoryBoss = false;
+    monster.rushOrder = rush.bossesDefeated + 1;
+    monster.rushTotal = rush.totalBosses;
+    return monster;
+  }
+
   const mandatoryBoss = shouldSpawnMandatoryBoss();
   const monster = createMonster(mandatoryBoss);
 
@@ -1295,6 +2193,10 @@ function getPlayerAttack() {
     value *= 1.35;
   }
 
+  if (gameState.player.activeWeaponSlot === 'physicalWeapon') {
+    value *= 1 + getActiveForgeEffect('attackPercent') / 100;
+  }
+
   return Math.round(value * getTotalDamageMultiplier());
 }
 
@@ -1305,21 +2207,27 @@ function getPlayerMagic() {
     value *= 1.3;
   }
 
+  if (gameState.player.activeWeaponSlot === 'magicWeapon') {
+    value *= 1 + getActiveForgeEffect('magicPercent') / 100;
+  }
+
   return Math.round(value);
 }
 
 function getPlayerMagicChance() {
   const base = gameState.player.magicChance || 0;
-  const bonus = getEquipmentBonus('magicChance');
-  return clamp(base + bonus, 0, 75);
+  const bonus = getEquipmentBonus('magicChance') + getActiveForgeEffect('magicChance');
+  return clamp(base + bonus, 0, 90);
 }
 
 function getPlayerMagicDamageMultiplier() {
-  return 1 + (getEquipmentBonus('magicDamagePercent') / 100);
+  return 1 + ((getEquipmentBonus('magicDamagePercent') + getActiveForgeEffect('magicDamagePercent')) / 100);
 }
 
 function getPlayerSpellDamageMultiplier() {
-  return (gameConfig.spellDamageMultiplier || 1.85) * getPlayerMagicDamageMultiplier();
+  return (gameConfig.spellDamageMultiplier || 1.85)
+    * getPlayerMagicDamageMultiplier()
+    * (1 + getActiveForgeEffect('spellDamagePercent') / 100);
 }
 
 function isMagicWeaponActive() {
@@ -1337,6 +2245,7 @@ function getPlayerDefense() {
     value *= 1.25;
   }
 
+  value *= 1 + getActiveForgeEffect('defensePercent') / 100;
   return Math.round(value);
 }
 
@@ -1347,11 +2256,15 @@ function getPlayerAgility() {
     value *= 1.25;
   }
 
+  value *= 1 + getActiveForgeEffect('agilityPercent') / 100;
   return Math.round(value);
 }
 
 function getPlayerCritChance() {
-  return clamp(gameState.player.critChance + getEquipmentBonus('critChance'), 5, 55);
+  let bonus = getEquipmentBonus('critChance') + getActiveForgeEffect('critChance');
+  const mark = getActiveForgeMark();
+  if (isForgeBiomeMarkActive(mark)) bonus += Number(mark.effects?.biomeCritChance) || 0;
+  return clamp(gameState.player.critChance + bonus, 5, 70);
 }
 
 function getPlayerPower() {
@@ -1362,6 +2275,224 @@ function getPlayerPower() {
     getPlayerDefense() * 2.6 +
     getPlayerAgility() * 2 +
     getPlayerCritChance() * 1.4
+  );
+}
+
+
+function getActiveBuffCount() {
+  const buffs = gameState.player.buffs || {};
+  return ['fury', 'stone', 'wind', 'arcane']
+    .filter((buff) => Number(buffs[buff]) > 0)
+    .length;
+}
+
+function getOverloadProfile(monster = gameState.monster) {
+  const count = monster?.isBoss ? getActiveBuffCount() : 0;
+  const tiers = [
+    { attack: 0, defense: 0, agility: 0, crit: 0, label: 'Observando' },
+    { attack: 0.07, defense: 0.03, agility: 0.03, crit: 1, label: 'Alerta I' },
+    { attack: 0.16, defense: 0.09, agility: 0.07, crit: 4, label: 'Sobrecarga I' },
+    { attack: 0.29, defense: 0.17, agility: 0.12, crit: 8, label: 'Sobrecarga II' },
+    { attack: 0.45, defense: 0.28, agility: 0.18, crit: 13, label: 'Sobrecarga máxima' },
+  ];
+
+  return { count, ...(tiers[count] || tiers[tiers.length - 1]) };
+}
+
+function ensureMonsterCombatRules(monster = gameState.monster) {
+  if (!monster) return null;
+
+  monster.combatRules = {
+    healingRageStacks: 0,
+    echoes: {},
+    ...(monster.combatRules || {}),
+  };
+
+  monster.combatRules.healingRageStacks = clamp(
+    Number(monster.combatRules.healingRageStacks) || 0,
+    0,
+    gameConfig.healingRageMaxStacks || 5
+  );
+  monster.combatRules.echoes ||= {};
+
+  return monster.combatRules;
+}
+
+function getHealingRageProfile(monster = gameState.monster) {
+  if (!monster?.isBoss) {
+    return { stacks: 0, attack: 0, defense: 0, agility: 0, crit: 0 };
+  }
+
+  const rules = ensureMonsterCombatRules(monster);
+  const stacks = rules?.healingRageStacks || 0;
+
+  return {
+    stacks,
+    attack: stacks * 0.10,
+    defense: stacks * 0.065,
+    agility: stacks * 0.035,
+    crit: stacks * 2.5,
+  };
+}
+
+function getEffectiveMonsterAttack(monster = gameState.monster) {
+  if (!monster) return 0;
+  const overload = getOverloadProfile(monster);
+  const rage = getHealingRageProfile(monster);
+  return Math.max(1, Math.round(monster.attack * (1 + overload.attack + rage.attack)));
+}
+
+function getEffectiveMonsterDefense(monster = gameState.monster) {
+  if (!monster) return 0;
+  const overload = getOverloadProfile(monster);
+  const rage = getHealingRageProfile(monster);
+  return Math.max(0, Math.round(monster.defense * (1 + overload.defense + rage.defense)));
+}
+
+function getEffectiveMonsterAgility(monster = gameState.monster) {
+  if (!monster) return 0;
+  const overload = getOverloadProfile(monster);
+  const rage = getHealingRageProfile(monster);
+  return Math.max(1, Math.round(monster.agility * (1 + overload.agility + rage.agility)));
+}
+
+function getEffectiveMonsterCritChance(monster = gameState.monster) {
+  if (!monster) return 8;
+  const overload = getOverloadProfile(monster);
+  const rage = getHealingRageProfile(monster);
+  return clamp((monster.isBoss ? 15 : 8) + overload.crit + rage.crit, 3, 55);
+}
+
+function getMonsterCombatStats(monster = gameState.monster) {
+  return {
+    hp: monster?.hp || 0,
+    attack: getEffectiveMonsterAttack(monster),
+    defense: getEffectiveMonsterDefense(monster),
+    agility: getEffectiveMonsterAgility(monster),
+    critChance: getEffectiveMonsterCritChance(monster),
+    isBoss: Boolean(monster?.isBoss),
+    specialBoss: Boolean(monster?.specialBoss),
+  };
+}
+
+function getEchoAttackDescriptor(damageType) {
+  if (damageType === 'magic') {
+    const spell = gameState.equipment?.spell;
+    return {
+      key: `spell:${spell?.uid || spell?.name || 'arcane'}`,
+      family: 'magic',
+      label: spell?.name || 'Magia equipada',
+    };
+  }
+
+  if (damageType === 'magicWeapon') {
+    const weapon = gameState.equipment?.magicWeapon;
+    return {
+      key: `magicWeapon:${weapon?.uid || weapon?.name || 'magic'}`,
+      family: 'magic',
+      label: weapon?.name || 'Arma Mágica',
+    };
+  }
+
+  const weapon = gameState.equipment?.physicalWeapon;
+  return {
+    key: `physical:${weapon?.uid || weapon?.name || 'physical'}`,
+    family: 'physical',
+    label: weapon?.name || 'Arma Física',
+  };
+}
+
+function getEchoResistanceMultiplier(monster, damageType) {
+  if (!monster?.isBoss) return 1;
+
+  const rules = ensureMonsterCombatRules(monster);
+  if (!rules) return 1;
+
+  const descriptor = getEchoAttackDescriptor(damageType);
+  const stacks = clamp(Number(rules.echoes?.[descriptor.key]?.stacks) || 0, 0, gameConfig.echoResistanceMaxStacks || 5);
+  return clamp(1 - stacks * (gameConfig.echoResistancePerStack || 0.08), 0.60, 1);
+}
+
+function registerEchoAdaptation(monster, damageType, extraStacks = 0) {
+  if (!monster?.isBoss) return;
+
+  const rules = ensureMonsterCombatRules(monster);
+  if (!rules) return;
+
+  const descriptor = getEchoAttackDescriptor(damageType);
+  const maxStacks = gameConfig.echoResistanceMaxStacks || 5;
+
+  Object.entries(rules.echoes).forEach(([key, echo]) => {
+    if (key !== descriptor.key && echo?.stacks > 0) {
+      echo.stacks = Math.max(0, echo.stacks - 1);
+    }
+  });
+
+  const current = rules.echoes[descriptor.key] || {
+    stacks: 0,
+    family: descriptor.family,
+    label: descriptor.label,
+  };
+
+  current.stacks = clamp((current.stacks || 0) + 1 + Math.max(0, Number(extraStacks) || 0), 0, maxStacks);
+  current.family = descriptor.family;
+  current.label = descriptor.label;
+  rules.echoes[descriptor.key] = current;
+
+  if ([2, 4, 5].includes(current.stacks)) {
+    const reduction = Math.round(current.stacks * (gameConfig.echoResistancePerStack || 0.08) * 100);
+    log(`Eco Adaptativo: ${monster.name} aprendeu a resistir a ${descriptor.label} (${reduction}% de redução no próximo golpe igual).`, 'boss', true);
+  }
+}
+
+function getEchoSummary(monster = gameState.monster) {
+  if (!monster?.isBoss) return [];
+
+  const rules = ensureMonsterCombatRules(monster);
+  if (!rules) return [];
+
+  return Object.values(rules.echoes)
+    .filter((echo) => (echo?.stacks || 0) > 0)
+    .sort((a, b) => (b.stacks || 0) - (a.stacks || 0))
+    .slice(0, 3)
+    .map((echo) => ({
+      ...echo,
+      reduction: Math.round((echo.stacks || 0) * (gameConfig.echoResistancePerStack || 0.08) * 100),
+    }));
+}
+
+async function applyEnemyResponseToHealing(healed, item) {
+  const monster = gameState.monster;
+  if (!monster?.isBoss || monster.hp <= 0 || healed <= 0) return;
+
+  const rules = ensureMonsterCombatRules(monster);
+  rules.healingRageStacks = clamp(
+    (rules.healingRageStacks || 0) + 1,
+    0,
+    gameConfig.healingRageMaxStacks || 5
+  );
+
+  const missingHp = Math.max(0, monster.maxHp - monster.hp);
+  const recoveryRate = 0.035 + rules.healingRageStacks * 0.009;
+  const recovered = Math.min(missingHp, Math.max(0, Math.round(monster.maxHp * recoveryRate)));
+
+  if (recovered > 0) {
+    await showMythicEffectActivation(
+      'Fúria de Cura',
+      `+${formatCompactNumber(recovered)} HP`,
+      'monster',
+      () => {
+        if (gameState.monster === monster) {
+          monster.hp = Math.min(monster.maxHp, monster.hp + recovered);
+        }
+      }
+    );
+  }
+
+  log(
+    `${monster.name} reagiu à sua cura${recovered > 0 ? `, recuperou ${formatCompactNumber(recovered)} HP` : ''} e alcançou Fúria de Cura ${rules.healingRageStacks}/${gameConfig.healingRageMaxStacks || 5}.`,
+    'boss',
+    true
   );
 }
 
@@ -1384,7 +2515,7 @@ const dungeonBiomes = [
       { name: 'Lobo da Névoa', icon: '🐺', type: 'Fera', hp: 1.04, attack: 1.08, defense: 0.8, agility: 1.25, resist: { physical: 1, magic: 1 } },
       { name: 'Esqueleto Antigo', icon: '💀', type: 'Morto-vivo', hp: 1.12, attack: 1, defense: 1.08, agility: 0.78, resist: { physical: 0.95, magic: 1.1 } },
       { name: 'Orc Guerreiro', icon: '🔨', type: 'Brutamontes', hp: 1.28, attack: 1.18, defense: 1.12, agility: 0.7, resist: { physical: 0.95, magic: 1.05 } },
-      { name: 'Lesma Necrótica', icon: '🐌', type: 'Molusco', hp: 1.22, attack: 0.88, defense: 1.18, agility: 0.58, resist: { physical: 1.18, magic: 0.72 } }, //fazer essa imagem
+      { name: 'Lesma Necrótica', icon: '🐌', type: 'Molusco', hp: 1.22, attack: 0.88, defense: 1.18, agility: 0.58, resist: { physical: 1.18, magic: 0.72 } },
     ],
   },
 
@@ -1400,8 +2531,8 @@ const dungeonBiomes = [
       { name: 'Morcego Ferrugento', icon: '🦇', type: 'Fera', hp: 0.86, attack: 0.95, defense: 0.7, agility: 1.55, resist: { physical: 1, magic: 1 } },
       { name: 'Mineiro Amaldiçoado', icon: '⛏️', type: 'Morto-vivo', hp: 1.12, attack: 1.16, defense: 1.05, agility: 0.85, resist: { physical: 1, magic: 1.08 } },
       { name: 'Aranha das Minas', icon: '🕷️', type: 'Inseto', hp: 0.95, attack: 1.02, defense: 0.88, agility: 1.35, resist: { physical: 1.05, magic: 0.95 } },
-      { name: 'Rato das Profundezas', icon: '🐀', type: 'Fera', hp: 0.72, attack: 1.18, defense: 0.55, agility: 1.45, resist: { physical: 0.95, magic: 1.08 } },//
-      { name: 'Elemental de Carvão', icon: '🪨', type: 'Elemental', hp: 1.15, attack: 1.08, defense: 1.28, agility: 0.62, resist: { physical: 0.88, magic: 1.18 } },//
+      { name: 'Rato das Profundezas', icon: '🐀', type: 'Fera', hp: 0.72, attack: 1.18, defense: 0.55, agility: 1.45, resist: { physical: 0.95, magic: 1.08 } },
+      { name: 'Elemental de Carvão', icon: '🪨', type: 'Elemental', hp: 1.15, attack: 1.08, defense: 1.28, agility: 0.62, resist: { physical: 0.88, magic: 1.18 } },// Trocar foto
     ],
   },
 
@@ -1450,9 +2581,9 @@ const dungeonBiomes = [
       { name: 'Golem de Engrenagens', icon: '⚙️', type: 'Mecânico', hp: 1.35, attack: 1.12, defense: 1.25, agility: 0.75, resist: { physical: 0.85, magic: 1.1 } },
       { name: 'Drone Arcano', icon: '🛸', type: 'Mecânico', hp: 0.92, attack: 1.15, defense: 0.82, agility: 1.55, resist: { physical: 1.05, magic: 0.95 } },
       { name: 'Armadura Vazia', icon: '🛡️', type: 'Armadura Viva', hp: 1.18, attack: 1.05, defense: 1.32, agility: 0.72, resist: { physical: 0.9, magic: 1.08 } },
-      { name: 'Rato de Cobre', icon: '🐀', type: 'Fera', hp: 0.82, attack: 1.12, defense: 0.88, agility: 1.32, resist: { physical: 0.9, magic: 1.14 } },//
-      { name: 'Cão de Aço', icon: '🐺', type: 'Constructo', hp: 1.05, attack: 1.24, defense: 1.22, agility: 0.82, resist: { physical: 0.84, magic: 1.16 } },//
-      { name: 'Autômato Duelista', icon: '🤖', type: 'Constructo', hp: 0.92, attack: 1.36, defense: 1.04, agility: 1.18, resist: { physical: 0.88, magic: 1.12 } },//
+      { name: 'Rato de Cobre', icon: '🐀', type: 'Fera', hp: 0.82, attack: 1.12, defense: 0.88, agility: 1.32, resist: { physical: 0.9, magic: 1.14 } },
+      { name: 'Cão de Aço', icon: '🐺', type: 'Constructo', hp: 1.05, attack: 1.24, defense: 1.22, agility: 0.82, resist: { physical: 0.84, magic: 1.16 } },
+      { name: 'Autômato Duelista', icon: '🤖', type: 'Constructo', hp: 0.92, attack: 1.36, defense: 1.04, agility: 1.18, resist: { physical: 0.88, magic: 1.12 } },
     ],
   },
 
@@ -1467,9 +2598,9 @@ const dungeonBiomes = [
       { name: 'Demônio de Cinzas', icon: '👹', type: 'Demônio', hp: 1.2, attack: 1.35, defense: 0.95, agility: 1.05, resist: { physical: 1, magic: 0.9 } },
       { name: 'Dragão Carbonizado', icon: '🐉', type: 'Dragão', hp: 1.55, attack: 1.38, defense: 1.12, agility: 0.82, resist: { physical: 0.95, magic: 0.85 } },
       { name: 'Cavaleiro Queimado', icon: '🔥', type: 'Humanoide', hp: 1.25, attack: 1.18, defense: 1.22, agility: 0.92, resist: { physical: 0.95, magic: 1.05 } },
-      { name: 'Lobo de Fuligem', icon: '🐺', type: 'Fera', hp: 0.9, attack: 1.28, defense: 0.78, agility: 1.26, resist: { physical: 1.08, magic: 0.88 } },//
-      { name: 'Anjo Caído das Brasas', icon: '🪽', type: 'Celestial', hp: 1.18, attack: 1.38, defense: 0.96, agility: 1.08, resist: { physical: 1.1, magic: 0.78 } },//
-      { name: 'Golem de Obsidiana', icon: '🗿', type: 'Constructo', hp: 1.42, attack: 1.14, defense: 1.48, agility: 0.42, resist: { physical: 0.78, magic: 1.12 } },//
+      { name: 'Lobo de Fuligem', icon: '🐺', type: 'Fera', hp: 0.9, attack: 1.28, defense: 0.78, agility: 1.26, resist: { physical: 1.08, magic: 0.88 } },
+      { name: 'Anjo Caído das Brasas', icon: '🪽', type: 'Celestial', hp: 1.18, attack: 1.38, defense: 0.96, agility: 1.08, resist: { physical: 1.1, magic: 0.78 } },
+      { name: 'Golem de Obsidiana', icon: '🗿', type: 'Constructo', hp: 1.42, attack: 1.14, defense: 1.48, agility: 0.42, resist: { physical: 0.78, magic: 1.12 } },
     ],
   },
 
@@ -1485,8 +2616,8 @@ const dungeonBiomes = [
       { name: 'Avatar Quebrado', icon: '👤', type: 'Avatar', hp: 1.35, attack: 1.35, defense: 1.15, agility: 1.1, resist: { physical: 0.95, magic: 0.95 } },
       { name: 'Herói Corrompido', icon: '🗡️', type: 'Eco Sombrio', hp: 1.4, attack: 1.42, defense: 1.12, agility: 1.16, resist: { physical: 1, magic: 1 } },
       { name: 'Devorador do Fim', icon: '🕳️', type: 'Entidade', hp: 1.7, attack: 1.45, defense: 1.25, agility: 0.9, resist: { physical: 0.9, magic: 0.9 } },
-      { name: 'Colecionador de Memórias', icon: '🧠', type: 'Aberração', hp: 1.6, attack: 1.44, defense: 1.01, agility: 0.94, resist: { physical: 1.16, magic: 0.76 } },//
-      { name: 'Guardião do Limite', icon: '🛡️', type: 'Sentinela', hp: 1.95, attack: 1.68, defense: 1.38, agility: 0.96, resist: { physical: 0.86, magic: 0.92 } }, //
+      { name: 'Colecionador de Memórias', icon: '🧠', type: 'Aberração', hp: 1.6, attack: 1.44, defense: 1.01, agility: 0.94, resist: { physical: 1.16, magic: 0.76 } },
+      { name: 'Guardião do Limite', icon: '🛡️', type: 'Sentinela', hp: 1.95, attack: 1.68, defense: 1.38, agility: 0.96, resist: { physical: 0.86, magic: 0.92 } }, 
     ],
   },
 ];
@@ -1495,8 +2626,8 @@ const bossPools = {
   catacombs: [
     { name: 'Rei Goblin', icon: '👑', type: 'Boss Goblin', hp: 1.35, attack: 1.22, defense: 1.05, agility: 0.95, resist: { physical: 1, magic: 1 } },
     { name: 'Lorde dos Ossos', icon: '💀', type: 'Boss Morto-vivo', hp: 1.45, attack: 1.18, defense: 1.2, agility: 0.75, resist: { physical: 0.95, magic: 1.1 } },
-    { name: 'O Rei Afogado', icon: '👑', type: 'Boss Morto-vivo', hp: 1.75, attack: 1.42, defense: 1.28, agility: 0.72, resist: { physical: 0.92, magic: 0.82 } },//
-    { name: 'O Vigia da Cripta', icon: '👁️', type: 'Boss Humanoide', hp: 1.55, attack: 1.58, defense: 1.12, agility: 0.96, resist: { physical: 0.86, magic: 1.08 } },//
+    { name: 'O Rei Afogado', icon: '👑', type: 'Boss Morto-vivo', hp: 1.75, attack: 1.42, defense: 1.28, agility: 0.72, resist: { physical: 0.92, magic: 0.82 } },
+    { name: 'O Vigia da Cripta', icon: '👁️', type: 'Boss Humanoide', hp: 1.55, attack: 1.58, defense: 1.12, agility: 0.96, resist: { physical: 0.86, magic: 1.08 } },
   ],
 
   abandonedMines: [
@@ -1762,56 +2893,80 @@ function tickDeathRecoveryGraceAfterWin(monster) {
 
 function createMonster(isBoss = false, specialBoss = false) {
   const player = gameState.player;
-
   const currentBiome = getDungeonBiome(player.stage);
-  const enemyBiome = isBoss
-    ? currentBiome
-    : getEnemyBiomeForStage(player.stage);
-
+  const enemyBiome = isBoss ? currentBiome : getEnemyBiomeForStage(player.stage);
   const templatePool = isBoss
     ? getBossPoolForBiome(currentBiome.id, specialBoss)
     : enemyBiome.enemies;
-
   const template = templatePool[randomBetween(0, templatePool.length - 1)];
-
-  const effectiveStage = Math.min(player.stage, getMaxStageForPlayer());
-  const stagePressure = Math.floor(effectiveStage / 12);
-  const levelVariance = randomBetween(isBoss ? 1 : -1, isBoss ? 4 : 1);
-
-  const level = Math.max(1, player.level + stagePressure + levelVariance);
-
-  const biomeScaling = 1 + Math.floor(effectiveStage / 300) * 0.08;
-  const bossMultiplier = isBoss ? 1.35 : 1;
+  const effectiveStage = Math.max(1, Math.min(player.stage, getMaxStageForPlayer()));
   const currentBiomeIndex = getBiomeIndex(currentBiome);
 
-  const base = 72 + level * 16 + effectiveStage * 1.2;
+  let level;
+  let maxHp;
+  let attack;
+  let defense;
+  let agility;
+  let xpReward;
+  let coinReward;
 
-  const playerOffense = Math.max(getPlayerAttack(), getPlayerMagic());
-  const playerDefense = getPlayerDefense();
-  const playerMaxHp = getPlayerMaxHp();
-  const playerAgility = getPlayerAgility();
-  const adaptation = clamp((player.level - 35) / 55, 0, 1);
+  if (isBoss) {
+    // Escala fixa: nenhum atributo do herói participa desta conta.
+    const biomeThreat = 1 + currentBiomeIndex * 0.16 + Math.floor(effectiveStage / 300) * 0.08;
+    level = Math.max(5, Math.round(effectiveStage * 0.62 + currentBiomeIndex * 9 + 6));
 
-  const baseHp = Math.round(base * template.hp * bossMultiplier * biomeScaling);
-  // Balanceamento mais justo para biomas avançados:
-  // inimigo comum deve ameaçar, mas não virar uma parede de HP nem bater como boss.
-  const targetFightTurns = isBoss ? 5.8 : 2.85;
-  const adaptiveHp = Math.round(
-    playerOffense * targetFightTurns *
-    (0.82 + template.hp * 0.12) *
-    (1 + currentBiomeIndex * 0.045)
-  );
+    const hpCurve = 300 + effectiveStage * 45 + Math.pow(effectiveStage, 1.22) * 8;
+    const attackCurve = 18 + effectiveStage * 4 + Math.pow(effectiveStage, 1.12) * 1.25;
+    const defenseCurve = 8 + effectiveStage * 1.55 + Math.pow(effectiveStage, 1.08) * 0.55;
+    const agilityCurve = 10 + effectiveStage * 2.8 + Math.pow(effectiveStage, 1.05) * 0.45;
 
-  const baseAttack = Math.round((8 + level * 1.72 + effectiveStage * 0.20) * template.attack * bossMultiplier * biomeScaling);
-  const targetIncomingDamage = Math.round(playerMaxHp * (isBoss ? 0.102 : 0.052) + playerDefense * 0.22);
-  const adaptiveAttack = Math.round(targetIncomingDamage * template.attack * (isBoss ? 0.96 : 0.78));
-  const attackSoftCap = Math.round(playerDefense * 0.42 + playerMaxHp * (isBoss ? 0.145 : 0.092));
+    maxHp = Math.max(1, Math.round(hpCurve * template.hp * biomeThreat));
+    attack = Math.max(1, Math.round(attackCurve * template.attack * biomeThreat));
+    defense = Math.max(0, Math.round(defenseCurve * template.defense * biomeThreat));
+    agility = Math.max(1, Math.round(agilityCurve * template.agility * biomeThreat));
+    xpReward = Math.round((140 + effectiveStage * 35 + Math.pow(effectiveStage, 1.10) * 9) * biomeThreat);
+    coinReward = Math.round((80 + effectiveStage * 20 + Math.pow(effectiveStage, 1.08) * 6) * biomeThreat);
+  } else {
+    const stagePressure = Math.floor(effectiveStage / 12);
+    const levelVariance = randomBetween(-1, 1);
+    level = Math.max(1, player.level + stagePressure + levelVariance);
 
-  const baseDefense = Math.round((3 + level * 0.82 + effectiveStage * 0.13) * template.defense * biomeScaling);
-  const adaptiveDefense = Math.round(playerOffense * (isBoss ? 0.15 : 0.095) * template.defense);
+    const biomeScaling = 1 + Math.floor(effectiveStage / 300) * 0.08;
+    const base = 72 + level * 16 + effectiveStage * 1.2;
+    const playerOffense = Math.max(getPlayerAttack(), getPlayerMagic());
+    const playerDefense = getPlayerDefense();
+    const playerMaxHp = getPlayerMaxHp();
+    const playerAgility = getPlayerAgility();
+    const adaptation = clamp((player.level - 35) / 55, 0, 1);
 
-  const baseAgility = Math.round((7 + level * 0.34 + effectiveStage * 0.045) * template.agility * biomeScaling);
-  const adaptiveAgility = Math.round(playerAgility * (isBoss ? 0.50 : 0.34) * template.agility);
+    const baseHp = Math.round(base * template.hp * biomeScaling);
+    const adaptiveHp = Math.round(
+      playerOffense * 2.85 *
+      (0.82 + template.hp * 0.12) *
+      (1 + currentBiomeIndex * 0.045)
+    );
+
+    const baseAttack = Math.round((8 + level * 1.72 + effectiveStage * 0.20) * template.attack * biomeScaling);
+    const targetIncomingDamage = Math.round(playerMaxHp * 0.052 + playerDefense * 0.22);
+    const adaptiveAttack = Math.round(targetIncomingDamage * template.attack * 0.78);
+    const attackSoftCap = Math.round(playerDefense * 0.42 + playerMaxHp * 0.092);
+
+    const baseDefense = Math.round((3 + level * 0.82 + effectiveStage * 0.13) * template.defense * biomeScaling);
+    const adaptiveDefense = Math.round(playerOffense * 0.095 * template.defense);
+
+    const baseAgility = Math.round((7 + level * 0.34 + effectiveStage * 0.045) * template.agility * biomeScaling);
+    const adaptiveAgility = Math.round(playerAgility * 0.34 * template.agility);
+
+    maxHp = Math.round(baseHp * (1 - adaptation) + Math.max(baseHp, adaptiveHp) * adaptation);
+    attack = Math.min(
+      attackSoftCap,
+      Math.round(baseAttack * (1 - adaptation) + Math.max(baseAttack, adaptiveAttack) * adaptation)
+    );
+    defense = Math.round(baseDefense * (1 - adaptation) + Math.max(baseDefense, adaptiveDefense) * adaptation);
+    agility = Math.round(baseAgility * (1 - adaptation) + Math.max(baseAgility, adaptiveAgility) * adaptation);
+    xpReward = Math.round((45 + level * 18 + effectiveStage * 3) * biomeScaling);
+    coinReward = Math.round((18 + level * 8.5 + effectiveStage * 2.4) * biomeScaling);
+  }
 
   const monster = {
     id: uid('monster'),
@@ -1823,33 +2978,36 @@ function createMonster(isBoss = false, specialBoss = false) {
     biomeName: currentBiome.name,
     enemyBiomeId: enemyBiome.id,
     enemyBiomeName: enemyBiome.name,
+    scalingStage: effectiveStage,
+    scalingSource: isBoss ? 'stage-biome' : 'adaptive',
     level,
     isBoss,
     specialBoss,
     resist: template.resist || { physical: 1, magic: 1 },
-
-    maxHp: Math.round(baseHp * (1 - adaptation) + Math.max(baseHp, adaptiveHp) * adaptation),
-    attack: Math.min(
-      attackSoftCap,
-      Math.round(baseAttack * (1 - adaptation) + Math.max(baseAttack, adaptiveAttack) * adaptation)
-    ),
-    defense: Math.round(baseDefense * (1 - adaptation) + Math.max(baseDefense, adaptiveDefense) * adaptation),
-    agility: Math.round(baseAgility * (1 - adaptation) + Math.max(baseAgility, adaptiveAgility) * adaptation),
-
-    xpReward: Math.round((45 + level * 18 + effectiveStage * 3) * (isBoss ? 2.6 : 1) * biomeScaling),
-    coinReward: Math.round((18 + level * 8.5 + effectiveStage * 2.4) * (isBoss ? 3.2 : 1) * biomeScaling),
+    maxHp,
+    attack,
+    defense,
+    agility,
+    xpReward,
+    coinReward,
   };
 
   if (specialBoss) {
     monster.type = `${monster.type} • Mítico`;
-    monster.maxHp = Math.round(monster.maxHp * (gameConfig.specialBossHpMultiplier || 1.24));
-    monster.attack = Math.round(monster.attack * (gameConfig.specialBossAttackMultiplier || 1.10));
-    monster.defense = Math.round(monster.defense * 1.04);
-    monster.xpReward = Math.round(monster.xpReward * 1.18);
-    monster.coinReward = Math.round(monster.coinReward * 1.14);
+    monster.maxHp = Math.round(monster.maxHp * 1.48);
+    monster.attack = Math.round(monster.attack * 1.22);
+    monster.defense = Math.round(monster.defense * 1.12);
+    monster.agility = Math.round(monster.agility * 1.06);
+    monster.xpReward = Math.round(monster.xpReward * 1.35);
+    monster.coinReward = Math.round(monster.coinReward * 1.28);
   }
 
   monster.hp = monster.maxHp;
+  ensureMonsterCombatRules(monster);
+
+  // Bosses permanecem fixos pelo andar/bioma, inclusive após derrota do herói.
+  if (isBoss) return monster;
+
   return applyMonsterBalanceModifiers(monster, {
     stage: player.stage,
     currentBiome,
@@ -1975,43 +3133,129 @@ function createShopItems() {
   return items;
 }
 
+function isSpecialShop(type = gameState.shop.type) {
+  return type === 'blacksmith' || type === 'arcaneSmith';
+}
+
+function getShopDurationLimit(type = gameState.shop.type) {
+  return isSpecialShop(type)
+    ? gameConfig.specialShopKeepBattles
+    : gameConfig.shopKeepBattles;
+}
+
+function updateSpecialShopControls() {
+  if (!elements.shopStayControls) return;
+
+  const specialActive = gameState.shop.active && gameState.shop.items.length && isSpecialShop();
+  elements.shopStayControls.hidden = !specialActive;
+
+  if (!specialActive) return;
+
+  const maximum = getShopDurationLimit();
+  const remaining = Math.max(0, Number(gameState.shop.encountersLeft) || maximum);
+  const label = remaining === 1 ? '1 batalha restante' : `${remaining} batalhas restantes`;
+
+  if (elements.shopStayText) {
+    elements.shopStayText.textContent = label;
+  }
+
+  if (elements.shopStayProgress) {
+    elements.shopStayProgress.style.width = `${Math.max(0, Math.min(100, (remaining / maximum) * 100))}%`;
+  }
+}
+
+function getShopMerchantMeta(type = gameState.shop.type) {
+  return forgeMerchantCatalog[type] || forgeMerchantCatalog.consumables;
+}
+
+function resetShopVisualState() {
+  document.body.classList.remove('forge-shop-active', 'forge-shop-physical', 'forge-shop-arcane');
+  if (elements.shopCard) {
+    elements.shopCard.classList.remove('merchant-consumables', 'merchant-blacksmith', 'merchant-arcane-smith', 'merchant-active');
+  }
+  if (elements.shopMerchantVisual) {
+    elements.shopMerchantVisual.hidden = true;
+    elements.shopMerchantVisual.innerHTML = '';
+  }
+  if (elements.shopTitle) elements.shopTitle.textContent = 'Loja';
+  if (elements.shopStayControls) elements.shopStayControls.hidden = true;
+}
+
 function updateShopMessage(prefix = 'Loja aberta') {
   if (!gameState.shop.active || !gameState.shop.items.length) return;
 
-  const left = gameState.shop.encountersLeft || gameConfig.shopKeepBattles;
-  const enemyText = left === 1 ? '1 inimigo' : `${left} inimigos`;
+  const maximum = getShopDurationLimit();
+  const left = Math.max(0, Number(gameState.shop.encountersLeft) || maximum);
+  const meta = getShopMerchantMeta();
 
-  elements.shopStatus.textContent = `Loja aberta • ${enemyText}`;
+  if (isSpecialShop()) {
+    const battleText = left === 1 ? '1 batalha' : `${left} batalhas`;
+    elements.shopStatus.textContent = `${meta.status} • ${battleText} para partir`;
+    elements.shopMessage.textContent = `${prefix}. Leia as três opções com calma: o ferreiro só irá embora quando você sair ou após ${battleText}.`;
+    updateSpecialShopControls();
+    return;
+  }
+
+  const enemyText = left === 1 ? '1 inimigo' : `${left} inimigos`;
+  elements.shopStatus.textContent = `${meta.status} • ${enemyText}`;
   elements.shopMessage.textContent = `${prefix}. Disponível por mais ${enemyText}.`;
+  updateSpecialShopControls();
 }
 
 function closeShop(message = 'O vendedor foi embora. Derrote monstros para encontrar outra loja.') {
   gameState.shop.active = false;
+  gameState.shop.type = 'consumables';
   gameState.shop.items = [];
   gameState.shop.encountersLeft = 0;
 
   elements.shopStatus.textContent = 'Nenhuma loja';
   elements.shopMessage.textContent = message;
+  resetShopVisualState();
+  updateSpecialShopControls();
 
-  if (typeof hideFloatingTooltip === 'function') {
-    hideFloatingTooltip();
-  }
+  if (typeof hideFloatingTooltip === 'function') hideFloatingTooltip();
 }
 
 function tickShopDurationAfterBattle() {
   if (!gameState.shop.active || !gameState.shop.items.length) return;
 
+  const maximum = getShopDurationLimit();
   gameState.shop.encountersLeft = Math.max(
     0,
-    (gameState.shop.encountersLeft || gameConfig.shopKeepBattles) - 1
+    (Number(gameState.shop.encountersLeft) || maximum) - 1
   );
 
   if (gameState.shop.encountersLeft <= 0) {
-    closeShop('O vendedor esperou por 2 inimigos e foi embora.');
+    closeShop(
+      isSpecialShop()
+        ? `O ferreiro aguardou ${maximum} batalhas e precisou seguir viagem.`
+        : `O comerciante esperou por ${maximum} inimigos e foi embora.`
+    );
     return;
   }
 
-  updateShopMessage('Loja ainda aberta');
+  updateShopMessage(
+    isSpecialShop()
+      ? 'O ferreiro continua trabalhando e aguardando sua decisão'
+      : 'O comerciante ainda está esperando'
+  );
+}
+
+function rollMerchantType(force = false) {
+  const hasPhysical = Boolean(gameState.equipment?.physicalWeapon);
+  const hasMagic = Boolean(gameState.equipment?.magicWeapon);
+  const choices = [
+    { type: 'consumables', weight: force ? 45 : 58 },
+    ...(hasPhysical ? [{ type: 'blacksmith', weight: force ? 35 : 27 }] : []),
+    ...(hasMagic ? [{ type: 'arcaneSmith', weight: force ? 20 : 15 }] : []),
+  ];
+  const total = choices.reduce((sum, entry) => sum + entry.weight, 0);
+  let roll = Math.random() * total;
+  for (const entry of choices) {
+    roll -= entry.weight;
+    if (roll <= 0) return entry.type;
+  }
+  return 'consumables';
 }
 
 function maybeOpenShop(force = false) {
@@ -2019,39 +3263,51 @@ function maybeOpenShop(force = false) {
 
   if (!shouldOpen) {
     if (gameState.shop.active && gameState.shop.items.length) {
-      updateShopMessage('Loja ainda aberta');
+      updateShopMessage('O comerciante ainda está esperando');
       return;
     }
 
     elements.shopStatus.textContent = 'Nenhuma loja';
-    elements.shopMessage.textContent = 'Continue derrotando monstros para encontrar uma loja.';
+    elements.shopMessage.textContent = 'Continue derrotando monstros para encontrar um comerciante.';
     return;
   }
 
-  const newItems = createShopItems();
-  const currentItems = gameState.shop.active && Array.isArray(gameState.shop.items)
-    ? [...gameState.shop.items]
-    : [];
-
-  const existingIds = new Set(currentItems.map((item) => item.id));
-
-  newItems.forEach((item) => {
-    if (!existingIds.has(item.id)) {
-      currentItems.push(item);
-      existingIds.add(item.id);
+  if (gameState.shop.active && gameState.shop.items.length) {
+    if (!isSpecialShop()) {
+      gameState.shop.encountersLeft = getShopDurationLimit();
     }
-  });
+
+    updateShopMessage(
+      isSpecialShop()
+        ? 'O ferreiro manteve a oficina aberta enquanto você continuou explorando'
+        : force
+          ? 'O boss convenceu o comerciante a permanecer'
+          : 'O comerciante decidiu esperar mais'
+    );
+    return;
+  }
+
+  const type = rollMerchantType(force);
+  const items = type === 'consumables' ? createShopItems() : createForgeOffers(type);
+
+  if (!items.length) {
+    gameState.shop.type = 'consumables';
+    gameState.shop.items = createShopItems();
+  } else {
+    gameState.shop.type = type;
+    gameState.shop.items = items;
+  }
 
   gameState.shop.active = true;
-  gameState.shop.items = currentItems.slice(0, 4);
-  gameState.shop.encountersLeft = gameConfig.shopKeepBattles;
+  gameState.shop.encountersLeft = getShopDurationLimit(gameState.shop.type);
+  const meta = getShopMerchantMeta();
+  updateShopMessage(force ? `${meta.icon} Boss derrotado: comerciante garantido` : `${meta.icon} ${meta.title} apareceu`);
 
-  updateShopMessage(force ? 'Boss derrotado: loja garantida' : 'Um vendedor apareceu na dungeon');
-
+  const duration = getShopDurationLimit(gameState.shop.type);
   log(
-    force
-      ? 'Boss derrotado: a loja foi reforçada e ficará aberta por mais 2 inimigos.'
-      : 'Uma loja apareceu e ficará aberta por mais 2 inimigos.',
+    isSpecialShop()
+      ? `${meta.icon} ${meta.title} montou a oficina. Ele ficará por até ${duration} batalhas ou até você clicar em Sair da loja.`
+      : `${meta.icon} ${meta.title} apareceu e ficará disponível por mais ${duration} inimigos.`,
     'shop',
     true
   );
@@ -2915,7 +4171,7 @@ function getForgeUpgradePreview(item) {
   return formatStats(gains);
 }
 
-function upgradeEquippedGear(slot) {
+async function upgradeEquippedGear(slot) {
   const equippedItem = gameState.equipment[slot];
 
   if (!equippedItem) {
@@ -2941,31 +4197,43 @@ function upgradeEquippedGear(slot) {
   }
 
   const item = gameState.inventory.gear.find((gear) => gear.uid === equippedItem.uid) || equippedItem;
+  const applyUpgrade = () => {
+    item.level += 1;
+    const gains = getForgeUpgradeGains(item);
 
+    Object.entries(gains).forEach(([stat, amount]) => {
+      item.stats[stat] += amount;
+    });
+
+    normalizeSpecialGearStats(item);
+    item.value += Math.round(cost * (isMythicGear(item) ? 0.55 : 0.35));
+    gameState.equipment[slot] = item;
+
+    return gains;
+  };
+
+  // Reserva o custo para impedir duas melhorias com os mesmos recursos.
   gameState.player.coins -= cost;
+  if (fragmentCost > 0) spendMythicFragments(fragmentCost);
+  updateStats();
 
-  if (fragmentCost > 0) {
-    spendMythicFragments(fragmentCost);
-  }
-
-  item.level += 1;
-
-  const gains = getForgeUpgradeGains(item);
-
-  Object.entries(gains).forEach(([stat, amount]) => {
-    item.stats[stat] += amount;
-  });
-
-  normalizeSpecialGearStats(item);
-
-  item.value += Math.round(cost * (isMythicGear(item) ? 0.55 : 0.35));
-  gameState.equipment[slot] = item;
-
-  const fragmentText = fragmentCost > 0 ? ` e ${fragmentCost} Fragmento(s) Mítico(s)` : '';
+  let gains = {};
 
   if (isMythicGear(item)) {
-    showMythicEffectActivation('Forja Mítica', `-${fragmentCost} Fragmento(s)`, 'player');
+    await showMythicEffectActivation(
+      'Forja Mítica',
+      `-${fragmentCost} Fragmento(s)`,
+      'player',
+      () => {
+        gains = applyUpgrade();
+      }
+    );
+  } else {
+    gains = applyUpgrade();
+    updateStats();
   }
+
+  const fragmentText = fragmentCost > 0 ? ` e ${fragmentCost} Fragmento(s) Mítico(s)` : '';
 
   log(
     `Forja concluída! ${formatGearName(item)} subiu para o nível ${item.level} usando ${formatMoney(cost)}${fragmentText}. Ganhos: ${formatStats(gains)}.`,
@@ -3017,26 +4285,146 @@ function getConsumableQuantity(itemId) {
 
 function getHealingAmount(item) {
   const maxHp = getPlayerMaxHp();
+  const missingHp = Math.max(0, maxHp - gameState.player.hp);
 
   if (item.type === 'fullHeal') {
-    return maxHp - gameState.player.hp;
+    return Math.min(missingHp, Math.max(1, Math.round(missingHp)));
   }
 
   const percentHeal = item.healPercent
     ? Math.round(maxHp * item.healPercent)
     : item.healAmount || 0;
 
-  return Math.min(
-    maxHp - gameState.player.hp,
-    Math.max(item.minHeal || 0, percentHeal)
-  );
+  const baseHealing = Math.max(item.minHeal || 0, percentHeal);
+  return Math.min(missingHp, Math.max(1, Math.round(baseHealing)));
 }
 
-function autoUseEmergencyHealing() {
+const pendingHeroSupportConsumables = [];
+let processingHeroSupportConsumables = false;
+let heroSupportPhaseActive = false;
+
+function getPendingHeroSupportCount(itemId) {
+  return pendingHeroSupportConsumables.filter((queuedId) => queuedId === itemId).length;
+}
+
+function queueHeroSupportConsumable(itemId) {
+  const item = shopCatalog.find((catalogItem) => catalogItem.id === itemId);
+  if (!item) return false;
+
+  const availableQuantity = getConsumableQuantity(itemId) - getPendingHeroSupportCount(itemId);
+  if (availableQuantity <= 0) {
+    log(`Você não tem outra unidade de ${item.name} disponível para preparar.`, 'shop', true);
+    return false;
+  }
+
+  pendingHeroSupportConsumables.push(itemId);
+  log(`${item.name} preparada para o próximo turno do herói.`, 'shop', true);
+  updateStats();
+  return true;
+}
+
+async function applyHeroSupportConsumableNow(itemId, source = 'manual') {
+  const item = shopCatalog.find((catalogItem) => catalogItem.id === itemId);
+  if (!item || getConsumableQuantity(itemId) <= 0) return false;
+
+  if (item.type === 'heal' || item.type === 'fullHeal') {
+    if (gameState.player.hp >= getPlayerMaxHp()) return false;
+
+    removeConsumable(itemId);
+    updateStats();
+
+    let healed = 0;
+
+    await showHeroPotionVisual(item, item.shopName || item.name, () => {
+      const hpBefore = gameState.player.hp;
+      const maxHp = getPlayerMaxHp();
+
+      gameState.player.hp = Math.min(maxHp, gameState.player.hp + getHealingAmount(item));
+      healed = Math.max(0, gameState.player.hp - hpBefore);
+    });
+
+    if (healed > 0) {
+      await applyEnemyResponseToHealing(healed, item);
+    }
+
+    log(
+      source === 'auto'
+        ? `Uso automático: ${item.name} recuperou ${formatCompactNumber(healed)} HP.`
+        : item.type === 'fullHeal'
+          ? `Você usou ${item.name} e restaurou toda a vida.`
+          : `Você usou ${item.name} e recuperou ${formatCompactNumber(healed)} HP.`,
+      'shop',
+      true
+    );
+
+    return healed > 0;
+  }
+
+  if (item.type === 'buff') {
+    if ((gameState.player.buffs?.[item.buff] || 0) > 0) return false;
+
+    removeConsumable(itemId);
+    updateStats();
+
+    await showHeroPotionVisual(item, item.shopName || item.name, () => {
+      gameState.player.buffs[item.buff] = Math.max(
+        gameState.player.buffs[item.buff] || 0,
+        item.duration || 3
+      );
+    });
+
+    log(
+      source === 'auto'
+        ? `Automação: ${item.name} usada por ${item.duration || 5} lutas.`
+        : `${item.name} ativada por ${item.duration || 3} lutas.`,
+      'shop',
+      true
+    );
+
+    return true;
+  }
+
+  return false;
+}
+
+async function processPendingHeroSupportConsumables() {
+  if (processingHeroSupportConsumables) return;
+
+  processingHeroSupportConsumables = true;
+
+  try {
+    // Usa shift em loop para também pegar itens clicados enquanto outra animação está rodando.
+    while (pendingHeroSupportConsumables.length > 0) {
+      const itemId = pendingHeroSupportConsumables.shift();
+      await applyHeroSupportConsumableNow(itemId, 'manual');
+    }
+  } finally {
+    processingHeroSupportConsumables = false;
+  }
+}
+
+async function runHeroPreAttackSupportPhase() {
+  heroSupportPhaseActive = true;
+
+  try {
+    // Ações manuais têm prioridade. Assim a cura automática não gasta outra poção à toa.
+    await processPendingHeroSupportConsumables();
+    await autoUseEmergencyHealing();
+    await refreshAutoBuffPotions();
+
+    // Captura também qualquer poção clicada enquanto as animações acima aconteciam.
+    await processPendingHeroSupportConsumables();
+    await waitForCardEffects();
+  } finally {
+    heroSupportPhaseActive = false;
+  }
+}
+
+async function autoUseEmergencyHealing() {
   if (!gameState.ui?.autoUse?.heal) return false;
+
   const maxHp = getPlayerMaxHp();
   const hpPercent = maxHp > 0 ? gameState.player.hp / maxHp : 0;
-
   let itemId = '';
 
   if (gameState.player.hp <= 0 && getConsumableQuantity('elixir') > 0) {
@@ -3053,30 +4441,7 @@ function autoUseEmergencyHealing() {
 
   if (!itemId) return false;
 
-  const item = shopCatalog.find((catalogItem) => catalogItem.id === itemId);
-  if (!item) return false;
-
-  const hpBefore = gameState.player.hp;
-
-  if (item.type === 'fullHeal') {
-    gameState.player.hp = maxHp;
-  } else {
-    const healAmount = Math.max(1, getHealingAmount(item));
-    gameState.player.hp = Math.min(maxHp, gameState.player.hp + healAmount);
-  }
-
-  removeConsumable(itemId);
-
-  const healed = gameState.player.hp - hpBefore;
-  showHeroPotionVisual(item, item.shopName || item.name);
-
-  log(
-    `Uso automático: ${item.name} ativada e recuperou ${healed} HP.`,
-    'shop',
-    true
-  );
-
-  return true;
+  return applyHeroSupportConsumableNow(itemId, 'auto');
 }
 
 
@@ -3106,20 +4471,27 @@ function getConsumableVisualColor(item) {
   return colors[item?.id] || 'rgba(155, 119, 255, 0.98)';
 }
 
-function showHeroPotionVisual(item, label = '') {
-  const heroCard = document.querySelector('.hero-card');
-  if (!heroCard || !item) return;
+function showHeroPotionVisual(item, label = '', onApply = null) {
+  // Poções, curas e buffs pertencem ao herói e sempre iluminam o card do herói.
+  // A fila global garante que isso nunca se sobreponha ao golpe recebido ou ao ataque.
+  const displayCard = document.querySelector('.hero-card');
+
+  if (!displayCard || !item) {
+    if (typeof onApply === 'function') onApply();
+    return Promise.resolve();
+  }
 
   const runPotionVisual = () => {
     const color = getConsumableVisualColor(item);
-    heroCard.style.setProperty('--potion-color', color);
-    heroCard.style.setProperty('--potion-color-soft', color.replace('0.98', '0.24').replace('0.96', '0.24'));
+    displayCard.style.setProperty('--potion-color', color);
+    displayCard.style.setProperty(
+      '--potion-color-soft',
+      color.replace('0.98', '0.24').replace('0.96', '0.24')
+    );
 
-    if (typeof pulseCombatCard === 'function') {
-      pulseCombatCard(heroCard, 'combat-card-potion', 900);
-    }
+    pulseCombatCard(displayCard, 'combat-card-potion', 900);
 
-    const center = getCombatTargetCenter(heroCard);
+    const center = getCombatTargetCenter(displayCard);
     const visual = document.createElement('div');
     visual.className = 'potion-use-indicator-screen';
     visual.style.setProperty('--potion-x', `${center.x}px`);
@@ -3136,22 +4508,29 @@ function showHeroPotionVisual(item, label = '') {
       : `<span>${item.icon || '🧪'}</span><strong>${safeLabel}</strong>`;
 
     document.body.appendChild(visual);
-    setTimeout(() => visual.remove(), 2000);
   };
 
-  queueCardEffect(heroCard, runPotionVisual, 2000, 120);
+  return queueCardEffect(displayCard, runPotionVisual, 1050, 100, {
+    apply: onApply,
+    // A poção só altera o HP/buff depois que a animação principal terminou.
+    applyDelay: 950,
+  });
 }
 
-function showLifeStealVisual(amount) {
-  const heroCard = document.querySelector('.hero-card');
-  if (!heroCard) return;
+function showLifeStealVisual(amount, onApply = null) {
+  // O roubo de vida cura o herói, portanto o feedback acontece no card do herói.
+  // Ele só é chamado depois de um ataque realmente acertar e causar dano.
+  const displayCard = document.querySelector('.hero-card');
+
+  if (!displayCard) {
+    if (typeof onApply === 'function') onApply();
+    return Promise.resolve();
+  }
 
   const runLifeStealVisual = () => {
-    if (typeof pulseCombatCard === 'function') {
-      pulseCombatCard(heroCard, 'combat-card-heal', 780);
-    }
+    pulseCombatCard(displayCard, 'combat-card-heal', 780);
 
-    const center = getCombatTargetCenter(heroCard);
+    const center = getCombatTargetCenter(displayCard);
     const visual = document.createElement('div');
     visual.className = 'life-steal-indicator-screen';
     visual.style.setProperty('--life-x', `${center.x}px`);
@@ -3159,13 +4538,16 @@ function showLifeStealVisual(amount) {
     visual.innerHTML = `<span>💚</span><strong>+${amount} HP</strong><small>Roubo de vida</small>`;
 
     document.body.appendChild(visual);
-    setTimeout(() => visual.remove(), 2000);
   };
 
-  queueCardEffect(heroCard, runLifeStealVisual, 2000, 120);
+  return queueCardEffect(displayCard, runLifeStealVisual, 1000, 100, {
+    apply: onApply,
+    // A cura entra somente ao final da animação de roubo de vida.
+    applyDelay: 900,
+  });
 }
 
-function tryUseAutoBuffPotion(key, reason = 'auto') {
+async function tryUseAutoBuffPotion(key, reason = 'auto') {
   if (key === 'heal') return false;
   if (!gameState.ui?.autoUse?.[key]) return false;
 
@@ -3174,26 +4556,15 @@ function tryUseAutoBuffPotion(key, reason = 'auto') {
 
   const item = shopCatalog.find((catalogItem) => catalogItem.id === itemId);
   if (!item || item.type !== 'buff') return false;
-
   if ((gameState.player.buffs?.[item.buff] || 0) > 0) return false;
 
-  gameState.player.buffs[item.buff] = item.duration || 5;
-  removeConsumable(itemId);
-  showHeroPotionVisual(item, item.shopName || item.name);
-
-  log(
-    `${reason === 'toggle' ? 'Automação ativada' : 'Automação'}: ${item.name} usada por ${item.duration || 5} lutas.`,
-    'shop',
-    true
-  );
-
-  return true;
+  return applyHeroSupportConsumableNow(itemId, 'auto');
 }
 
-function refreshAutoBuffPotions() {
-  ['fury', 'stone', 'wind', 'arcane'].forEach((key) => {
-    tryUseAutoBuffPotion(key, 'auto');
-  });
+async function refreshAutoBuffPotions() {
+  for (const key of ['fury', 'stone', 'wind', 'arcane']) {
+    await tryUseAutoBuffPotion(key, 'auto');
+  }
 }
 
 function getRandomConsumableDrop(monster) {
@@ -3384,8 +4755,9 @@ function gearImageTag(item) {
   const imagePath = getGearImagePath(item);
   const itemName = escapeAttr(item?.name || 'Equipamento');
 
+  const forgeMark = item?.forgeMark;
   return `
-    <span class="gear-image-frame">
+    <span class="gear-image-frame ${forgeMark ? `has-forge-mark forge-tone-${escapeAttr(forgeMark.tone || 'forge')}` : ''}">
       <img
         class="gear-image"
         src="${escapeAttr(imagePath)}"
@@ -3395,6 +4767,7 @@ function gearImageTag(item) {
         onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
       />
       <span class="gear-fallback-icon" hidden>${fallbackIcon}</span>
+      ${forgeMark ? `<span class="forge-mark-emblem" title="${escapeAttr(forgeMark.name)}">${escapeAttr(forgeMark.icon || '⚒️')}</span>` : ''}
     </span>
   `;
 }
@@ -3471,32 +4844,41 @@ function getSpellVisualInfo(spellItem = getActiveSpellItem()) {
   };
 }
 
-function applySpellGlow(card, visualInfo, className) {
+function applySpellGlow(card, visualInfo, className, duration = 820) {
   if (!card) return;
 
-  const glowId = `${Date.now()}-${Math.random()}`;
+  // Brilho e movimento da magia agora pertencem ao mesmo efeito.
+  // As duas classes entram e saem juntas, evitando que a animação
+  // de brilho reinicie depois que o movimento do card terminar.
+  const effectId = `${Date.now()}-${Math.random()}`;
 
-  card.dataset.spellGlowId = glowId;
+  card.dataset.spellGlowId = effectId;
+  card.dataset.combatPulseId = effectId;
   card.style.setProperty('--spell-color', visualInfo.color);
   card.style.setProperty('--spell-color-soft', visualInfo.softColor);
 
+  clearCombatCardEffectClasses(card);
   card.classList.remove(className);
   void card.offsetWidth;
-  card.classList.add(className);
+  card.classList.add(className, 'combat-card-magic');
 
   setTimeout(() => {
-    if (card.dataset.spellGlowId !== glowId) return;
+    if (card.dataset.spellGlowId !== effectId) return;
 
-    card.classList.remove(className);
+    card.classList.remove(className, 'combat-card-magic');
     delete card.dataset.spellGlowId;
-  }, 1300);
+    delete card.dataset.combatPulseId;
+  }, duration);
 }
 
-function showSpellImpact(damage = 0) {
+function showSpellImpact(damage = 0, onApply = null) {
   const spellItem = getActiveSpellItem();
   const monsterCard = document.querySelector('.monster-card');
 
-  if (!spellItem || !monsterCard) return;
+  if (!spellItem || !monsterCard) {
+    if (typeof onApply === 'function') onApply();
+    return Promise.resolve();
+  }
 
   const visualInfo = getSpellVisualInfo(spellItem);
   const imagePath = getGearImagePath(spellItem);
@@ -3505,17 +4887,7 @@ function showSpellImpact(damage = 0) {
   const runSpellVisual = () => {
     const cardRect = monsterCard.getBoundingClientRect();
 
-    // O brilho continua no card inteiro, mas a imagem da magia fica fora do fluxo do card.
-    // Assim a animação não aumenta a altura do card nem cria espaço vazio no final.
-    applySpellGlow(monsterCard, visualInfo, 'spell-target-glow');
-    pulseCombatCard(monsterCard, 'combat-card-magic', 820);
-
-    // Remove ícones genéricos de combate para a magia não aparecer junto com espada/raio/etc.
-    monsterCard.querySelectorAll('.combat-indicator, .spell-impact').forEach((entry) => entry.remove());
-    document.querySelectorAll('.spell-impact-screen').forEach((entry) => entry.remove());
-    document
-      .querySelectorAll('.combat-indicator-screen[data-target-side="monster"]')
-      .forEach((entry) => entry.remove());
+    applySpellGlow(monsterCard, visualInfo, 'spell-target-glow', 820);
 
     const impact = document.createElement('div');
     impact.className = `spell-impact-screen spell-impact-${visualInfo.className}`;
@@ -3538,15 +4910,12 @@ function showSpellImpact(damage = 0) {
       : `<span>${visualInfo.emoji}</span>`;
 
     document.body.appendChild(impact);
-
-    setTimeout(() => {
-      impact.remove();
-    }, 2000);
   };
 
-  // O card do inimigo precisa reagir no exato momento do dano.
-  // Fila aqui deixava o brilho/ícone atrasado quando havia vários hits seguidos.
-  runSpellVisual();
+  return queueCardEffect(monsterCard, runSpellVisual, 1000, 100, {
+    apply: onApply,
+    applyDelay: 0,
+  });
 }
 
 function itemImageTag(item) {
@@ -3620,7 +4989,8 @@ Tipo: ${slot}
 Raridade: ${rarity.name}
 Nível: ${item.level}
 Efeito: ${formatStats(item.stats)}
-Valor de venda: ${formatMoneyText(item.value)}${isMythicGear(item) ? `
+Valor de venda: ${formatMoneyText(item.value)}${item.forgeMark ? `
+Marca de Forja: ${getForgeMarkPlainSummary(item.forgeMark)}` : ''}${isMythicGear(item) ? `
 Melhoria mítica: +1 nível, ganhos de status maiores.
 Custo atual: ${formatMoneyText(getGearUpgradeCost(item))} + ${getMythicUpgradeFragmentCost(item)} Fragmento(s) Mítico(s).
 Você tem: ${getMythicFragmentQuantity()} Fragmento(s).` : ''}`;
@@ -3669,6 +5039,8 @@ function getGearTooltipHtml(item) {
         </div>
       ` : ''}
 
+      ${item.forgeMark ? getForgeMarkHtml(item.forgeMark) : ''}
+
       <div class="gear-tooltip-section">
         <small>STATUS ATUAIS</small>
         <div class="gear-tooltip-chips">${stats}</div>
@@ -3693,6 +5065,7 @@ function formatGearName(item) {
 
 let pendingSaveTimer = null;
 let lastDeferredSaveAt = 0;
+let autoAttackWasRunningBeforeOffline = false;
 
 function requestSaveGame() {
   const now = Date.now();
@@ -3701,24 +5074,28 @@ function requestSaveGame() {
 
   if (now - lastDeferredSaveAt > 1200) {
     lastDeferredSaveAt = now;
-    saveGame();
+    saveGame({ updateActivityTimestamp: !document.hidden });
     return;
   }
 
   pendingSaveTimer = window.setTimeout(() => {
     pendingSaveTimer = null;
     lastDeferredSaveAt = Date.now();
-    saveGame();
+    saveGame({ updateActivityTimestamp: !document.hidden });
   }, 900);
 }
 
-function saveGame() {
+function saveGame({ updateActivityTimestamp = !document.hidden } = {}) {
   if (pendingSaveTimer) {
     window.clearTimeout(pendingSaveTimer);
     pendingSaveTimer = null;
   }
 
-  gameState.lastSaveAt = Date.now();
+  // O relógio de atividade só avança enquanto o jogador está realmente na página.
+  // Assim, renders, animações e autoataques atrasados não apagam o começo do período offline.
+  if (updateActivityTimestamp && !gameState.offlineStartedAt) {
+    gameState.lastSaveAt = Date.now();
+  }
 
   const saveData = structuredCloneSafe({
     version: initialState.version,
@@ -3732,32 +5109,53 @@ function saveGame() {
     currentTurn: gameState.currentTurn,
     activeInventoryTab: gameState.activeInventoryTab,
     lastSaveAt: gameState.lastSaveAt,
+    offlineStartedAt: gameState.offlineStartedAt,
     ui: gameState.ui,
+    prestigeRush: gameState.prestigeRush,
   });
 
   localStorage.setItem(saveKey, JSON.stringify(saveData));
 }
 
-function getSavedLastSaveAt() {
+function markOfflineStart() {
+  if (!gameState.offlineStartedAt) {
+    gameState.offlineStartedAt = Date.now();
+  }
+
+  saveGame({ updateActivityTimestamp: false });
+  return gameState.offlineStartedAt;
+}
+
+function getSavedOfflineStartedAt() {
   try {
     const rawSave = localStorage.getItem(saveKey);
-    if (!rawSave) return gameState.lastSaveAt || null;
+    if (!rawSave) return gameState.offlineStartedAt || null;
 
     const saved = JSON.parse(rawSave);
-    return saved?.lastSaveAt || gameState.lastSaveAt || null;
+    return saved?.offlineStartedAt || gameState.offlineStartedAt || null;
   } catch (error) {
-    console.warn('Falha ao ler data do save:', error);
-    return gameState.lastSaveAt || null;
+    console.warn('Falha ao ler o início do período offline:', error);
+    return gameState.offlineStartedAt || null;
   }
 }
 
 function resumeOfflineProgressIfNeeded() {
-  const lastSaveAt = getSavedLastSaveAt() || gameState.lastSaveAt;
-  const progressed = applyOfflineProgress(lastSaveAt);
+  const offlineStartedAt = getSavedOfflineStartedAt();
+  if (!offlineStartedAt) return false;
+
+  // Consome o marcador antes de calcular para impedir processamento duplicado por
+  // visibilitychange + focus disparando quase ao mesmo tempo.
+  gameState.offlineStartedAt = null;
+
+  const progressed = applyOfflineProgress(offlineStartedAt);
+  gameState.lastSaveAt = Date.now();
+  saveGame({ updateActivityTimestamp: false });
 
   if (progressed) {
     updateStats();
   }
+
+  return progressed;
 }
 
 function loadGame() {
@@ -3794,13 +5192,30 @@ function loadGame() {
       };
     }
     gameState.monster = saved.monster || null;
-    gameState.shop = saved.shop || structuredCloneSafe(initialState.shop);
+    gameState.shop = {
+      ...structuredCloneSafe(initialState.shop),
+      ...(saved.shop || {}),
+    };
+    gameState.shop.type ||= 'consumables';
     gameState.shop.encountersLeft = gameState.shop.encountersLeft || 0;
+    if (
+      gameState.shop.active &&
+      isSpecialShop(gameState.shop.type) &&
+      gameState.shop.encountersLeft <= gameConfig.shopKeepBattles
+    ) {
+      gameState.shop.encountersLeft = gameConfig.specialShopKeepBattles;
+    }
     gameState.mythicRift = {
       ...structuredCloneSafe(initialState.mythicRift),
       ...(saved.mythicRift || {}),
     };
     gameState.inventory = saved.inventory || structuredCloneSafe(initialState.inventory);
+    gameState.prestigeRush = {
+      ...structuredCloneSafe(initialState.prestigeRush),
+      ...(saved.prestigeRush || {}),
+    };
+    ensurePrestigeRushState();
+    ensureMonsterCombatRules(gameState.monster);
     const savedEquipment = saved.equipment || {};
     gameState.ui = {
       ...structuredCloneSafe(initialState.ui),
@@ -3831,13 +5246,30 @@ function loadGame() {
     gameState.currentTurn = saved.currentTurn || 'player';
     gameState.activeInventoryTab = saved.activeInventoryTab || 'items';
     gameState.lastSaveAt = saved.lastSaveAt || Date.now();
+    gameState.offlineStartedAt = saved.offlineStartedAt || null;
+
+    if (gameState.monster?.isBoss && gameState.monster.scalingSource !== 'stage-biome') {
+      const previousBoss = gameState.monster;
+      const refreshedBoss = createMonster(true, Boolean(previousBoss.specialBoss));
+      refreshedBoss.mandatoryBoss = Boolean(previousBoss.mandatoryBoss);
+      refreshedBoss.prestigeRushBoss = Boolean(previousBoss.prestigeRushBoss);
+      refreshedBoss.rushOrder = previousBoss.rushOrder;
+      refreshedBoss.rushTotal = previousBoss.rushTotal;
+      gameState.monster = refreshedBoss;
+    }
 
     rebalanceAppliedSkillStatsIfNeeded();
     normalizeProgressionAfterBalance(true);
     ensureMythicRiftState();
 
     normalizePlayerHp();
-    applyOfflineProgress(saved.lastSaveAt);
+
+    // Saves antigos não possuem offlineStartedAt; nesse caso, lastSaveAt continua
+    // servindo como compatibilidade para a primeira abertura após a atualização.
+    const offlineReference = saved.offlineStartedAt || saved.lastSaveAt;
+    gameState.offlineStartedAt = null;
+    applyOfflineProgress(offlineReference);
+    gameState.lastSaveAt = Date.now();
     return true;
   } catch (error) {
     console.warn('Falha ao carregar save:', error);
@@ -3848,15 +5280,15 @@ function loadGame() {
 function applyOfflineProgress(lastSaveAt) {
   if (!lastSaveAt) return false;
 
-  const secondsAway = Math.floor((Date.now() - lastSaveAt) / 1000);
+  const rawSecondsAway = Math.max(0, Math.floor((Date.now() - lastSaveAt) / 1000));
+  const maxOfflineSeconds = gameConfig.offlineMaxMinutes * 60;
+  const secondsAway = Math.min(maxOfflineSeconds, rawSecondsAway);
 
   if (secondsAway < gameConfig.offlineMinSeconds) return false;
 
-  const minutes = Math.min(
-    gameConfig.offlineMaxMinutes,
-    Math.floor(secondsAway / 60)
-  );
-
+  // Mantém os segundos no cálculo. Antes o Math.floor descartava a parte restante
+  // do minuto e também deixava o relatório menos preciso.
+  const minutes = secondsAway / 60;
   const report = calculateOfflineProgress(minutes);
 
   if (report.monstersDefeated <= 0) return false;
@@ -3867,12 +5299,27 @@ function applyOfflineProgress(lastSaveAt) {
   gameState.player.coins += coinsGained;
   gameState.player.victories += report.monstersDefeated;
   gameState.player.bossesDefeated += report.bossesDefeated;
-  gameState.player.monstersSinceBoss = report.monstersDefeated % getMandatoryBossTarget();
+
+  const rush = ensurePrestigeRushState();
   const stageBeforeOffline = gameState.player.stage;
   const maxOfflineStageGain = Math.max(0, getMaxStageForPlayer() - stageBeforeOffline);
   const actualStagesGained = Math.min(report.stagesGained, maxOfflineStageGain);
 
   gameState.player.stage += actualStagesGained;
+
+  if (rush.active) {
+    rush.bossesDefeated = Math.min(rush.totalBosses, rush.bossesDefeated + report.bossesDefeated);
+    rush.bossesRemaining = Math.max(0, rush.totalBosses - rush.bossesDefeated);
+    gameState.player.monstersSinceBoss = 0;
+
+    if (rush.bossesRemaining <= 0 || gameState.player.stage >= rush.targetStage) {
+      gameState.player.stage = Math.min(getMaxStageForPlayer(), rush.targetStage);
+      rush.active = false;
+      rush.bossesRemaining = 0;
+    }
+  } else {
+    gameState.player.monstersSinceBoss = report.monstersDefeated % getMandatoryBossTarget();
+  }
 
   let gearFound = 0;
   let epicOrLegendaryFound = 0;
@@ -3902,6 +5349,7 @@ function applyOfflineProgress(lastSaveAt) {
 
   const finalReport = {
     ...report,
+    secondsAway,
     stagesGained: actualStagesGained,
     xpGained,
     coinsGained,
@@ -3921,8 +5369,6 @@ function applyOfflineProgress(lastSaveAt) {
     'offline',
     true
   );
-  gameState.lastSaveAt = Date.now();
-  saveGame();
   return true;
 }
 
@@ -3947,9 +5393,19 @@ function calculateOfflineProgress(minutes) {
     gameConfig.offlineMaxBattles || 70
   );
 
-  const bossesDefeated = Math.min(5, Math.floor(monstersDefeated / getMandatoryBossTarget()));
-  const stageGainPerBoss = getPrestigeCatchUpStageGain();
-  const stagesGained = bossesDefeated * stageGainPerBoss;
+  const rush = ensurePrestigeRushState();
+  const bossesDefeated = rush.active
+    ? Math.min(rush.bossesRemaining, monstersDefeated)
+    : Math.min(5, Math.floor(monstersDefeated / getMandatoryBossTarget()));
+  const stagesGained = rush.active
+    ? Math.min(
+        Math.max(0, rush.targetStage - player.stage),
+        Math.ceil(
+          Math.max(0, rush.targetStage - player.stage) *
+          (bossesDefeated / Math.max(1, rush.bossesRemaining))
+        )
+      )
+    : bossesDefeated;
 
   const estimatedLevel = player.level + Math.floor(stagesGained / 2);
   const rewardLevel = Math.max(player.level, estimatedLevel);
@@ -4013,74 +5469,139 @@ function addGearOffline(item) {
   }
 }
 
-function formatOfflineTime(minutes) {
-  if (minutes < 60) {
-    return `${minutes} min`;
+function formatOfflineTime(totalSeconds) {
+  const safeSeconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const seconds = safeSeconds % 60;
+
+  if (hours > 0) {
+    return seconds > 0
+      ? `${hours} h ${minutes} min ${seconds} s`
+      : `${hours} h ${minutes} min`;
   }
 
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-
-  if (remainingMinutes === 0) {
-    return `${hours} h`;
+  if (minutes > 0) {
+    return seconds > 0
+      ? `${minutes} min ${seconds} s`
+      : `${minutes} min`;
   }
 
-  return `${hours} h ${remainingMinutes} min`;
+  return `${seconds} s`;
 }
 
 function showOfflineModal(report) {
   if (!elements.offlineModal || !elements.offlineSummary) return;
 
+  const secondsAway = report.secondsAway ?? Math.round((report.minutes || 0) * 60);
+  const xpGained = Math.max(0, Number(report.xpGained) || 0);
+  const coinsGained = Math.max(0, Number(report.coinsGained) || 0);
+  const monstersDefeated = Math.max(0, Number(report.monstersDefeated) || 0);
+  const bossesDefeated = Math.max(0, Number(report.bossesDefeated) || 0);
+  const stagesGained = Math.max(0, Number(report.stagesGained) || 0);
+  const gearFound = Math.max(0, Number(report.gearFound) || 0);
+  const specialGearFound = Math.max(0, Number(report.epicOrLegendaryFound) || 0);
+  const potionsFound = Math.max(0, Number(report.potionsFound) || 0);
+
   elements.offlineSummary.innerHTML = `
-    <div class="offline-card highlight">
-      <strong>Tempo fora</strong>
-      <span>${formatOfflineTime(report.minutes)}</span>
-    </div>
+    <section class="offline-time-hero" aria-label="Tempo total fora">
+      <div class="offline-time-icon" aria-hidden="true">⏱</div>
+      <div class="offline-time-copy">
+        <span>Você ficou fora por</span>
+        <strong>${formatOfflineTime(secondsAway)}</strong>
+        <small>Todo esse período foi considerado no cálculo abaixo.</small>
+      </div>
+      <div class="offline-time-status">
+        <span class="offline-status-dot" aria-hidden="true"></span>
+        Progresso calculado
+      </div>
+    </section>
 
-    <div class="offline-card">
-      <strong>XP ganho</strong>
-      <span>+${report.xpGained} XP</span>
-    </div>
+    <section class="offline-primary-rewards" aria-label="Principais recompensas">
+      <article class="offline-reward-card offline-reward-xp">
+        <div class="offline-reward-icon" aria-hidden="true">✦</div>
+        <div class="offline-reward-copy">
+          <span>Experiência ganha</span>
+          <strong>+${xpGained.toLocaleString('pt-BR')} XP</strong>
+          <small>Progresso aplicado ao seu herói</small>
+        </div>
+      </article>
 
-    <div class="offline-card">
-      <strong class="money-title">${coinIconHtml()}<span>Ganho</span></strong>
-      <span>${formatSignedMoney(report.coinsGained)}</span>
-    </div>
+      <article class="offline-reward-card offline-reward-coins">
+        <div class="offline-reward-icon offline-coin-mark" aria-hidden="true">
+          ${coinIconHtml()}
+        </div>
+        <div class="offline-reward-copy">
+          <span>Moedas ganhas</span>
+          <strong>+${formatCompactNumber(coinsGained)}</strong>
+          <small>Adicionadas diretamente ao seu saldo</small>
+        </div>
+      </article>
+    </section>
 
-    <div class="offline-card">
-      <strong>Monstros derrotados</strong>
-      <span>${report.monstersDefeated} monstros</span>
-    </div>
+    <section class="offline-results-section" aria-label="Resumo da expedição">
+      <div class="offline-section-heading">
+        <div>
+          <span>Resumo da expedição</span>
+          <h3>O que aconteceu na masmorra</h3>
+        </div>
+        <strong>${monstersDefeated + bossesDefeated} confrontos vencidos</strong>
+      </div>
 
-    <div class="offline-card">
-      <strong>Bosses derrotados</strong>
-      <span>${report.bossesDefeated} bosses</span>
-    </div>
+      <div class="offline-results-grid">
+        <article class="offline-result-card offline-result-monsters">
+          <div class="offline-result-icon" aria-hidden="true">⚔️</div>
+          <div>
+            <span>Monstros derrotados</span>
+            <strong>${monstersDefeated.toLocaleString('pt-BR')}</strong>
+          </div>
+        </article>
 
-    <div class="offline-card">
-      <strong>Andares avançados</strong>
-      <span>+${report.stagesGained} andares</span>
-    </div>
+        <article class="offline-result-card offline-result-bosses ${bossesDefeated > 0 ? 'has-reward' : ''}">
+          <div class="offline-result-icon" aria-hidden="true">👑</div>
+          <div>
+            <span>Bosses derrotados</span>
+            <strong>${bossesDefeated.toLocaleString('pt-BR')}</strong>
+          </div>
+        </article>
 
-    <div class="offline-card">
-      <strong>Equipamentos encontrados</strong>
-      <span>${report.gearFound} equipamentos</span>
-    </div>
+        <article class="offline-result-card offline-result-stages ${stagesGained > 0 ? 'has-reward' : ''}">
+          <div class="offline-result-icon" aria-hidden="true">🗺️</div>
+          <div>
+            <span>Andares avançados</span>
+            <strong>+${stagesGained.toLocaleString('pt-BR')}</strong>
+          </div>
+        </article>
 
-    <div class="offline-card">
-      <strong>Épicos/Lendários</strong>
-      <span>${report.epicOrLegendaryFound} itens especiais</span>
-    </div>
+        <article class="offline-result-card offline-result-gear ${gearFound > 0 ? 'has-reward' : ''}">
+          <div class="offline-result-icon" aria-hidden="true">🛡️</div>
+          <div>
+            <span>Equipamentos</span>
+            <strong>${gearFound.toLocaleString('pt-BR')}</strong>
+          </div>
+        </article>
 
-    <div class="offline-card">
-      <strong>Poções encontradas</strong>
-      <span>${report.potionsFound} poções</span>
-    </div>
+        <article class="offline-result-card offline-result-special ${specialGearFound > 0 ? 'has-special-reward' : ''}">
+          <div class="offline-result-icon" aria-hidden="true">💎</div>
+          <div>
+            <span>Épicos/Lendários</span>
+            <strong>${specialGearFound.toLocaleString('pt-BR')}</strong>
+          </div>
+        </article>
+
+        <article class="offline-result-card offline-result-potions ${potionsFound > 0 ? 'has-reward' : ''}">
+          <div class="offline-result-icon" aria-hidden="true">🧪</div>
+          <div>
+            <span>Poções encontradas</span>
+            <strong>${potionsFound.toLocaleString('pt-BR')}</strong>
+          </div>
+        </article>
+      </div>
+    </section>
   `;
 
   elements.offlineModal.hidden = false;
 }
-
 function closeOfflineModal() {
   if (!elements.offlineModal) return;
   elements.offlineModal.hidden = true;
@@ -4217,10 +5738,11 @@ function getLogNoticeKey(message, type = 'system', important = false) {
 }
 
 function getLogNoticeDuration(type = 'system', important = false) {
-  if (type === 'death' || type === 'boss' || type === 'system-important') return 2800;
-  if (important) return 2200;
+  // As notificações ficam tempo suficiente para leitura, sem travar a tela.
+  if (type === 'death' || type === 'boss' || type === 'system-important') return 7000;
+  if (important || type === 'offline' || type === 'level' || type === 'drop') return 5200;
 
-  return 1400;
+  return 3600;
 }
 
 function pruneLogNoticeCooldowns(now = Date.now()) {
@@ -4452,10 +5974,10 @@ function updateStats() {
   const currentStageBiome = getDungeonBiome(player.stage);
 
   applyBiomeTheme(currentStageBiome);
-  elements.stageDisplay.textContent = `Andar ${player.stage}`;
+  elements.stageDisplay.textContent = formatCompactNumber(player.stage);
 
   if (elements.biomeDisplay) {
-    elements.biomeDisplay.innerHTML = `<span>Bioma atual</span><strong>${escapeAttr(currentStageBiome.name)}</strong>`;
+    elements.biomeDisplay.textContent = currentStageBiome.name;
   }
 
   elements.prestigeTitle.textContent = getPrestigeTitle(gameState.prestige.count);
@@ -4476,7 +5998,11 @@ function updateStats() {
   elements.monsterName.textContent = monster ? monster.name : '—';
   elements.monsterLevel.textContent = monster ? `Nv. ${monster.level}` : 'Nv. 1';
   elements.monsterTypeBadge.textContent = monster
-    ? `${monster.type}${monster.isBoss ? ' • Recompensa alta' : ''}`
+    ? monster.prestigeRushBoss
+      ? `${monster.type} • Marcha dos Bosses`
+      : monster.isBoss
+        ? `${monster.type} • Escala do Andar ${monster.scalingStage || player.stage}`
+        : monster.type
     : 'Aguardando inimigo...';
 
   renderMonsterPortrait(monster);
@@ -4572,47 +6098,134 @@ function renderAutomationPanel() {
         const enabled = event.currentTarget.checked;
         gameState.ui.autoUse[key] = enabled;
 
-        if (enabled && key !== 'heal') {
-          tryUseAutoBuffPotion(key, 'toggle');
-        }
-
+        // Ativar a automação apenas prepara o efeito. A poção será usada
+        // no começo do próximo turno do herói, nunca durante o turno inimigo.
         updateStats();
       });
     });
 
   const bombButton = elements.heroAutomation.querySelector('[data-use-hero-bomb]');
   if (bombButton) {
-    bombButton.addEventListener('click', () => useConsumable('arcaneBomb'));
+    bombButton.addEventListener('click', () => void useConsumable('arcaneBomb'));
   }
+}
+
+function renderActiveBuffsPanel() {
+  if (!elements.activeBuffsPanel) return;
+
+  const activeBuffs = getActiveBuffVisuals();
+  const heroCard = elements.activeBuffsPanel.closest('.hero-card');
+
+  Object.keys(buffVisualCatalog).forEach((key) => {
+    heroCard?.classList.toggle(`has-buff-${key}`, activeBuffs.some((buff) => buff.key === key));
+  });
+  heroCard?.classList.toggle('has-active-buffs', activeBuffs.length > 0);
+
+  if (activeBuffs.length === 0) {
+    elements.activeBuffsPanel.hidden = true;
+    elements.activeBuffsPanel.innerHTML = '';
+    visualStatMemory.buffs = {};
+    return;
+  }
+
+  elements.activeBuffsPanel.hidden = false;
+  elements.activeBuffsPanel.innerHTML = `
+    <div class="active-buffs-heading">
+      <div>
+        <span class="active-buffs-kicker">✨ Efeitos ativos</span>
+        <strong>Buffs do herói</strong>
+      </div>
+      <small>O relógio conta batalhas vencidas.</small>
+    </div>
+    <div class="active-buffs-grid">
+      ${activeBuffs.map((buff) => {
+        const progress = clamp(buff.remaining / buff.maximum, 0, 1);
+        const previous = Number(visualStatMemory.buffs[buff.key]) || 0;
+        const stateClass = buff.remaining > previous
+          ? 'buff-just-activated'
+          : buff.remaining < previous
+            ? 'buff-duration-ticked'
+            : '';
+
+        return `
+          <article
+            class="active-buff-card buff-${buff.key} ${stateClass}"
+            style="--buff-color:${buff.color}; --buff-progress:${Math.round(progress * 360)}deg;"
+            title="${escapeAttr(buff.name)}: ${buff.bonusLabel}. Restam ${buff.remaining} luta(s)."
+          >
+            <span class="active-buff-icon" aria-hidden="true">${buff.icon}</span>
+            <div class="active-buff-copy">
+              <strong>${escapeAttr(buff.name)}</strong>
+              <small>${escapeAttr(buff.bonusLabel)}</small>
+            </div>
+            <div class="active-buff-clock" aria-label="${buff.remaining} lutas restantes">
+              <div>
+                <strong>${buff.remaining}</strong>
+                <small>lutas</small>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('')}
+    </div>
+  `;
+
+  visualStatMemory.buffs = Object.fromEntries(
+    activeBuffs.map((buff) => [buff.key, buff.remaining])
+  );
 }
 
 function renderPlayerStats() {
   const stats = [
-    { key: 'attack', icon: '💥', label: 'Ataque', value: getPlayerAttack() },
-    { key: 'magic', icon: '🔮', label: 'Magia', value: getPlayerMagic() },
-    { key: 'defense', icon: '🛡️', label: 'Defesa', value: getPlayerDefense() },
-    { key: 'agility', icon: '⚡', label: 'Agilidade', value: getPlayerAgility() },
-    { key: 'crit', icon: '🎯', label: 'Crítico', value: `${getPlayerCritChance()}%` },
+    { key: 'attack', icon: '💥', label: 'Ataque', numericValue: getPlayerAttack() },
+    { key: 'magic', icon: '🔮', label: 'Magia', numericValue: getPlayerMagic() },
+    { key: 'defense', icon: '🛡️', label: 'Defesa', numericValue: getPlayerDefense() },
+    { key: 'agility', icon: '⚡', label: 'Agilidade', numericValue: getPlayerAgility() },
+    { key: 'crit', icon: '🎯', label: 'Crítico', numericValue: getPlayerCritChance(), suffix: '%' },
   ];
 
-  elements.playerStats.innerHTML = stats.map(({ key, icon, label, value }) => {
-    const displayValue = formatDisplayValue(value);
+  elements.playerStats.innerHTML = stats.map(({ key, icon, label, numericValue, suffix = '' }) => {
+    const displayValue = `${formatCompactNumber(numericValue)}${suffix}`;
     const safeValue = escapeAttr(displayValue);
+    const buff = getBuffVisualForStat(key);
+    const buffClass = buff ? `is-buffed buff-${buff.key}` : '';
+    const buffStyle = buff ? `style="--stat-buff-color:${buff.color};"` : '';
 
     return `
-      <div class="stat-card hero-stat-card hero-stat-${key}">
+      <div class="stat-card hero-stat-card hero-stat-${key} ${buffClass}" ${buffStyle}>
         <div class="hero-stat-main">
           <span class="stat-icon">${icon}</span>
-          <span class="hero-stat-label">${label}</span>
+          <span class="hero-stat-copy">
+            <span class="hero-stat-label">${label}</span>
+            ${buff ? `<small class="hero-stat-buff-tag">${buff.icon} ${escapeAttr(buff.shortBonus)}</small>` : ''}
+          </span>
         </div>
 
-        <strong class="hero-stat-value" title="${safeValue}">
-          ${safeValue}
-        </strong>
+        <strong
+          class="hero-stat-value"
+          data-player-stat-value="${key}"
+          title="${safeValue}"
+        >${safeValue}</strong>
       </div>
     `;
   }).join('');
 
+  stats.forEach(({ key, numericValue, suffix = '' }) => {
+    const valueElement = elements.playerStats.querySelector(`[data-player-stat-value="${key}"]`);
+    const previousValue = visualStatMemory.player[key];
+
+    if (Number.isFinite(previousValue) && previousValue !== numericValue) {
+      animateDisplayedNumber(valueElement, previousValue, numericValue, {
+        suffix,
+        duration: 820,
+        formatter: (value) => formatCompactNumber(Math.round(value)),
+      });
+    }
+
+    visualStatMemory.player[key] = numericValue;
+  });
+
+  renderActiveBuffsPanel();
   renderAutomationPanel();
 }
 
@@ -4762,91 +6375,179 @@ function renderSkillControls() {
     });
 }
 
+function syncBossVisualState(monster = gameState.monster) {
+  const card = elements.monsterPortrait?.closest('.monster-card');
+  if (!card) return;
+
+  const overload = getOverloadProfile(monster);
+  const rage = getHealingRageProfile(monster);
+  const echoes = getEchoSummary(monster);
+
+  card.classList.toggle('boss-encounter', Boolean(monster?.isBoss));
+  card.classList.toggle('boss-special-encounter', Boolean(monster?.specialBoss));
+  card.classList.toggle('boss-overloaded', Boolean(monster?.isBoss && overload.count > 0));
+  card.classList.toggle('boss-healing-rage', Boolean(monster?.isBoss && rage.stacks > 0));
+  card.classList.toggle('boss-echo-adapted', Boolean(monster?.isBoss && echoes.length > 0));
+  card.classList.toggle('boss-rush-encounter', Boolean(monster?.prestigeRushBoss));
+}
+
+function renderReactionSegments(value, max, className = '') {
+  return Array.from({ length: max }, (_, index) => (
+    `<i class="${index < value ? `active ${className}` : ''}"></i>`
+  )).join('');
+}
+
 function renderMonsterStats() {
   elements.monsterStats.innerHTML = '';
   const monster = gameState.monster;
-  if (!monster) return;
+  if (!monster) {
+    visualStatMemory.monsterId = '';
+    visualStatMemory.monster = {};
+    syncBossVisualState(null);
+    return;
+  }
 
   const physicalAffinity = getDamageAffinityInfo(monster, 'physical');
   const magicAffinity = getDamageAffinityInfo(monster, 'magic');
 
   const affinityPanel = document.createElement('div');
   affinityPanel.className = 'monster-affinity-panel';
-
   affinityPanel.innerHTML = `
     <div class="monster-affinity-header">
       <span>🧭 Fraqueza / Resistência</span>
       <strong>${getRecommendedDamageType(monster)}</strong>
     </div>
-
     <div class="monster-affinity-grid">
       ${affinityItemHtml('⚔️', 'Físico', physicalAffinity)}
       ${affinityItemHtml('🔮', 'Mágico', magicAffinity)}
     </div>
   `;
-
   elements.monsterStats.appendChild(affinityPanel);
 
+  const overload = getOverloadProfile(monster);
+  const rage = getHealingRageProfile(monster);
+
+  if (monster.isBoss) {
+    const echoes = getEchoSummary(monster);
+    const rulesPanel = document.createElement('div');
+    rulesPanel.className = 'combat-rules-panel boss-reaction-panel';
+    rulesPanel.innerHTML = `
+      <div class="boss-reaction-heading">
+        <div>
+          <span class="boss-reaction-kicker">👑 Boss do Andar ${formatCompactNumber(monster.scalingStage || gameState.player.stage)}</span>
+          <strong>Reações de combate</strong>
+        </div>
+        <span class="boss-scaling-badge">Força fixa pelo bioma</span>
+      </div>
+
+      <div class="boss-reaction-meter-grid">
+        <div class="boss-reaction-meter ${overload.count > 0 ? 'is-danger' : ''}">
+          <div><span>⚡ Sobrecarga</span><strong>${overload.count}/4</strong></div>
+          <div class="reaction-segments">${renderReactionSegments(overload.count, 4, 'overload')}</div>
+          <small>Seus buffs também fortalecem o boss.</small>
+        </div>
+
+        <div class="boss-reaction-meter ${rage.stacks > 0 ? 'is-danger' : ''}">
+          <div><span>🩸 Fúria de Cura</span><strong>${rage.stacks}/${gameConfig.healingRageMaxStacks || 5}</strong></div>
+          <div class="reaction-segments">${renderReactionSegments(rage.stacks, gameConfig.healingRageMaxStacks || 5, 'rage')}</div>
+          <small>Curar restaura o boss e aumenta seus atributos.</small>
+        </div>
+      </div>
+
+      ${(() => {
+        const activeMark = getActiveForgeMark();
+        const effects = activeMark?.effects || {};
+        const pressureLines = [];
+        if (effects.echoExtraStacks) pressureLines.push(`+${effects.echoExtraStacks} carga extra de Eco por acerto`);
+        if (effects.enemyDefenseBoostPercent) pressureLines.push(`+${effects.enemyDefenseBoostPercent}% Defesa efetiva para o boss`);
+        if (!pressureLines.length) return '';
+        return `<div class="boss-forge-pressure forge-tone-${escapeAttr(activeMark.tone || 'unstable')}"><span>${escapeAttr(activeMark.icon || '⚒️')} Sua forja alimenta a reação</span><strong>${pressureLines.map(escapeAttr).join(' • ')}</strong></div>`;
+      })()}
+
+      <div class="boss-echo-panel ${echoes.length ? 'has-echo' : ''}">
+        <div class="boss-echo-title">
+          <span>🔁 Eco Adaptativo</span>
+          <strong>${echoes.length ? 'Aprendendo seus golpes' : 'Sem resistência aprendida'}</strong>
+        </div>
+        <div class="boss-echo-list">
+          ${echoes.length
+            ? echoes.map((echo) => `
+                <span class="boss-echo-chip">
+                  <b>${escapeAttr(echo.label)}</b>
+                  <em>-${echo.reduction}% dano</em>
+                </span>
+              `).join('')
+            : '<small>Repetir a mesma arma fará o boss adaptar sua defesa.</small>'}
+        </div>
+      </div>
+    `;
+    elements.monsterStats.appendChild(rulesPanel);
+  }
+
+  const reactionBonuses = {
+    attack: Math.round((overload.attack + rage.attack) * 100),
+    defense: Math.round((overload.defense + rage.defense) * 100),
+    agility: Math.round((overload.agility + rage.agility) * 100),
+    crit: Math.round((overload.crit + rage.crit) * 10) / 10,
+  };
+
   const stats = [
-    {
-      key: 'attack',
-      icon: '💥',
-      label: 'Ataque',
-      value: formatCompactNumber(monster.attack),
-    },
-    {
-      key: 'defense',
-      icon: '🛡️',
-      label: 'Defesa',
-      value: formatCompactNumber(monster.defense),
-    },
-    {
-      key: 'agility',
-      icon: '⚡',
-      label: 'Agilidade',
-      value: formatCompactNumber(monster.agility),
-    },
-    {
-      key: 'xp',
-      icon: '✨',
-      label: 'XP',
-      value: formatCompactNumber(monster.xpReward),
-    },
-    {
-      key: 'coins',
-      icon: coinIconHtml(),
-      label: 'Recompensa',
-      valueHtml: formatSignedMoney(monster.coinReward),
-      title: `+${formatCompactNumber(monster.coinReward)}`,
-    },
-    {
-      key: 'family',
-      icon: '👥',
-      label: 'Família',
-      value: monster.type,
-    },
+    { key: 'attack', icon: '💥', label: 'Ataque', numericValue: getEffectiveMonsterAttack(monster), reactionBonus: reactionBonuses.attack, bonusSuffix: '%' },
+    { key: 'defense', icon: '🛡️', label: 'Defesa', numericValue: getEffectiveMonsterDefense(monster), reactionBonus: reactionBonuses.defense, bonusSuffix: '%' },
+    { key: 'agility', icon: '⚡', label: 'Agilidade', numericValue: getEffectiveMonsterAgility(monster), reactionBonus: reactionBonuses.agility, bonusSuffix: '%' },
+    ...(monster.isBoss ? [{ key: 'crit', icon: '🎯', label: 'Crítico', numericValue: getEffectiveMonsterCritChance(monster), suffix: '%', reactionBonus: reactionBonuses.crit, bonusSuffix: ' pts' }] : []),
+    { key: 'xp', icon: '✨', label: 'XP', numericValue: monster.xpReward },
+    { key: 'coins', icon: coinIconHtml(), label: 'Recompensa', valueHtml: formatSignedMoney(monster.coinReward), title: `+${formatCompactNumber(monster.coinReward)}` },
+    { key: 'family', icon: '👥', label: 'Família', value: monster.type },
   ];
 
-  stats.forEach(({ key, icon, label, value, valueHtml, title }) => {
+  const sameMonster = visualStatMemory.monsterId === String(monster.id || monster.name);
+  if (!sameMonster) {
+    visualStatMemory.monsterId = String(monster.id || monster.name);
+    visualStatMemory.monster = {};
+  }
+
+  stats.forEach(({ key, icon, label, numericValue, suffix = '', value, valueHtml, title, reactionBonus = 0, bonusSuffix = '' }) => {
     const card = document.createElement('div');
-    const displayValue = valueHtml || escapeAttr(value ?? '-');
-    const safeTitle = escapeAttr(title || value || '-');
+    const isNumeric = Number.isFinite(numericValue);
+    const displayValue = valueHtml || (isNumeric ? `${formatCompactNumber(numericValue)}${suffix}` : escapeAttr(value ?? '-'));
+    const safeTitle = escapeAttr(title || displayValue || '-');
+    const hasReactionBonus = monster.isBoss && Number(reactionBonus) > 0 && ['attack', 'defense', 'agility', 'crit'].includes(key);
 
-    card.className = `stat-card monster-stat-card monster-stat-${key}`;
-
+    card.className = `stat-card monster-stat-card monster-stat-${key}${hasReactionBonus ? ' has-reaction-bonus' : ''}`;
     card.innerHTML = `
-    <div class="monster-stat-main">
-      <span class="stat-icon">${icon}</span>
-      <span class="monster-stat-label">${label}</span>
-    </div>
-
-    <strong class="monster-stat-value" title="${safeTitle}">
-      ${displayValue}
-    </strong>
-  `;
-
+      <div class="monster-stat-main">
+        <span class="stat-icon">${icon}</span>
+        <span class="monster-stat-label">${label}</span>
+      </div>
+      <span class="monster-stat-value-wrap">
+        <strong
+          class="monster-stat-value"
+          ${isNumeric ? `data-monster-stat-value="${key}"` : ''}
+          title="${safeTitle}"
+        >${displayValue}</strong>
+        ${hasReactionBonus ? `<small class="monster-reaction-bonus">▲ +${reactionBonus}${bonusSuffix}</small>` : ''}
+      </span>
+    `;
     elements.monsterStats.appendChild(card);
+
+    if (isNumeric) {
+      const valueElement = card.querySelector(`[data-monster-stat-value="${key}"]`);
+      const previousValue = visualStatMemory.monster[key];
+
+      if (sameMonster && Number.isFinite(previousValue) && previousValue !== numericValue) {
+        animateDisplayedNumber(valueElement, previousValue, numericValue, {
+          suffix,
+          duration: 880,
+          formatter: (animatedValue) => formatCompactNumber(Math.round(animatedValue)),
+        });
+      }
+
+      visualStatMemory.monster[key] = numericValue;
+    }
   });
+
+  syncBossVisualState(monster);
 }
 
 function renderEquipment() {
@@ -4869,7 +6570,8 @@ function renderEquipment() {
       const isWeapon = slot === 'physicalWeapon' || slot === 'magicWeapon';
       const isActiveWeapon = gameState.player.activeWeaponSlot === slot;
 
-      row.className = `equipment-slot ${item ? 'has-item' : 'is-empty'} ${isActiveWeapon ? 'active-weapon' : ''}`;
+      row.className = `equipment-slot ${item ? 'has-item' : 'is-empty'} ${isActiveWeapon ? 'active-weapon' : ''}${item?.forgeMark ? ` has-forge-mark forge-tone-${item.forgeMark.tone || 'forge'}` : ''}`;
+      row.dataset.equipmentSlot = slot;
       if (item?.rarity) row.dataset.rarity = item.rarity;
 
       if (!item) {
@@ -4915,6 +6617,7 @@ Ganho na próxima melhoria: ${forgePreview}`;
             <div class="gear-item-meta">
               Nv. ${item.level} • ${rarity.name}
             </div>
+            ${item.forgeMark ? `<div class="equipment-forge-mark forge-tone-${escapeAttr(item.forgeMark.tone || 'forge')}"><span>${escapeAttr(item.forgeMark.icon || '⚒️')}</span><strong>${escapeAttr(item.forgeMark.name)}</strong></div>` : ''}
           </div>
 
           <div class="gear-actions">
@@ -4932,7 +6635,7 @@ Ganho na próxima melhoria: ${forgePreview}`;
         const upgradeButton = row.querySelector('[data-upgrade-slot]');
         const fragmentCost = getMythicUpgradeFragmentCost(item);
         upgradeButton.disabled = gameState.player.coins < cost || getMythicFragmentQuantity() < fragmentCost;
-        upgradeButton.addEventListener('click', () => upgradeEquippedGear(slot));
+        upgradeButton.addEventListener('click', () => void upgradeEquippedGear(slot));
 
         const activeWeaponButton = row.querySelector('[data-active-weapon]');
         if (activeWeaponButton) {
@@ -4952,16 +6655,105 @@ Ganho na próxima melhoria: ${forgePreview}`;
   });
 }
 
+
+function renderForgeShop(shopType) {
+  const slot = getForgeSmithSlot(shopType);
+  const weapon = gameState.equipment?.[slot];
+  const meta = getShopMerchantMeta(shopType);
+
+  if (!weapon) {
+    elements.shopItemsContainer.innerHTML = `<div class="empty-state">Equipe uma ${gearSlots[slot]} para receber uma oferta de forja.</div>`;
+    return;
+  }
+
+  const currentMark = weapon.forgeMark;
+  const biome = getDungeonBiome(gameState.player.stage);
+  elements.shopItemsContainer.className = 'shop-items forge-shop-items';
+  elements.shopItemsContainer.innerHTML = `
+    <div class="forge-current-weapon ${currentMark ? `has-mark forge-tone-${escapeAttr(currentMark.tone || 'forge')}` : ''}">
+      <div class="forge-current-media">${gearImageTag(weapon)}</div>
+      <div class="forge-current-copy">
+        <small>ARMA NA BIGORNA</small>
+        <strong>${formatGearName(weapon)}</strong>
+        <span>${gearSlots[slot]} • Nv. ${formatCompactNumber(weapon.level)}</span>
+        ${currentMark
+          ? `<div class="forge-current-mark"><b>${escapeAttr(currentMark.icon || '⚒️')} ${escapeAttr(currentMark.name)}</b><em>Será substituída ao escolher outra marca.</em></div>`
+          : '<div class="forge-current-mark empty"><b>Sem Marca de Forja</b><em>A primeira técnica ficará gravada nesta arma.</em></div>'}
+      </div>
+      <div class="forge-current-biome"><small>BIOMA ATUAL</small><strong>${escapeAttr(biome.name)}</strong></div>
+    </div>
+
+    <div class="forge-choice-heading">
+      <div><small>ESCOLHA UMA ÚNICA MARCA</small><strong>Qual direção esta arma seguirá?</strong></div>
+      <span>Escolha quando estiver pronto</span>
+    </div>
+
+    <div class="forge-offer-grid"></div>
+  `;
+
+  const grid = elements.shopItemsContainer.querySelector('.forge-offer-grid');
+  gameState.shop.items.forEach((offer) => {
+    const category = getForgeCategoryMeta(offer.category);
+    const card = document.createElement('article');
+    card.className = `forge-offer-card forge-tone-${offer.mark.tone || 'forge'} forge-category-${offer.category}`;
+    card.innerHTML = `
+      <div class="forge-offer-topline">
+        <span>${category.icon} ${category.label}</span>
+        <b>${offer.mark.icon || '⚒️'}</b>
+      </div>
+      <strong class="forge-offer-name">${escapeAttr(offer.mark.name)}</strong>
+      <p>${escapeAttr(offer.mark.description)}</p>
+      <div class="forge-offer-effects">
+        ${(offer.mark.summary || []).map((line) => `<span>${escapeAttr(line)}</span>`).join('')}
+      </div>
+      <div class="forge-offer-drawback"><small>CONSEQUÊNCIA</small><strong>${escapeAttr(offer.mark.drawback || 'Sem desvantagem direta.')}</strong></div>
+      <div class="forge-offer-meters">
+        ${renderForgeMeter('Poder', offer.power)}
+        ${renderForgeMeter('Versatilidade', offer.versatility)}
+        ${renderForgeMeter('Risco', offer.risk, 'risk')}
+      </div>
+      <button type="button" data-forge-offer="${escapeAttr(offer.id)}">
+        Forjar • ${formatMoney(offer.cost)}
+      </button>
+    `;
+    const button = card.querySelector('[data-forge-offer]');
+    button.disabled = gameState.player.coins < offer.cost;
+    button.addEventListener('click', () => applyForgeOffer(offer.id));
+    grid.appendChild(card);
+  });
+}
+
 function renderShop() {
   elements.shopItemsContainer.innerHTML = '';
+  elements.shopItemsContainer.className = 'shop-items';
+  resetShopVisualState();
 
   if (!gameState.shop.active || !gameState.shop.items.length) {
-    elements.shopItemsContainer.innerHTML = '<div class="empty-state">Nenhuma loja aberta no momento.</div>';
+    elements.shopItemsContainer.innerHTML = '<div class="empty-state">Nenhum comerciante aberto no momento.</div>';
     if (!gameState.shop.active) elements.shopStatus.textContent = 'Nenhuma loja';
     return;
   }
 
-  elements.shopStatus.textContent = 'Loja aberta';
+  const type = gameState.shop.type || 'consumables';
+  const meta = getShopMerchantMeta(type);
+  if (elements.shopTitle) elements.shopTitle.textContent = meta.title;
+  if (elements.shopCard) elements.shopCard.classList.add('merchant-active', meta.className);
+  if (elements.shopMerchantVisual) {
+    elements.shopMerchantVisual.hidden = false;
+    elements.shopMerchantVisual.innerHTML = `
+      <span class="shop-merchant-emblem">${meta.icon}</span>
+      <div><small>ENCONTRO DE COMERCIANTE</small><strong>${escapeAttr(meta.title)}</strong><p>${escapeAttr(meta.status)}</p></div>
+    `;
+  }
+
+  updateShopMessage(meta.title);
+  updateSpecialShopControls();
+
+  if (type === 'blacksmith' || type === 'arcaneSmith') {
+    document.body.classList.add('forge-shop-active', type === 'arcaneSmith' ? 'forge-shop-arcane' : 'forge-shop-physical');
+    renderForgeShop(type);
+    return;
+  }
 
   gameState.shop.items.forEach((item) => {
     const card = document.createElement('div');
@@ -5035,7 +6827,7 @@ function renderConsumables() {
 
     const button = row.querySelector('[data-use]');
     if (item.type !== 'material') {
-      button.addEventListener('click', () => useConsumable(item.id));
+      button.addEventListener('click', () => void useConsumable(item.id));
     }
     elements.inventoryItemsContainer.appendChild(row);
   });
@@ -5067,7 +6859,7 @@ function renderGearInventory() {
   if (equippedItems.length) {
     equippedItems.forEach((item) => {
       const row = document.createElement('div');
-      row.className = 'inventory-item';
+      row.className = `inventory-item${item?.forgeMark ? ` has-forge-mark forge-tone-${item.forgeMark.tone || 'forge'}` : ''}`;
       if (item?.rarity) row.dataset.rarity = item.rarity;
       row.dataset.tooltip = getGearTooltip(item);
       row.dataset.tooltipHtml = getGearTooltipHtml(item);
@@ -5077,6 +6869,7 @@ function renderGearInventory() {
             ${formatGearName(item)}
           </strong>
           <p>Equipado • ${gearSlots[item.slot]} • Nv. ${item.level} • ${formatStats(item.stats)}</p>
+          ${item.forgeMark ? `<div class="inventory-forge-mark forge-tone-${escapeAttr(item.forgeMark.tone || 'forge')}">${escapeAttr(item.forgeMark.icon || '⚒️')} ${escapeAttr(item.forgeMark.name)}</div>` : ''}
         </div>
       `;
       elements.inventoryItemsContainer.appendChild(row);
@@ -5100,7 +6893,7 @@ function createGearModalRow(item, equipped = false) {
   const rarity = getRarityById(item.rarity);
 
   const row = document.createElement('div');
-  row.className = 'gear-modal-item';
+  row.className = `gear-modal-item${item?.forgeMark ? ` has-forge-mark forge-tone-${item.forgeMark.tone || 'forge'}` : ''}`;
   row.dataset.rarity = rarity.id;
   row.dataset.equipped = equipped ? 'true' : 'false';
   row.dataset.tooltip = getGearTooltip(item);
@@ -5121,6 +6914,7 @@ function createGearModalRow(item, equipped = false) {
           <div class="gear-modal-badges">
             <span class="gear-modal-rarity">${rarity.name}</span>
             ${equipped ? '<span class="gear-modal-equipped-badge">Equipado</span>' : ''}
+            ${item.forgeMark ? `<span class="gear-modal-forge-badge forge-tone-${escapeAttr(item.forgeMark.tone || 'forge')}">${escapeAttr(item.forgeMark.icon || '⚒️')} ${escapeAttr(item.forgeMark.name)}</span>` : ''}
           </div>
         </div>
 
@@ -5211,11 +7005,34 @@ function renderGearModal() {
   elements.gearModalList.appendChild(unequippedSection);
 }
 
+function renderPrestigeRushStatus() {
+  if (!elements.prestigeRushBanner) return;
+
+  const rush = ensurePrestigeRushState();
+  elements.prestigeRushBanner.hidden = !rush.active;
+
+  if (!rush.active) return;
+
+  const completed = rush.bossesDefeated || 0;
+  const total = Math.max(1, rush.totalBosses || 1);
+  const progress = clamp((completed / total) * 100, 0, 100);
+  const nextJump = getPrestigeRushStageGain();
+
+  elements.prestigeRushTitle.textContent = 'Marcha dos Bosses';
+  elements.prestigeRushText.textContent = `Somente bosses aparecerão. A próxima vitória avança cerca de ${nextJump} andar${nextJump === 1 ? '' : 'es'}.`;
+  elements.prestigeRushProgress.style.width = `${progress}%`;
+  elements.prestigeRushCount.textContent = `${rush.bossesRemaining} / ${rush.totalBosses}`;
+  elements.prestigeRushTarget.textContent = `Destino: Andar ${rush.targetStage}`;
+}
+
 function updateTurnDisplay() {
   const current = gameState.currentTurn === 'monster' ? 'Monstro' : 'Jogador';
-  const bossProgress = gameState.monster?.isBoss
-    ? 'Boss em combate'
-    : `Boss em ${getMonstersUntilMandatoryBoss()} inimigo(s)`;
+  const rush = ensurePrestigeRushState();
+  const bossProgress = rush.active
+    ? `Marcha: ${rush.bossesRemaining} boss(es) restante(s)`
+    : gameState.monster?.isBoss
+      ? 'Boss em combate'
+      : `Boss em ${getMonstersUntilMandatoryBoss()} inimigo(s)`;
 
   elements.turnDisplay.textContent = `🛡️ Turno: ${current}`;
   const recoveryText = gameState.player.recoveryGrace?.battles > 0
@@ -5223,11 +7040,12 @@ function updateTurnDisplay() {
     : '';
 
   elements.autoStatus.textContent = `Auto: ${gameState.autoAttack ? 'ligado' : 'desligado'} • ${bossProgress}${recoveryText}`;
+  renderPrestigeRushStatus();
 }
 
 function updateButtons() {
   const dead = gameState.player.hp <= 0;
-  const busy = gameState.actionInProgress;
+  const busy = gameState.actionInProgress || isCardEffectSequenceBusy();
   const bossAlreadyInCombat = Boolean(gameState.monster?.isBoss);
 
   elements.attackButton.disabled = dead || busy || !gameState.monster;
@@ -5256,22 +7074,102 @@ function getCombatTargetCenter(target) {
   };
 }
 
-const cardEffectQueues = new WeakMap();
+let globalCardEffectQueue = Promise.resolve();
+let pendingCardEffectCount = 0;
 
-function queueCardEffect(target, callback, duration = 900, gap = 100) {
-  if (!target || typeof callback !== 'function') return Promise.resolve();
+function waitForEffect(milliseconds = 0) {
+  return new Promise((resolve) => setTimeout(resolve, Math.max(0, milliseconds)));
+}
 
-  const previous = cardEffectQueues.get(target) || Promise.resolve();
+function isCardEffectSequenceBusy() {
+  return pendingCardEffectCount > 0;
+}
 
-  const next = previous
+function clearAllCardEffectVisuals() {
+  document
+    .querySelectorAll(
+      '.combat-indicator-screen, .spell-impact-screen, .potion-use-indicator-screen, .life-steal-indicator-screen, .mythic-effect-activation'
+    )
+    .forEach((entry) => entry.remove());
+
+  document.querySelectorAll('.hero-card, .monster-card').forEach((card) => {
+    clearCombatCardEffectClasses(card);
+    card.classList.remove('spell-target-glow', 'card-effect-running');
+    delete card.dataset.combatPulseId;
+    delete card.dataset.spellGlowId;
+  });
+}
+
+/**
+ * Fila GLOBAL de iluminação/animações.
+ * Não é mais uma fila por card: herói e inimigo compartilham a mesma sequência,
+ * então nenhum brilho, ícone, poção ou habilidade pode sobrepor outro.
+ *
+ * options.apply é executado durante a animação, nunca antes dela começar.
+ */
+function queueCardEffect(target, callback, duration = 900, gap = 90, options = {}) {
+  const settings = options && typeof options === 'object' ? options : {};
+  const applyEffect = typeof settings.apply === 'function' ? settings.apply : null;
+  const defaultApplyDelay = Math.round(duration * 0.62);
+  const applyDelay = clamp(
+    Number.isFinite(settings.applyDelay) ? settings.applyDelay : defaultApplyDelay,
+    0,
+    duration
+  );
+
+  pendingCardEffectCount += 1;
+  if (typeof updateButtons === 'function') updateButtons();
+
+  const scheduled = globalCardEffectQueue
     .catch(() => { })
-    .then(() => new Promise((resolve) => {
-      callback();
-      setTimeout(resolve, duration + gap);
-    }));
+    .then(async () => {
+      clearAllCardEffectVisuals();
 
-  cardEffectQueues.set(target, next);
-  return next;
+      if (target) {
+        target.classList.add('card-effect-running');
+      }
+
+      try {
+        await Promise.resolve(callback?.());
+
+        if (applyEffect) {
+          // Com delay zero, aplica no mesmo ciclo em que o efeito aparece no card.
+          if (applyDelay > 0) {
+            await waitForEffect(applyDelay);
+          }
+
+          await Promise.resolve(applyEffect());
+          updateStats();
+
+          await waitForEffect(Math.max(0, duration - applyDelay));
+        } else {
+          await waitForEffect(duration);
+        }
+      } finally {
+        clearAllCardEffectVisuals();
+      }
+
+      await waitForEffect(gap);
+    })
+    .finally(() => {
+      pendingCardEffectCount = Math.max(0, pendingCardEffectCount - 1);
+      if (typeof updateButtons === 'function') updateButtons();
+    });
+
+  globalCardEffectQueue = scheduled.catch(() => { });
+  return scheduled;
+}
+
+async function waitForCardEffects() {
+  // Se outra ação entrar enquanto aguardamos, espera também a nova cauda da fila.
+  while (true) {
+    const snapshot = globalCardEffectQueue;
+    await snapshot.catch(() => { });
+
+    if (snapshot === globalCardEffectQueue) {
+      return;
+    }
+  }
 }
 
 function clearCombatCardEffectClasses(target) {
@@ -5319,13 +7217,16 @@ function pulseCombatCard(target, flashClass, duration = 720, queued = false) {
   return Promise.resolve();
 }
 
-function showCombatIndicator(targetSide, resultType) {
+function showCombatIndicator(targetSide, resultType, onApply = null, impactItem = null) {
   const target =
     targetSide === 'player'
       ? document.querySelector('.hero-card')
       : document.querySelector('.monster-card');
 
-  if (!target) return;
+  if (!target) {
+    if (typeof onApply === 'function') onApply();
+    return Promise.resolve();
+  }
 
   const icons = {
     playerHit: '⚔️',
@@ -5340,7 +7241,10 @@ function showCombatIndicator(targetSide, resultType) {
 
   const isDodge = resultType === 'playerMiss' || resultType === 'playerDodge';
   const isCritical = resultType === 'critical';
-  const isArcaneBasic = resultType === 'magicWeaponHit' || resultType === 'arcaneBombHit' || resultType === 'mythicHit';
+  const isArcaneBasic =
+    resultType === 'magicWeaponHit' ||
+    resultType === 'arcaneBombHit' ||
+    resultType === 'mythicHit';
 
   const flashClass = isDodge
     ? 'combat-card-dodge'
@@ -5350,72 +7254,88 @@ function showCombatIndicator(targetSide, resultType) {
         ? 'combat-card-arcane-hit'
         : 'combat-card-hit';
 
-  const visualDuration = isCritical ? 2000 : 1850;
+  const visualDuration = isCritical ? 1050 : 900;
   const pulseDuration = isCritical ? 820 : 720;
 
   const runCombatVisual = () => {
     pulseCombatCard(target, flashClass, pulseDuration);
 
-    target.querySelectorAll('.combat-indicator').forEach((indicator) => indicator.remove());
-
-    document
-      .querySelectorAll(`.combat-indicator-screen[data-target-side="${targetSide}"]`)
-      .forEach((indicator) => indicator.remove());
-
     const center = getCombatTargetCenter(target);
     const indicator = document.createElement('div');
 
-    indicator.className = `combat-indicator-screen ${resultType}`;
+    const fallbackIcon = icons[resultType] || '✦';
+    const useImpactImage = targetSide === 'monster' && !isDodge && Boolean(impactItem);
+    const impactImagePath = useImpactImage
+      ? impactItem.image || getGearImagePath(impactItem)
+      : '';
+    const impactName = escapeAttr(impactItem?.name || 'Equipamento usado no ataque');
+
+    indicator.className = `combat-indicator-screen ${resultType}${useImpactImage ? ' has-impact-image' : ''}`;
     indicator.dataset.targetSide = targetSide;
     indicator.style.setProperty('--combat-x', `${center.x}px`);
     indicator.style.setProperty('--combat-y', `${center.y}px`);
-    indicator.textContent = icons[resultType] || '✦';
+
+    // Somente os danos recebidos pelo inimigo usam a imagem do equipamento.
+    // Os ataques do inimigo contra o herói e as esquivas mantêm seus emojis originais.
+    if (useImpactImage && impactImagePath) {
+      indicator.innerHTML = `
+        <img
+          class="combat-impact-image"
+          src="${escapeAttr(impactImagePath)}"
+          alt="${impactName}"
+          loading="eager"
+          decoding="async"
+          onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+        />
+        <span class="combat-impact-fallback" hidden>${fallbackIcon}</span>
+      `;
+    } else {
+      indicator.textContent = fallbackIcon;
+    }
 
     document.body.appendChild(indicator);
-
-    setTimeout(() => {
-      indicator.remove();
-    }, visualDuration);
   };
 
-  // O inimigo recebe hits em sequência no auto. Se todos entrarem na fila,
-  // o emoji e o brilho aparecem tarde demais. No card do inimigo, o feedback
-  // visual substitui o anterior imediatamente. No herói, mantém fila para cura/dano
-  // não ficarem sobrepostos.
-  if (targetSide === 'monster') {
-    runCombatVisual();
-    return;
-  }
-
-  queueCardEffect(target, runCombatVisual, visualDuration, 120);
+  // Todos os lados usam a MESMA fila global. Nenhum efeito do inimigo
+  // substitui mais o anterior e nenhum efeito do herói ocorre em paralelo.
+  return queueCardEffect(target, runCombatVisual, visualDuration, 90, {
+    apply: onApply,
+    applyDelay: 0,
+  });
 }
 
-function showMythicEffectActivation(title, detail = '', targetSide = 'monster') {
+function showMythicEffectActivation(title, detail = '', targetSide = 'monster', onApply = null) {
   const target =
     targetSide === 'player'
       ? document.querySelector('.hero-card')
       : document.querySelector('.monster-card');
 
-  if (!target) return;
+  if (!target) {
+    if (typeof onApply === 'function') onApply();
+    return Promise.resolve();
+  }
 
-  const center = getCombatTargetCenter(target);
-  const badge = document.createElement('div');
+  const runMythicVisual = () => {
+    const center = getCombatTargetCenter(target);
+    const badge = document.createElement('div');
 
-  badge.className = 'mythic-effect-activation';
-  badge.style.setProperty('--mythic-effect-x', `${center.x}px`);
-  badge.style.setProperty('--mythic-effect-y', `${center.y}px`);
-  badge.innerHTML = `
-    <span>✦</span>
-    <strong>${escapeAttr(title)}</strong>
-    ${detail ? `<small>${escapeAttr(detail)}</small>` : ''}
-  `;
+    badge.className = 'mythic-effect-activation';
+    badge.style.setProperty('--mythic-effect-x', `${center.x}px`);
+    badge.style.setProperty('--mythic-effect-y', `${center.y}px`);
+    badge.innerHTML = `
+      <span>✦</span>
+      <strong>${escapeAttr(title)}</strong>
+      ${detail ? `<small>${escapeAttr(detail)}</small>` : ''}
+    `;
 
-  document.body.appendChild(badge);
-  pulseCombatCard(target, 'combat-card-mythic', 760);
+    document.body.appendChild(badge);
+    pulseCombatCard(target, 'combat-card-mythic', 760);
+  };
 
-  setTimeout(() => {
-    badge.remove();
-  }, 1700);
+  return queueCardEffect(target, runMythicVisual, 1150, 100, {
+    apply: onApply,
+    applyDelay: typeof onApply === 'function' ? 0 : 820,
+  });
 }
 
 function getCombatDodgeChance(attacker, defender, attackerSide = 'player') {
@@ -5432,24 +7352,22 @@ function getCombatDodgeChance(attacker, defender, attackerSide = 'player') {
   return clamp(baseChance, 3, maxChance);
 }
 
-function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSide = 'player', damageType = 'physical') {
+async function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSide = 'player', damageType = 'physical') {
   const defenderSide = attackerSide === 'player' ? 'monster' : 'player';
-  // O card de quem lança a ação não anima aqui.
-  // Apenas o card que recebe dano, magia, crítico ou esquiva reage visualmente.
-
   const dodgeChance = getCombatDodgeChance(attacker, defender, attackerSide);
   const criticalChance = attacker.critChance ?? 8;
 
   if (randomBetween(1, 100) <= dodgeChance) {
-    if (typeof showCombatIndicator === 'function') {
-      if (attackerSide === 'player') {
-        showCombatIndicator('monster', 'playerMiss');
-      } else {
-        showCombatIndicator('player', 'playerDodge');
-      }
-    }
+    await showCombatIndicator(
+      attackerSide === 'player' ? 'monster' : 'player',
+      attackerSide === 'player' ? 'playerMiss' : 'playerDodge'
+    );
 
     log(`${defenderLabel} esquivou do ataque de ${attackerLabel}.`, 'damage');
+
+    if (attackerSide === 'player') {
+      resetForgeCombo(defender, getForgeMarkForDamageType(damageType));
+    }
 
     return {
       damage: 0,
@@ -5460,7 +7378,6 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
   }
 
   const variation = randomBetween(-3, 4);
-
   const isMagicWeaponAttack = attackerSide === 'player' && damageType === 'magicWeapon';
   const isSpellCast = attackerSide === 'player' && damageType === 'magic';
   const isMagicalDamage = damageType === 'magic' || damageType === 'magicWeapon';
@@ -5485,24 +7402,17 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
     }
   }
 
-  const resistance = getSafeResistanceMultiplier(
-    defender,
-    weaponDamageKey,
-    damageType
-  );
-
+  const resistance = getSafeResistanceMultiplier(defender, weaponDamageKey, damageType);
+  const echoMultiplier = attackerSide === 'player'
+    ? getEchoResistanceMultiplier(defender, damageType)
+    : 1;
   let furyMultiplier = 1;
 
   if (attackerSide === 'player' && attacker.furyPower) {
     const hpPercent = gameState.player.hp / getPlayerMaxHp();
 
-    if (hpPercent <= 0.35) {
-      furyMultiplier += attacker.furyPower / 100;
-    }
-
-    if (hpPercent <= 0.18) {
-      furyMultiplier += attacker.furyPower / 100;
-    }
+    if (hpPercent <= 0.35) furyMultiplier += attacker.furyPower / 100;
+    if (hpPercent <= 0.18) furyMultiplier += attacker.furyPower / 100;
   }
 
   let bossDamageMultiplier = 1;
@@ -5511,16 +7421,24 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
     bossDamageMultiplier += (getEquipmentBonus('bossDamagePercent') || 0) / 100;
   }
 
+  const forgeMark = attackerSide === 'player' ? getForgeMarkForDamageType(damageType) : null;
+  const forgeMultiplier = attackerSide === 'player' ? getForgeDamageMultiplier(forgeMark, defender, damageType) : 1;
+
   const defenseReductionRate = attackerSide === 'monster' ? 0.42 : 0.65;
   const minimumDamageRate = attackerSide === 'monster' ? 0.18 : 0.07;
+  let effectiveDefenderDefense = attackerSide === 'player'
+    ? getEffectiveMonsterDefense(defender)
+    : (defender.defense || 0);
 
-  const defenseReduction = (defender.defense || 0) * defenseReductionRate;
+  if (attackerSide === 'player' && forgeMark) {
+    const enemyDefenseBoost = getForgeEffectForDamageType(damageType, 'enemyDefenseBoostPercent');
+    const armorPen = clamp(getForgeEffectForDamageType(damageType, 'armorPenPercent'), 0, 65);
+    effectiveDefenderDefense *= 1 + enemyDefenseBoost / 100;
+    effectiveDefenderDefense *= 1 - armorPen / 100;
+  }
 
-  const minimumDamage = Math.max(
-    1,
-    Math.round(basePower * minimumDamageRate)
-  );
-
+  const defenseReduction = effectiveDefenderDefense * defenseReductionRate;
+  const minimumDamage = Math.max(1, Math.round(basePower * minimumDamageRate));
   const damageReductionMultiplier = attackerSide === 'monster'
     ? clamp(1 - ((defender.damageReductionPercent || 0) / 100), 0.65, 1)
     : 1;
@@ -5532,7 +7450,9 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
       resistance *
       furyMultiplier *
       bossDamageMultiplier *
-      damageReductionMultiplier
+      forgeMultiplier *
+      damageReductionMultiplier *
+      echoMultiplier
     )
   );
 
@@ -5540,7 +7460,7 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
   let damage = isCritical ? Math.round(rawDamage * 1.75) : rawDamage;
 
   if (attackerSide === 'monster' && (defender.damageReductionPercent || 0) > 0) {
-    showMythicEffectActivation(
+    await showMythicEffectActivation(
       'Redução Mítica',
       `-${formatCompactNumber(defender.damageReductionPercent, 1)}% dano`,
       'player'
@@ -5549,32 +7469,37 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
 
   if (attackerSide === 'monster') {
     const defenderMaxHp = getPlayerMaxHp();
-    const maxHitRate = attacker.isBoss ? 0.16 : 0.105;
+    const maxHitRate = attacker.isBoss
+      ? (attacker.specialBoss ? (gameConfig.specialBossHitCap || 0.38) : (gameConfig.bossHitCap || 0.30))
+      : 0.105;
     const maxHitDamage = Math.max(1, Math.round(defenderMaxHp * maxHitRate));
     damage = Math.min(damage, maxHitDamage);
   }
 
   let totalDamage = damage;
+  const applyMainDamage = () => {
+    defender.hp = Math.max(0, defender.hp - damage);
+    if (defenderSide === 'player') normalizePlayerHp();
+  };
 
-  defender.hp = Math.max(0, defender.hp - damage);
+  if (isSpellCast) {
+    await showSpellImpact(damage, applyMainDamage);
+  } else {
+    const resultType = isCritical
+      ? 'critical'
+      : isMagicWeaponAttack
+        ? 'magicWeaponHit'
+        : attackerSide === 'player'
+          ? 'playerHit'
+          : 'enemyHit';
 
-  const isPlayerMagicHit = isSpellCast;
+    const impactItem = attackerSide === 'player'
+      ? isMagicWeaponAttack
+        ? gameState.equipment?.magicWeapon
+        : gameState.equipment?.physicalWeapon
+      : null;
 
-  if (isPlayerMagicHit) {
-    showSpellImpact(damage);
-  }
-
-  // Quando a magia acerta, a animação dela já é o feedback visual.
-  // Não mostramos o emoji genérico de ataque/crítico para não duplicar ícones no card.
-  if (!isPlayerMagicHit && typeof showCombatIndicator === 'function') {
-    if (isCritical) {
-      showCombatIndicator(defenderSide, 'critical');
-    } else {
-      showCombatIndicator(
-        defenderSide,
-        isMagicWeaponAttack ? 'magicWeaponHit' : (attackerSide === 'player' ? 'playerHit' : 'enemyHit')
-      );
-    }
+    await showCombatIndicator(defenderSide, resultType, applyMainDamage, impactItem);
   }
 
   const damageLabel = damageType === 'magic'
@@ -5589,63 +7514,118 @@ function dealDamage(attacker, defender, attackerLabel, defenderLabel, attackerSi
     log(`${attackerLabel} causou ${formatCompactNumber(damage)} de ${damageLabel} em ${defenderLabel}.`, 'damage');
   }
 
+  if (attackerSide === 'player' && totalDamage > 0 && forgeMark) {
+    defender.forgeTriggeredMarks ||= {};
+    if (!defender.forgeTriggeredMarks[forgeMark.id]) {
+      defender.forgeTriggeredMarks[forgeMark.id] = true;
+      const activeDetail = isForgeBiomeMarkActive(forgeMark, defender)
+        ? `Bônus de ${forgeMark.effects.biomeDamagePercent}% no bioma`
+        : (forgeMark.summary || [])[0] || 'Marca ativada';
+      void showForgeEffectActivation(forgeMark, activeDetail, defenderSide);
+    }
+  }
+
   if (
     attackerSide === 'player' &&
     damageType === 'magic' &&
     attacker.magicEchoChance &&
-    defender.hp > 0
+    defender.hp > 0 &&
+    randomBetween(1, 100) <= attacker.magicEchoChance
   ) {
-    if (randomBetween(1, 100) <= attacker.magicEchoChance) {
-      const echoPercent = attacker.magicEchoDamagePercent || 15;
-      const echoDamage = Math.max(1, Math.round(damage * (echoPercent / 100)));
+    const echoPercent = attacker.magicEchoDamagePercent || 15;
+    const echoDamage = Math.max(1, Math.round(damage * (echoPercent / 100)));
 
-      defender.hp = Math.max(0, defender.hp - echoDamage);
-      totalDamage += echoDamage;
+    await showMythicEffectActivation(
+      'Eco Arcano',
+      `+${formatCompactNumber(echoDamage)} dano`,
+      defenderSide,
+      () => {
+        defender.hp = Math.max(0, defender.hp - echoDamage);
+      }
+    );
 
-      log(`Eco Arcano: o dano mágico ecoou e causou mais ${formatCompactNumber(echoDamage)} de dano.`, 'damage', true);
-    }
+    totalDamage += echoDamage;
+    log(`Eco Arcano: o dano mágico ecoou e causou mais ${formatCompactNumber(echoDamage)} de dano.`, 'damage', true);
   }
 
   if (attackerSide === 'player' && defender.hp > 0) {
-    const canDoubleStrike = (damageType === 'physical' || damageType === 'magicWeapon') && attacker.doubleStrikeChance;
+    const canDoubleStrike =
+      (damageType === 'physical' || damageType === 'magicWeapon') &&
+      attacker.doubleStrikeChance;
     const canDoubleMagic = damageType === 'magic' && attacker.doubleMagicChance;
 
     if (canDoubleStrike && randomBetween(1, 100) <= attacker.doubleStrikeChance) {
       const extraPercent = attacker.doubleStrikeDamagePercent || 55;
       const extraDamage = Math.max(1, Math.round(damage * (extraPercent / 100)));
 
-      defender.hp = Math.max(0, defender.hp - extraDamage);
-      totalDamage += extraDamage;
+      await showMythicEffectActivation(
+        'Golpe Duplo',
+        `+${formatCompactNumber(extraDamage)} dano`,
+        defenderSide,
+        () => {
+          defender.hp = Math.max(0, defender.hp - extraDamage);
+        }
+      );
 
-      showCombatIndicator(defenderSide, 'mythicHit');
-      showMythicEffectActivation('Golpe Duplo', `+${formatCompactNumber(extraDamage)} dano`, defenderSide);
+      totalDamage += extraDamage;
       log(`Golpe Duplo Mítico: mais ${formatCompactNumber(extraDamage)} de dano.`, 'damage', true);
     }
 
-    if (canDoubleMagic && randomBetween(1, 100) <= attacker.doubleMagicChance) {
+    if (canDoubleMagic && defender.hp > 0 && randomBetween(1, 100) <= attacker.doubleMagicChance) {
       const extraPercent = attacker.doubleMagicDamagePercent || 60;
       const extraDamage = Math.max(1, Math.round(damage * (extraPercent / 100)));
 
-      defender.hp = Math.max(0, defender.hp - extraDamage);
-      totalDamage += extraDamage;
+      await showSpellImpact(extraDamage, () => {
+        defender.hp = Math.max(0, defender.hp - extraDamage);
+      });
 
-      showSpellImpact(extraDamage);
-      showMythicEffectActivation('Magia Dupla', `+${formatCompactNumber(extraDamage)} dano`, defenderSide);
+      await showMythicEffectActivation(
+        'Magia Dupla',
+        `+${formatCompactNumber(extraDamage)} dano`,
+        defenderSide
+      );
+
+      totalDamage += extraDamage;
       log(`Magia Dupla Mítica: a magia repetiu e causou mais ${formatCompactNumber(extraDamage)} de dano.`, 'damage', true);
     }
   }
 
-  if (attackerSide === 'player' && attacker.lifeStealChance) {
-    if (randomBetween(1, 100) <= attacker.lifeStealChance) {
-      const stealPercent = attacker.lifeStealAmountPercent || 8;
-      const healed = Math.max(1, Math.round(totalDamage * (stealPercent / 100)));
-
-      gameState.player.hp = Math.min(getPlayerMaxHp(), gameState.player.hp + healed);
-      showLifeStealVisual(healed);
-
-      log(`Roubo de vida: você recuperou ${formatCompactNumber(healed)} HP.`, 'reward', true);
+  if (attackerSide === 'player' && defender.hp > 0 && forgeMark?.effects?.forgeDoubleHitChance) {
+    if (randomBetween(1, 100) <= forgeMark.effects.forgeDoubleHitChance) {
+      const extraPercent = forgeMark.effects.forgeDoubleHitDamagePercent || 55;
+      const extraDamage = Math.max(1, Math.round(damage * (extraPercent / 100)));
+      await showForgeEffectActivation(
+        forgeMark,
+        `Segundo impacto: +${formatCompactNumber(extraDamage)} dano`,
+        defenderSide,
+        () => { defender.hp = Math.max(0, defender.hp - extraDamage); }
+      );
+      totalDamage += extraDamage;
+      log(`${forgeMark.name}: a Marca de Forja repetiu parte do golpe e causou mais ${formatCompactNumber(extraDamage)} de dano.`, 'damage', true);
     }
   }
+
+  if (attackerSide === 'player' && totalDamage > 0) {
+    advanceForgeCombo(defender, forgeMark);
+    registerEchoAdaptation(defender, damageType, forgeMark?.effects?.echoExtraStacks || 0);
+  }
+
+  if (attackerSide === 'player' && totalDamage > 0 && attacker.lifeStealChance) {
+    if (randomBetween(1, 100) <= attacker.lifeStealChance) {
+      const stealPercent = attacker.lifeStealAmountPercent || 8;
+      const requestedHeal = Math.max(1, Math.round(totalDamage * (stealPercent / 100)));
+      const healed = Math.min(requestedHeal, Math.max(0, getPlayerMaxHp() - gameState.player.hp));
+
+      if (healed > 0) {
+        await showLifeStealVisual(healed, () => {
+          gameState.player.hp = Math.min(getPlayerMaxHp(), gameState.player.hp + healed);
+        });
+
+        log(`Roubo de vida: você recuperou ${formatCompactNumber(healed)} HP.`, 'reward', true);
+      }
+    }
+  }
+
 
   return {
     damage: totalDamage,
@@ -5667,8 +7647,8 @@ function getPlayerCombatStats() {
 
     precision: getEquipmentBonus('precision'),
 
-    lifeStealChance: getEquipmentBonus('lifeStealChance'),
-    lifeStealAmountPercent: getEquipmentBonus('lifeStealAmountPercent'),
+    lifeStealChance: getEquipmentBonus('lifeStealChance') + getActiveForgeEffect('lifeStealChance'),
+    lifeStealAmountPercent: getEquipmentBonus('lifeStealAmountPercent') + getActiveForgeEffect('lifeStealAmountPercent'),
 
     furyPower: getEquipmentBonus('furyPower'),
 
@@ -5685,48 +7665,56 @@ function getPlayerCombatStats() {
   };
 }
 
-function startTurn() {
-  if (gameState.actionInProgress || !gameState.monster || gameState.player.hp <= 0) return;
+async function startTurn() {
+  if (
+    document.hidden ||
+    gameState.offlineStartedAt ||
+    gameState.actionInProgress ||
+    isCardEffectSequenceBusy() ||
+    !gameState.monster ||
+    gameState.player.hp <= 0
+  ) return;
 
   gameState.actionInProgress = true;
-  const monster = gameState.monster;
-  const playerCombat = getPlayerCombatStats();
-  if (monster.isBoss) {
-    const bossMultiplier = getTotalBossDamageMultiplier();
 
-    playerCombat.attack = Math.round(playerCombat.attack * bossMultiplier);
-    playerCombat.magic = Math.round(playerCombat.magic * bossMultiplier);
-  }
-  const monsterCombat = {
-    hp: monster.hp,
-    attack: monster.attack,
-    defense: monster.defense,
-    agility: monster.agility,
-    critChance: monster.isBoss ? 13 : 8,
-    isBoss: monster.isBoss,
-    specialBoss: monster.specialBoss,
-  };
+  try {
+    const monster = gameState.monster;
+    const playerCombat = getPlayerCombatStats();
 
-  let playerFirst = getPlayerAgility() >= monster.agility;
-
-  if (!playerFirst && playerCombat.firstStrikeChance) {
-    playerFirst = randomBetween(1, 100) <= playerCombat.firstStrikeChance;
-
-    if (playerFirst) {
-      showMythicEffectActivation('Iniciativa', 'você começa o turno', 'monster');
-      log('Iniciativa Mítica: você agiu antes do inimigo.', 'system', true);
+    if (monster.isBoss) {
+      const bossMultiplier = getTotalBossDamageMultiplier();
+      playerCombat.attack = Math.round(playerCombat.attack * bossMultiplier);
+      playerCombat.magic = Math.round(playerCombat.magic * bossMultiplier);
     }
+
+    const monsterCombat = getMonsterCombatStats(monster);
+
+    let playerFirst = getPlayerAgility() >= getEffectiveMonsterAgility(monster);
+
+    if (!playerFirst && playerCombat.firstStrikeChance) {
+      playerFirst = randomBetween(1, 100) <= playerCombat.firstStrikeChance;
+
+      if (playerFirst) {
+        await showMythicEffectActivation('Iniciativa', 'você começa o turno', 'player');
+        log('Iniciativa Mítica: você agiu antes do inimigo.', 'system', true);
+      }
+    }
+
+    const order = playerFirst ? ['player', 'monster'] : ['monster', 'player'];
+    await executeTurnOrder(order, playerCombat, monsterCombat);
+  } catch (error) {
+    console.error('Erro durante o turno:', error);
+    gameState.actionInProgress = false;
+    clearAllCardEffectVisuals();
+    updateStats();
   }
-
-  const order = playerFirst ? ['player', 'monster'] : ['monster', 'player'];
-
-  executeTurnOrder(order, playerCombat, monsterCombat);
 }
 
-function executeTurnOrder(order, playerCombat, monsterCombat) {
+async function executeTurnOrder(order, playerCombat, monsterCombat) {
   const actor = order.shift();
 
   if (!actor) {
+    await waitForCardEffects();
     gameState.currentTurn = 'player';
     gameState.actionInProgress = false;
     updateStats();
@@ -5737,78 +7725,108 @@ function executeTurnOrder(order, playerCombat, monsterCombat) {
   updateTurnDisplay();
   updateStats();
 
-  const actionDelay =
-    actor === 'monster'
-      ? gameConfig.enemyTurnDelay
-      : gameConfig.turnDelay;
+  const actionDelay = actor === 'monster'
+    ? gameConfig.enemyTurnDelay
+    : gameConfig.turnDelay;
 
-  setTimeout(() => {
+  await waitForEffect(actionDelay);
+
+  // Caso a aba tenha sido ocultada durante a animação, encerra o turno sem
+  // continuar alterando o save enquanto o progresso offline está sendo contado.
+  if (document.hidden || gameState.offlineStartedAt) {
+    gameState.actionInProgress = false;
+    return;
+  }
+
+  if (!gameState.monster || gameState.player.hp <= 0) {
+    gameState.actionInProgress = false;
+    updateStats();
+    return;
+  }
+
+  if (actor === 'player') {
+    // Toda cura, poção e buff acontece no começo do turno do herói,
+    // depois do golpe inimigo terminar e antes do herói atacar.
+    await runHeroPreAttackSupportPhase();
+
     if (!gameState.monster || gameState.player.hp <= 0) {
       gameState.actionInProgress = false;
       updateStats();
       return;
     }
 
-    if (actor === 'player') {
-      playerCombat.hp = gameState.player.hp;
-      monsterCombat.hp = gameState.monster.hp;
-
-      const castSpell = canUseEquippedSpell() && randomBetween(1, 100) <= getPlayerMagicChance();
-      const damageType = castSpell
-        ? 'magic'
-        : isMagicWeaponActive()
-          ? 'magicWeapon'
-          : 'physical';
-
-      dealDamage(
-        playerCombat,
-        gameState.monster,
-        'Você',
-        gameState.monster.name,
-        'player',
-        damageType
-      );
-    } else if (gameState.monster.hp > 0) {
-      monsterCombat.hp = gameState.monster.hp;
-
-      const result = dealDamage(
-        monsterCombat,
-        gameState.player,
-        gameState.monster.name,
-        'você',
-        'monster',
-        'physical'
-      );
-
-      if (result.damage > 0) {
-        normalizePlayerHp();
-        autoUseEmergencyHealing();
-      }
+    const refreshedPlayerCombat = getPlayerCombatStats();
+    if (gameState.monster.isBoss) {
+      const bossMultiplier = getTotalBossDamageMultiplier();
+      refreshedPlayerCombat.attack = Math.round(refreshedPlayerCombat.attack * bossMultiplier);
+      refreshedPlayerCombat.magic = Math.round(refreshedPlayerCombat.magic * bossMultiplier);
     }
 
-    updateStats();
+    Object.assign(playerCombat, refreshedPlayerCombat);
+    playerCombat.hp = gameState.player.hp;
+    monsterCombat.hp = gameState.monster.hp;
 
-    if (checkBattleEnd()) {
-      gameState.actionInProgress = false;
-      updateStats();
-      return;
-    }
+    const castSpell =
+      canUseEquippedSpell() &&
+      randomBetween(1, 100) <= getPlayerMagicChance();
 
-    setTimeout(
-      () => executeTurnOrder(order, playerCombat, monsterCombat),
-      gameConfig.afterTurnDelay
+    const damageType = castSpell
+      ? 'magic'
+      : isMagicWeaponActive()
+        ? 'magicWeapon'
+        : 'physical';
+
+    await dealDamage(
+      playerCombat,
+      gameState.monster,
+      'Você',
+      gameState.monster.name,
+      'player',
+      damageType
     );
-  }, actionDelay);
+  } else if (gameState.monster.hp > 0) {
+    Object.assign(monsterCombat, getMonsterCombatStats(gameState.monster));
+    monsterCombat.hp = gameState.monster.hp;
+
+    const result = await dealDamage(
+      monsterCombat,
+      gameState.player,
+      gameState.monster.name,
+      'você',
+      'monster',
+      'physical'
+    );
+
+    if (result.damage > 0) {
+      // O golpe inimigo termina por completo. Cura e buffs só serão processados
+      // quando o próximo ator for o herói, antes do ataque dele.
+      await waitForCardEffects();
+      normalizePlayerHp();
+    }
+  }
+
+  // Inclui ações manuais que tenham sido colocadas na fila durante o turno.
+  await waitForCardEffects();
+  updateStats();
+
+  if (await checkBattleEnd()) {
+    gameState.actionInProgress = false;
+    updateStats();
+    return;
+  }
+
+  await waitForEffect(gameConfig.afterTurnDelay);
+  return executeTurnOrder(order, playerCombat, monsterCombat);
 }
 
-function checkBattleEnd() {
+async function checkBattleEnd() {
   const player = gameState.player;
   const monster = gameState.monster;
 
   if (!monster) return false;
 
   if (monster.hp <= 0) {
-    winBattle(monster);
+    await winBattle(monster);
     return true;
   }
 
@@ -5817,9 +7835,16 @@ function checkBattleEnd() {
 
     if (deathWardChance > 0 && randomBetween(1, 100) <= deathWardChance) {
       const restoredHp = Math.max(1, Math.round(getPlayerMaxHp() * 0.18));
-      player.hp = restoredHp;
-      showLifeStealVisual(restoredHp);
-      showMythicEffectActivation('Proteção Mítica', `+${formatCompactNumber(restoredHp)} HP`, 'player');
+
+      await showMythicEffectActivation(
+        'Proteção Mítica',
+        `+${formatCompactNumber(restoredHp)} HP`,
+        'player',
+        () => {
+          player.hp = restoredHp;
+        }
+      );
+
       log(`Proteção Mítica: a morte foi evitada e você voltou com ${formatCompactNumber(restoredHp)} HP.`, 'reward', true);
       return false;
     }
@@ -5832,11 +7857,12 @@ function checkBattleEnd() {
   return false;
 }
 
-function winBattle(monster) {
+async function winBattle(monster) {
   const player = gameState.player;
-
-  const xpGained = getXpReward(monster.xpReward);
-  const coinsGained = getCoinReward(monster.coinReward);
+  const xpRewardBase = monster.xpReward;
+  const coinRewardBase = monster.coinReward;
+  const xpGained = getXpReward(xpRewardBase);
+  const coinsGained = getCoinReward(coinRewardBase);
 
   player.coins += coinsGained;
   player.victories += 1;
@@ -5850,24 +7876,22 @@ function winBattle(monster) {
     player.monstersSinceBoss = 0;
 
     const stageBeforeBoss = player.stage;
-    const stageGain = getBossStageAdvanceAmount();
+    const stageGain = getBossStageAdvanceAmount(monster);
 
-    triedToAdvanceStage = true;
-    didAdvanceStage = advanceStage(stageGain);
+    triedToAdvanceStage = stageGain > 0;
+    didAdvanceStage = stageGain > 0 ? advanceStage(stageGain) : false;
     stagesAdvanced = Math.max(0, player.stage - stageBeforeBoss);
 
-    if (didAdvanceStage && stagesAdvanced > 1) {
-      log(
-        `Ritmo de prestígio: você avançou ${stagesAdvanced} andares de uma vez, se aproximando do seu recorde anterior.`,
-        'system-important',
-        true
-      );
+    if (monster.prestigeRushBoss) {
+      resolvePrestigeRushBossVictory(monster);
+    } else if (didAdvanceStage && stagesAdvanced > 0) {
+      log(`O boss abriu o caminho para o Andar ${player.stage}.`, 'boss', true);
     }
   } else {
     player.monstersSinceBoss = getMonstersSinceLastBoss() + 1;
   }
 
-  if (triedToAdvanceStage && !didAdvanceStage) {
+  if (triedToAdvanceStage && !didAdvanceStage && !monster.prestigeRushBoss) {
     log(
       'Você atingiu o limite atual da masmorra. Suba o nível do herói, derrote mais bosses ou faça prestígio para liberar andares mais altos.',
       'system',
@@ -5876,7 +7900,7 @@ function winBattle(monster) {
   }
 
   log(`Você derrotou ${monster.name}: +${formatCompactNumber(xpGained)} XP e +${formatMoney(coinsGained)}.`, 'reward', true);
-  gainXp(monster.xpReward);
+  gainXp(xpRewardBase);
 
   const normalDropChance = clamp(
     28 + Math.min(18, player.stage * 2) + getTotalDropBonus(),
@@ -5891,7 +7915,9 @@ function winBattle(monster) {
   }
 
   maybeAwardSpecialBossRewards(monster);
-  maybeSpawnMythicRiftAfterBoss(monster);
+  if (!monster.prestigeRushBoss) {
+    maybeSpawnMythicRiftAfterBoss(monster);
+  }
   maybeDropConsumable(monster);
   tickDeathRecoveryGraceAfterWin(monster);
 
@@ -5899,13 +7925,20 @@ function winBattle(monster) {
   maybeOpenShop(monster.isBoss);
 
   if (typeof tickBattleBuffs === 'function') {
-    tickBattleBuffs();
+    await tickBattleBuffs();
   }
 
   gameState.monster = createNextEncounter();
   gameState.currentTurn = 'player';
 
-  if (gameState.monster.mandatoryBoss) {
+  if (gameState.monster.prestigeRushBoss) {
+    const rush = ensurePrestigeRushState();
+    log(
+      `Marcha dos Bosses: ${gameState.monster.name} bloqueia o caminho. ${rush.bossesRemaining} boss(es) até o Andar ${rush.targetStage}.`,
+      'boss',
+      true
+    );
+  } else if (gameState.monster.mandatoryBoss) {
     log(
       `Boss obrigatório apareceu: ${gameState.monster.name}! Derrote-o para avançar na masmorra.`,
       'boss',
@@ -5914,7 +7947,7 @@ function winBattle(monster) {
   }
 }
 
-function tickBattleBuffs() {
+async function tickBattleBuffs() {
   const buffs = gameState.player.buffs;
   if (!buffs) return;
 
@@ -5924,7 +7957,7 @@ function tickBattleBuffs() {
     }
   });
 
-  refreshAutoBuffPotions();
+  // A renovação automática será feita na fase de suporte do próximo turno do herói.
 }
 
 function gainXp(amount, showLog = true) {
@@ -6013,9 +8046,19 @@ function continueAfterDeath() {
   updateStats();
 }
 
+function leaveCurrentShop() {
+  if (!gameState.shop.active) return;
+
+  const meta = getShopMerchantMeta();
+  closeShop(`Você encerrou o encontro com ${meta.title}. Continue explorando para encontrar outro comerciante.`);
+  log(`🚪 Você saiu da loja de ${meta.title}.`, 'shop', true);
+  updateStats();
+}
+
 function buyShopItem(itemId) {
   hideFloatingTooltip();
 
+  if ((gameState.shop.type || 'consumables') !== 'consumables') return;
   const item = gameState.shop.items.find((entry) => entry.id === itemId);
   if (!item) return;
 
@@ -6041,7 +8084,7 @@ function buyShopItem(itemId) {
   updateStats();
 }
 
-function useConsumable(itemId) {
+async function useConsumable(itemId) {
   const item = shopCatalog.find((catalogItem) => catalogItem.id === itemId);
   if (!item) return;
 
@@ -6051,87 +8094,94 @@ function useConsumable(itemId) {
     return;
   }
 
-  const maxHp = getPlayerMaxHp();
+  if (item.type === 'material') return;
 
-  if (item.type === 'heal') {
-    if (gameState.player.hp >= maxHp) {
+  if (item.type === 'heal' || item.type === 'fullHeal') {
+    if (gameState.player.hp >= getPlayerMaxHp()) {
       log('Sua vida já está cheia.', 'shop');
       return;
     }
 
-    const healed = getHealingAmount(item);
-
-    gameState.player.hp += healed;
-    removeConsumable(itemId);
-
-    showHeroPotionVisual(item, item.shopName || item.name);
-    log(`Você usou ${item.name} e recuperou ${healed} HP.`, 'shop', true);
-  }
-
-  if (item.type === 'fullHeal') {
-    if (gameState.player.hp >= maxHp) {
-      log('Sua vida já está cheia.', 'shop');
+    if (gameState.actionInProgress) {
+      queueHeroSupportConsumable(itemId);
       return;
     }
 
-    gameState.player.hp = maxHp;
-    removeConsumable(itemId);
-
-    showHeroPotionVisual(item, item.shopName || item.name);
-    log(`Você usou ${item.name} e restaurou toda a vida.`, 'shop', true);
+    await applyHeroSupportConsumableNow(itemId, 'manual');
+    return;
   }
 
   if (item.type === 'skillPoint') {
     const points = getTrainingScrollSkillPoints();
     gameState.player.skillPoints += points;
     removeConsumable(itemId);
-
     log(`Você leu ${item.name} e ganhou ${points} ponto(s) de habilidade.`, 'shop', true);
+    updateStats();
+    return;
   }
 
   if (item.type === 'buff') {
-    gameState.player.buffs[item.buff] = Math.max(
-      gameState.player.buffs[item.buff] || 0,
-      item.duration || 3
-    );
+    if ((gameState.player.buffs?.[item.buff] || 0) > 0) {
+      log(`${item.name} já está ativa.`, 'shop');
+      return;
+    }
 
-    removeConsumable(itemId);
-    showHeroPotionVisual(item, item.shopName || item.name);
+    if (gameState.actionInProgress) {
+      queueHeroSupportConsumable(itemId);
+      return;
+    }
 
-    log(`${item.name} ativada por ${item.duration} lutas.`, 'shop', true);
+    await applyHeroSupportConsumableNow(itemId, 'manual');
+    return;
   }
 
   if (item.type === 'damageMonster') {
+    const combatWasRunning = gameState.actionInProgress;
+
     if (!gameState.monster || gameState.monster.hp <= 0) {
       log('Não há monstro para usar este item agora.', 'shop', true);
       return;
     }
 
-    const percentDamage = Math.round(gameState.monster.maxHp * (item.damagePercent || 0.25));
+    const targetMonster = gameState.monster;
+    const percentDamage = Math.round(targetMonster.maxHp * (item.damagePercent || 0.25));
     const powerDamage = Math.round(getPlayerPower() * (item.powerMultiplier || 1.25));
     const damage = Math.max(1, Math.min(percentDamage, powerDamage));
 
-    gameState.monster.hp = Math.max(0, gameState.monster.hp - damage);
     removeConsumable(itemId);
+    updateStats();
 
-    if (typeof showCombatIndicator === 'function') {
-      showCombatIndicator('monster', 'arcaneBombHit');
-    }
+    let applied = false;
 
-    log(`${item.name} causou ${damage} de dano em ${gameState.monster.name}.`, 'damage', true);
+    await showCombatIndicator('monster', 'arcaneBombHit', () => {
+      if (gameState.monster !== targetMonster || targetMonster.hp <= 0) return;
+      targetMonster.hp = Math.max(0, targetMonster.hp - damage);
+      applied = true;
+    }, item);
 
-    if (checkBattleEnd()) {
+    if (!applied) {
+      addConsumable(itemId, 1);
+      log('A Bomba Arcana não encontrou o alvo e voltou ao inventário.', 'shop', true);
       updateStats();
       return;
     }
-  }
 
-  if (item.type === 'material') {
+    log(`${item.name} causou ${formatCompactNumber(damage)} de dano em ${targetMonster.name}.`, 'damage', true);
+
+    await waitForCardEffects();
+
+    // Durante um turno ativo, o próprio fluxo de combate resolve vitória/morte.
+    // Fazer isso aqui também poderia avançar para outro monstro no meio do turno.
+    if (!combatWasRunning && await checkBattleEnd()) {
+      gameState.actionInProgress = false;
+    }
+
+    updateStats();
     return;
   }
 
   if (item.type === 'specialBoss') {
-    if (gameState.actionInProgress || gameState.player.hp <= 0) {
+    if (gameState.actionInProgress || isCardEffectSequenceBusy() || gameState.player.hp <= 0) {
       log('Você não pode invocar um boss especial agora.', 'shop', true);
       return;
     }
@@ -6139,11 +8189,9 @@ function useConsumable(itemId) {
     gameState.monster = createMonster(true, true);
     gameState.currentTurn = 'player';
     removeConsumable(itemId);
-
     log(`Boss especial invocado: ${gameState.monster.name}!`, 'boss', true);
+    updateStats();
   }
-
-  updateStats();
 }
 
 function equipGear(uidToEquip, silent = false) {
@@ -6331,12 +8379,53 @@ function getRelicCost(id) {
   return relic.baseCost + level * relic.costGrowth;
 }
 
+const PRESTIGE_CONFIRMATION_DELAY = 5000;
+let prestigeConfirmationTimer = null;
+let prestigeConfirmationDeadline = 0;
+
+function clearPrestigeConfirmationCountdown() {
+  if (prestigeConfirmationTimer) {
+    clearInterval(prestigeConfirmationTimer);
+    prestigeConfirmationTimer = null;
+  }
+
+  prestigeConfirmationDeadline = 0;
+}
+
+function showPrestigeMainView() {
+  clearPrestigeConfirmationCountdown();
+
+  if (elements.prestigeMainView) {
+    elements.prestigeMainView.hidden = false;
+  }
+
+  if (elements.prestigeConfirmationView) {
+    elements.prestigeConfirmationView.hidden = true;
+  }
+
+  if (elements.confirmPrestigeButton) {
+    elements.confirmPrestigeButton.disabled = true;
+    elements.confirmPrestigeButton.textContent = 'Confirmar em 5s';
+  }
+
+  if (elements.prestigeCountdownText) {
+    elements.prestigeCountdownText.textContent = 'Aguarde 5 segundos';
+  }
+
+  if (elements.prestigeCountdownBar) {
+    elements.prestigeCountdownBar.style.width = '0%';
+  }
+}
+
 function openPrestigeModal() {
+  showPrestigeMainView();
   renderPrestigeModal();
   elements.prestigeModal.hidden = false;
 }
 
 function closePrestigeModal() {
+  clearPrestigeConfirmationCountdown();
+  showPrestigeMainView();
   elements.prestigeModal.hidden = true;
 }
 
@@ -6344,82 +8433,180 @@ function renderPrestigeModal() {
   const reward = calculatePrestigeReward();
   const prestige = gameState.prestige;
   const nextTitle = getPrestigeTitle(prestige.count + 1);
+  const currentBalance = formatCompactNumber(prestige.points);
 
-  elements.confirmPrestigeButton.disabled = !reward.canPrestige;
+  if (elements.prestigeModalBalance) {
+    elements.prestigeModalBalance.textContent = currentBalance;
+  }
+
+  if (elements.prestigeRelicBalance) {
+    elements.prestigeRelicBalance.textContent = currentBalance;
+  }
+
+  if (elements.prestigeReviewButton) {
+    elements.prestigeReviewButton.disabled = !reward.canPrestige;
+  }
 
   elements.prestigeSummary.innerHTML = `
     ${reward.canPrestige
       ? ''
-      : '<div class="prestige-warning">Prestígio liberado apenas a partir do Andar 10.</div>'
+      : `<div class="prestige-warning prestige-summary-full">
+          <strong>Prestígio ainda bloqueado</strong>
+          <span>Chegue ao Andar 10 e derrote pelo menos 10 bosses para liberar o renascimento.</span>
+        </div>`
     }
 
-    <div class="prestige-card">
-      <strong>Título atual</strong>
-      <span>${getPrestigeTitle(prestige.count)}</span>
-    </div>
+    <section class="prestige-identity-card prestige-summary-full">
+      <div>
+        <span class="prestige-summary-label">Evolução do título</span>
+        <strong>${getPrestigeTitle(prestige.count)}</strong>
+      </div>
+      <span class="prestige-title-arrow">→</span>
+      <div class="prestige-next-title">
+        <span class="prestige-summary-label">Após o prestígio</span>
+        <strong>${nextTitle}</strong>
+      </div>
+    </section>
 
-    <div class="prestige-card">
-      <strong>Próximo título</strong>
-      <span>${nextTitle}</span>
-    </div>
+    <section class="prestige-reward-card prestige-summary-featured">
+      <span class="prestige-summary-label">Recompensa principal</span>
+      <strong>🔮 +${formatCompactNumber(reward.points)}</strong>
+      <small>essências adicionadas ao seu saldo</small>
+    </section>
 
-    <div class="prestige-card">
-      <strong>Essências ganhas</strong>
-      <span>+${reward.points} essências</span>
-    </div>
+    <section class="prestige-reward-card">
+      <span class="prestige-summary-label">Novo começo</span>
+      <strong>+${formatCompactNumber(reward.skillPointsReward)}</strong>
+      <small>pontos de habilidade iniciais</small>
+    </section>
 
-    <div class="prestige-card">
-      <strong>Pontos de habilidade iniciais</strong>
-      <span>+${reward.skillPointsReward} pontos</span>
-    </div>
+    <section class="prestige-run-card">
+      <span class="prestige-summary-label">Jornada atual</span>
+      <div class="prestige-run-stats">
+        <div><strong>Andar ${formatCompactNumber(reward.stage)}</strong><span>alcançado</span></div>
+        <div><strong>${formatCompactNumber(reward.bosses)}</strong><span>bosses derrotados</span></div>
+        <div><strong>${reward.bossMilestones}</strong><span>marcos de 10 bosses</span></div>
+      </div>
+    </section>
 
-    <div class="prestige-card">
-      <strong>Andar alcançado</strong>
-      <span>Andar ${reward.stage}</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong>Bosses derrotados</strong>
-      <span>${reward.bosses} bosses</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong>Bônus por bosses</strong>
-      <span>${reward.bossMilestones} marco(s) de 10 bosses</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong>XP permanente</strong>
-      <span>${formatBonusPercent(reward.xpBonus)}</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong class="money-title">${coinIconHtml()}<span>Bônus permanente</span></strong>
-      <span>${formatBonusPercent(reward.coinBonus)}</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong>Chance de drop</strong>
-      <span>${formatFlatPercent(reward.dropBonus)}</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong>Épico/Lendário</strong>
-      <span>${formatFlatPercent(reward.epicLegendaryBonus)}</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong>Dano contra boss</strong>
-      <span>${formatBonusPercent(reward.bossDamageBonus)}</span>
-    </div>
-
-    <div class="prestige-card">
-      <strong>Progresso offline</strong>
-      <span>${formatBonusPercent(reward.offlineBonus)}</span>
-    </div>
+    <section class="prestige-permanent-card prestige-summary-full">
+      <div class="prestige-permanent-heading">
+        <div>
+          <span class="prestige-summary-label">Ganhos permanentes deste prestígio</span>
+          <strong>Bônus que continuarão após o renascimento</strong>
+        </div>
+      </div>
+      <div class="prestige-bonus-grid">
+        <div><span>XP</span><strong>${formatBonusPercent(reward.xpBonus)}</strong></div>
+        <div><span>${coinIconHtml()} Moedas</span><strong>${formatBonusPercent(reward.coinBonus)}</strong></div>
+        <div><span>Chance de drop</span><strong>${formatFlatPercent(reward.dropBonus)}</strong></div>
+        <div><span>Épico/Lendário</span><strong>${formatFlatPercent(reward.epicLegendaryBonus)}</strong></div>
+        <div><span>Dano contra boss</span><strong>${formatBonusPercent(reward.bossDamageBonus)}</strong></div>
+        <div><span>Progresso offline</span><strong>${formatBonusPercent(reward.offlineBonus)}</strong></div>
+      </div>
+    </section>
   `;
 
   renderRelicList();
+}
+
+function renderPrestigeConfirmation() {
+  const reward = calculatePrestigeReward();
+  const prestige = gameState.prestige;
+
+  if (elements.prestigeConfirmationSummary) {
+    elements.prestigeConfirmationSummary.innerHTML = `
+      <div class="prestige-confirmation-loss">
+        <span>Será reiniciado</span>
+        <strong>Andar, nível, inventário e equipamentos da jornada atual</strong>
+      </div>
+      <div class="prestige-confirmation-gain">
+        <span>Você receberá</span>
+        <strong>🔮 +${formatCompactNumber(reward.points)} essências</strong>
+      </div>
+      <div class="prestige-confirmation-keep">
+        <span>Será preservado</span>
+        <strong>${getPrestigeTitle(prestige.count + 1)}, relíquias e todos os bônus permanentes</strong>
+      </div>
+    `;
+  }
+}
+
+function updatePrestigeConfirmationCountdown() {
+  const remaining = Math.max(0, prestigeConfirmationDeadline - Date.now());
+  const seconds = Math.ceil(remaining / 1000);
+  const progress = clamp((1 - remaining / PRESTIGE_CONFIRMATION_DELAY) * 100, 0, 100);
+
+  if (elements.prestigeCountdownBar) {
+    elements.prestigeCountdownBar.style.width = `${progress}%`;
+  }
+
+  if (remaining > 0) {
+    if (elements.prestigeCountdownText) {
+      elements.prestigeCountdownText.textContent = `Aguarde ${seconds} segundo${seconds === 1 ? '' : 's'}`;
+    }
+
+    if (elements.confirmPrestigeButton) {
+      elements.confirmPrestigeButton.disabled = true;
+      elements.confirmPrestigeButton.textContent = `Confirmar em ${seconds}s`;
+    }
+
+    return;
+  }
+
+  clearPrestigeConfirmationCountdown();
+
+  if (elements.prestigeCountdownBar) {
+    elements.prestigeCountdownBar.style.width = '100%';
+  }
+
+  if (elements.prestigeCountdownText) {
+    elements.prestigeCountdownText.textContent = 'Confirmação liberada';
+  }
+
+  if (elements.confirmPrestigeButton) {
+    elements.confirmPrestigeButton.disabled = false;
+    elements.confirmPrestigeButton.textContent = 'Confirmar Prestígio';
+    elements.confirmPrestigeButton.focus({ preventScroll: true });
+  }
+}
+
+function openPrestigeConfirmation() {
+  const reward = calculatePrestigeReward();
+
+  if (!reward.canPrestige) {
+    log('Você precisa chegar ao Andar 10 e derrotar pelo menos 10 bosses para fazer prestígio.', 'system', true);
+    renderPrestigeModal();
+    return;
+  }
+
+  renderPrestigeConfirmation();
+
+  if (elements.prestigeMainView) {
+    elements.prestigeMainView.hidden = true;
+  }
+
+  if (elements.prestigeConfirmationView) {
+    elements.prestigeConfirmationView.hidden = false;
+  }
+
+  if (elements.confirmPrestigeButton) {
+    elements.confirmPrestigeButton.disabled = true;
+    elements.confirmPrestigeButton.textContent = 'Confirmar em 5s';
+  }
+
+  prestigeConfirmationDeadline = Date.now() + PRESTIGE_CONFIRMATION_DELAY;
+  updatePrestigeConfirmationCountdown();
+  prestigeConfirmationTimer = setInterval(updatePrestigeConfirmationCountdown, 100);
+}
+
+function cancelPrestigeConfirmation() {
+  showPrestigeMainView();
+  renderPrestigeModal();
+
+  if (elements.prestigeReviewButton && !elements.prestigeReviewButton.disabled) {
+    elements.prestigeReviewButton.focus({ preventScroll: true });
+  }
 }
 
 function renderRelicList() {
@@ -6470,6 +8657,15 @@ function buyRelic(id) {
 }
 
 function confirmPrestige() {
+  if (
+    !elements.prestigeConfirmationView ||
+    elements.prestigeConfirmationView.hidden ||
+    !elements.confirmPrestigeButton ||
+    elements.confirmPrestigeButton.disabled
+  ) {
+    return;
+  }
+
   const reward = calculatePrestigeReward();
 
   if (!reward.canPrestige) {
@@ -6509,38 +8705,51 @@ function confirmPrestige() {
 
 function resetRunAfterPrestige(startSkillPoints = 0) {
   const preservedPrestige = structuredCloneSafe(gameState.prestige);
+  const returnTarget = Math.max(1, preservedPrestige.highestStage || 1);
 
   stopAutoAttack();
-
   Object.assign(gameState, structuredCloneSafe(initialState));
 
   gameState.prestige = preservedPrestige;
-  gameState.monster = createNextEncounter();
   gameState.currentTurn = 'player';
   gameState.activeInventoryTab = 'items';
-
   gameState.player.skillPoints = startSkillPoints;
 
   addStarterItemsIfNeeded(false);
+  const rush = startPrestigeBossRush(returnTarget);
+  gameState.monster = createNextEncounter();
+
+  if (rush.active) {
+    log(
+      `Marcha dos Bosses iniciada: ${rush.totalBosses} bosses separam você do antigo recorde no Andar ${rush.targetStage}.`,
+      'system-important',
+      true
+    );
+  }
 
   saveGame();
 }
 
 function findNextMonster() {
-  if (gameState.player.hp <= 0 || gameState.actionInProgress) return;
+  if (gameState.player.hp <= 0 || gameState.actionInProgress || isCardEffectSequenceBusy()) return;
 
   gameState.monster = createNextEncounter();
   gameState.currentTurn = 'player';
 
   if (gameState.shop.active && gameState.shop.items.length) {
-    updateShopMessage(gameState.monster.mandatoryBoss ? 'Loja ainda aberta durante o boss obrigatório' : 'Loja ainda aberta');
+    updateShopMessage(gameState.monster.prestigeRushBoss ? 'Loja aberta durante a Marcha dos Bosses' : gameState.monster.mandatoryBoss ? 'Loja ainda aberta durante o boss obrigatório' : 'Loja ainda aberta');
+  } else if (gameState.monster.prestigeRushBoss) {
+    elements.shopMessage.textContent = 'Marcha dos Bosses ativa. Somente bosses aparecerão até o seu antigo recorde.';
   } else if (gameState.monster.mandatoryBoss) {
     elements.shopMessage.textContent = 'Boss obrigatório em combate. Vença para avançar na masmorra.';
   } else {
     elements.shopMessage.textContent = 'Derrote monstros para encontrar uma loja aleatória.';
   }
 
-  if (gameState.monster.mandatoryBoss) {
+  if (gameState.monster.prestigeRushBoss) {
+    const rush = ensurePrestigeRushState();
+    log(`Marcha dos Bosses: ${gameState.monster.name} apareceu (${rush.bossesRemaining} restante(s)).`, 'boss', true);
+  } else if (gameState.monster.mandatoryBoss) {
     log(`Boss obrigatório encontrado: ${gameState.monster.name}!`, 'boss', true);
   } else {
     log(`Você encontrou ${gameState.monster.name}.`, 'system', true);
@@ -6550,7 +8759,12 @@ function findNextMonster() {
 }
 
 function summonBoss() {
-  if (gameState.player.victories < 5 || gameState.actionInProgress || gameState.player.hp <= 0) return;
+  if (
+    gameState.player.victories < 5 ||
+    gameState.actionInProgress ||
+    isCardEffectSequenceBusy() ||
+    gameState.player.hp <= 0
+  ) return;
 
   gameState.monster = createMonster(true);
   gameState.monster.mandatoryBoss = false;
@@ -6830,7 +9044,7 @@ function invokeMythicRiftBoss() {
 
   if (!gameState.mythicRift.active) return;
 
-  if (gameState.actionInProgress || gameState.player.hp <= 0) {
+  if (gameState.actionInProgress || isCardEffectSequenceBusy() || gameState.player.hp <= 0) {
     showAchievementNotice({
       title: 'Fenda Mítica instável',
       subtitle: 'Aguarde um instante',
@@ -6953,7 +9167,10 @@ function bindEvents() {
   elements.bossButton.addEventListener('click', summonBoss);
   elements.continueButton.addEventListener('click', continueAfterDeath);
   elements.prestigeButton.addEventListener('click', openPrestigeModal);
+  elements.leaveShopButton?.addEventListener('click', leaveCurrentShop);
   elements.closePrestigeModalButton.addEventListener('click', closePrestigeModal);
+  elements.prestigeReviewButton.addEventListener('click', openPrestigeConfirmation);
+  elements.cancelPrestigeConfirmationButton.addEventListener('click', cancelPrestigeConfirmation);
   elements.confirmPrestigeButton.addEventListener('click', confirmPrestige);
 
   elements.prestigeModal.addEventListener('click', (event) => {
@@ -6963,9 +9180,14 @@ function bindEvents() {
   });
 
   window.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && !elements.prestigeModal.hidden) {
-      closePrestigeModal();
+    if (event.key !== 'Escape' || elements.prestigeModal.hidden) return;
+
+    if (elements.prestigeConfirmationView && !elements.prestigeConfirmationView.hidden) {
+      cancelPrestigeConfirmation();
+      return;
     }
+
+    closePrestigeModal();
   });
   if (elements.clearLogButton && elements.battleLog) {
     elements.clearLogButton.addEventListener('click', () => {
@@ -6986,17 +9208,33 @@ function bindEvents() {
     });
   });
 
-  window.addEventListener('beforeunload', saveGame);
+  const persistOfflineStartBeforeLeaving = () => {
+    markOfflineStart();
+  };
 
-  window.addEventListener('pagehide', saveGame);
+  window.addEventListener('beforeunload', persistOfflineStartBeforeLeaving);
+  window.addEventListener('pagehide', persistOfflineStartBeforeLeaving);
 
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      saveGame();
+      autoAttackWasRunningBeforeOffline = gameState.autoAttack;
+
+      if (gameState.autoAttack) {
+        stopAutoAttack();
+      }
+
+      markOfflineStart();
       return;
     }
 
+    const shouldResumeAutoAttack = autoAttackWasRunningBeforeOffline;
+    autoAttackWasRunningBeforeOffline = false;
+
     resumeOfflineProgressIfNeeded();
+
+    if (shouldResumeAutoAttack && gameState.player.hp > 0) {
+      startAutoAttack();
+    }
   });
 
   document.addEventListener('pointermove', (event) => {
@@ -7063,6 +9301,7 @@ function initializeGame() {
   bindEvents();
 
   const loaded = loadGame();
+  ensurePrestigeRushState();
   if (!gameState.monster) {
     gameState.monster = createNextEncounter();
   }
@@ -7075,6 +9314,7 @@ function initializeGame() {
   gameState.player.activeWeaponSlot ??= 'physicalWeapon';
   gameState.player.buffs ??= { fury: 0, stone: 0, wind: 0, arcane: 0 };
   gameState.player.buffs.arcane ??= 0;
+  ensureMonsterCombatRules(gameState.monster);
 
   addStarterItemsIfNeeded(loaded);
   updateStats();

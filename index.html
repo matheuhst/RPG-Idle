@@ -17,12 +17,6 @@
         <p>Derrote monstros, suba de nível, encontre equipamentos e deixe o herói evoluindo no automático.</p>
       </div>
 
-      <div class="status-line">
-        <span class="badge" id="stage-display">Andar 1</span>
-        <span class="biome-badge" id="biome-display"><span>Bioma atual</span><strong>Catacumbas Úmidas</strong></span>
-        <span class="badge" id="prestige-title">Sem Prestígio</span>
-        <span class="badge">🔮 <strong id="prestige-points">0</strong> essências</span>
-      </div>
     </header>
 
     <section class="action-panel">
@@ -39,6 +33,57 @@
         <span id="turn-display">🛡️ Turno: Jogador</span>
         <span id="auto-status">Auto: desligado</span>
         <span id="offline-message">Progresso salvo automaticamente.</span>
+      </div>
+    </section>
+
+    <section class="journey-hud" aria-label="Resumo da jornada">
+      <div class="journey-hud-card journey-hud-stage">
+        <span class="journey-hud-icon" aria-hidden="true">🗺️</span>
+        <div>
+          <small>Andar atual</small>
+          <strong id="stage-display">1</strong>
+        </div>
+      </div>
+
+      <div class="journey-hud-card journey-hud-biome">
+        <span class="journey-hud-icon" aria-hidden="true">🏰</span>
+        <div>
+          <small>Bioma</small>
+          <strong id="biome-display">Catacumbas Úmidas</strong>
+        </div>
+      </div>
+
+      <div class="journey-hud-card journey-hud-prestige">
+        <span class="journey-hud-icon" aria-hidden="true">✨</span>
+        <div>
+          <small>Renascimento</small>
+          <strong id="prestige-title">Sem Prestígio</strong>
+        </div>
+      </div>
+
+      <div class="journey-hud-card journey-hud-essence">
+        <span class="journey-hud-icon" aria-hidden="true">🔮</span>
+        <div>
+          <small>Essências</small>
+          <strong id="prestige-points">0</strong>
+        </div>
+      </div>
+    </section>
+
+    <section id="prestige-rush-banner" class="prestige-rush-banner" hidden aria-live="polite">
+      <div class="prestige-rush-emblem" aria-hidden="true">👑</div>
+      <div class="prestige-rush-copy">
+        <span class="prestige-rush-kicker">Retorno acelerado</span>
+        <strong id="prestige-rush-title">Marcha dos Bosses</strong>
+        <p id="prestige-rush-text">Derrote a sequência para retornar ao seu recorde.</p>
+        <div class="prestige-rush-track" aria-hidden="true">
+          <div id="prestige-rush-progress" class="prestige-rush-progress"></div>
+        </div>
+      </div>
+      <div class="prestige-rush-counter">
+        <small>Bosses restantes</small>
+        <strong id="prestige-rush-count">0 / 0</strong>
+        <span id="prestige-rush-target">Destino: Andar 1</span>
       </div>
     </section>
 
@@ -73,6 +118,7 @@
         </div>
 
         <div class="stat-cards" id="player-stats"></div>
+        <div id="active-buffs-panel" class="active-buffs-panel" hidden aria-live="polite"></div>
         <div id="hero-automation" class="hero-automation"></div>
       </article>
 
@@ -116,15 +162,30 @@
       <article class="card shop-card">
         <div class="card-title">
           <div>
-            <h3>Loja</h3>
+            <h3 id="shop-title">Loja</h3>
             <p class="card-subtitle" id="shop-status">Nenhuma loja</p>
           </div>
           <span class="coin-balance shop-coin-balance"><img class="coin-icon" src="assets/itens/moeda.png" alt="Moeda" loading="lazy" decoding="async" onerror="this.hidden=true;" /> <strong id="coin-display">0</strong></span>
         </div>
 
+        <div id="shop-merchant-visual" class="shop-merchant-visual" hidden aria-live="polite"></div>
         <p id="shop-message" class="shop-message">Derrote monstros para encontrar uma loja aleatória.</p>
         <div id="shop-items" class="shop-items">
           <div class="empty-state">Nenhuma loja aberta no momento.</div>
+        </div>
+
+        <div id="shop-stay-controls" class="shop-stay-controls" hidden aria-live="polite">
+          <div class="shop-stay-copy">
+            <span class="shop-stay-clock" aria-hidden="true">⏳</span>
+            <div class="shop-stay-details">
+              <small>TEMPO PARA DECIDIR</small>
+              <strong id="shop-stay-text">20 batalhas restantes</strong>
+              <div class="shop-stay-track" aria-hidden="true">
+                <div id="shop-stay-progress" class="shop-stay-progress"></div>
+              </div>
+            </div>
+          </div>
+          <button id="leave-shop-button" type="button" class="leave-shop-button">🚪 Sair da loja</button>
         </div>
       </article>
 
@@ -183,49 +244,108 @@
         <div id="gear-modal-list" class="modal-list"></div>
       </div>
     </div>
-    <div id="prestige-modal" class="modal-backdrop" hidden>
-      <div class="modal-card prestige-modal-card">
-        <div class="modal-header">
-          <div>
-            <span class="eyebrow">Renascimento</span>
-            <h2>Prestígio</h2>
-            <p>Volte ao andar 1 e transforme sua jornada atual em bônus permanentes.</p>
-          </div>
-
-          <button id="close-prestige-modal-button" type="button" class="mini-button">Fechar</button>
-        </div>
-
-        <div id="prestige-summary" class="prestige-summary"></div>
-
-        <div class="relic-section">
-          <div class="modal-header small-header">
+    <div id="prestige-modal" class="modal-backdrop prestige-backdrop" hidden>
+      <div class="modal-card prestige-modal-card" role="dialog" aria-modal="true" aria-labelledby="prestige-modal-title">
+        <section id="prestige-main-view" class="prestige-main-view">
+          <div class="prestige-hero-header">
             <div>
-              <h3>Relíquias Permanentes</h3>
-              <p>Gaste essências de prestígio para melhorar características específicas.</p>
+              <span class="eyebrow">Renascimento</span>
+              <h2 id="prestige-modal-title">Central de Prestígio</h2>
+              <p>Confira o que será reiniciado, veja suas recompensas e fortaleça suas relíquias antes de renascer.</p>
+            </div>
+
+            <div class="prestige-header-actions">
+              <div class="prestige-balance" aria-label="Saldo de essências">
+                <span>Essências disponíveis</span>
+                <strong>🔮 <span id="prestige-modal-balance">0</span></strong>
+              </div>
+              <button id="close-prestige-modal-button" type="button" class="mini-button">Fechar</button>
             </div>
           </div>
 
-          <div id="relic-list" class="relic-list"></div>
-        </div>
+          <div id="prestige-summary" class="prestige-summary"></div>
 
-        <div class="modal-actions">
-          <button id="confirm-prestige-button" type="button" class="prestige-button">
-            Confirmar Prestígio
-          </button>
-        </div>
-      </div>
-    </div>
-    <div id="offline-modal" class="modal-backdrop" hidden>
-      <div class="modal-card offline-modal-card">
-        <div class="modal-header">
-          <div>
-            <span class="eyebrow">Progresso Offline</span>
-            <h2>Enquanto você estava fora...</h2>
-            <p>Seu herói continuou avançando pela masmorra sem risco de morrer.</p>
+          <div class="relic-section prestige-relic-section">
+            <div class="prestige-section-heading">
+              <div>
+                <span class="prestige-section-kicker">Aprimoramentos permanentes</span>
+                <h3>Relíquias</h3>
+                <p>Use suas essências agora ou guarde para o próximo renascimento.</p>
+              </div>
+
+              <div class="prestige-spend-balance">
+                <span>Seu saldo</span>
+                <strong>🔮 <span id="prestige-relic-balance">0</span></strong>
+              </div>
+            </div>
+
+            <div id="relic-list" class="relic-list"></div>
           </div>
 
-          <button id="close-offline-modal-button" type="button" class="mini-button">
-            Continuar
+          <div class="prestige-primary-actions">
+            <div class="prestige-action-note">
+              <strong>Pronto para renascer?</strong>
+              <span>O próximo passo abrirá uma confirmação de segurança.</span>
+            </div>
+            <button id="prestige-review-button" type="button" class="prestige-button prestige-glow-button">
+              ✨ Prestígio
+            </button>
+          </div>
+        </section>
+
+        <section id="prestige-confirmation-view" class="prestige-confirmation-view" hidden>
+          <div class="prestige-danger-aura" aria-hidden="true"></div>
+
+          <div class="prestige-confirmation-icon" aria-hidden="true">⚠</div>
+          <span class="prestige-danger-kicker">Decisão irreversível</span>
+          <h2>Tem certeza que deseja realizar o prestígio?</h2>
+          <p class="prestige-confirmation-lead">
+            Sua jornada atual será encerrada e o herói voltará ao início. Seus bônus permanentes e essências serão preservados.
+          </p>
+
+          <div id="prestige-confirmation-summary" class="prestige-confirmation-summary"></div>
+
+          <div class="prestige-countdown-panel" aria-live="polite">
+            <div class="prestige-countdown-copy">
+              <span>Confirmação de segurança</span>
+              <strong id="prestige-countdown-text">Aguarde 5 segundos</strong>
+            </div>
+            <div class="prestige-countdown-track" aria-hidden="true">
+              <div id="prestige-countdown-bar" class="prestige-countdown-bar"></div>
+            </div>
+          </div>
+
+          <div class="prestige-confirmation-actions">
+            <button id="cancel-prestige-confirmation-button" type="button" class="mini-button prestige-cancel-button">
+              Voltar
+            </button>
+            <button id="confirm-prestige-button" type="button" class="prestige-final-button" disabled>
+              Confirmar em 5s
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <div id="offline-modal" class="modal-backdrop offline-backdrop" hidden>
+      <div
+        class="modal-card offline-modal-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="offline-modal-title"
+      >
+        <div class="offline-modal-header">
+          <div class="offline-heading-group">
+            <div class="offline-moon-mark" aria-hidden="true">🌙</div>
+            <div>
+              <span class="offline-eyebrow">Relatório de retorno</span>
+              <h2 id="offline-modal-title">Enquanto você estava fora...</h2>
+              <p>Seu herói continuou avançando e reuniu estas recompensas.</p>
+            </div>
+          </div>
+
+          <button id="close-offline-modal-button" type="button" class="offline-continue-button">
+            Continuar aventura
           </button>
         </div>
 
