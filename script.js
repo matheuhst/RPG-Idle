@@ -79,6 +79,9 @@ const elements = {
   prestigeRushProgress: $('#prestige-rush-progress'),
   prestigeRushCount: $('#prestige-rush-count'),
   prestigeRushTarget: $('#prestige-rush-target'),
+  prestigeRushGear: $('#prestige-rush-gear'),
+  prestigeRushConsumables: $('#prestige-rush-consumables'),
+  prestigeRushCrates: $('#prestige-rush-crates'),
 };
 
 const saveKey = 'idle-rpg-dungeon-infinita-v2';
@@ -99,6 +102,9 @@ const gameConfig = {
   prestigeRushStageStep: 18,
   prestigeRushMinBosses: 8,
   prestigeRushMaxBosses: 45,
+  prestigeRushReturnRatio: 0.75,
+  prestigeRushMinimumGap: 20,
+  prestigeRushMilestoneEvery: 5,
 
   // Bosses usam apenas andar e bioma como referência de força.
   bossHitCap: 0.30,
@@ -145,8 +151,8 @@ const buffVisualCatalog = {
   },
   stone: {
     itemId: 'stonePotion',
-    name: 'Pedra',
-    icon: '🪨',
+    name: 'Resistência',
+    icon: '🛡️',
     affectedStat: 'defense',
     bonusLabel: '+25% Defesa',
     shortBonus: '+25%',
@@ -154,8 +160,8 @@ const buffVisualCatalog = {
   },
   wind: {
     itemId: 'windPotion',
-    name: 'Vento',
-    icon: '💨',
+    name: 'Ímpeto',
+    icon: '⚡',
     affectedStat: 'agility',
     bonusLabel: '+25% Agilidade',
     shortBonus: '+25%',
@@ -169,6 +175,15 @@ const buffVisualCatalog = {
     bonusLabel: '+30% Magia',
     shortBonus: '+30%',
     color: '#b38cff',
+  },
+  fortune: {
+    itemId: 'fortuneIncense',
+    name: 'Fortuna Dourada',
+    icon: '🪙',
+    affectedStat: 'coins',
+    bonusLabel: '+40% moedas • +80% em bosses',
+    shortBonus: '+40%',
+    color: '#ffd86b',
   },
 };
 
@@ -577,6 +592,42 @@ function getForgeOfferCost(weapon, category) {
   const multipliers = { technique: 0.92, biome: 1.08, experiment: 1.18 };
   const base = Math.max(120, getGearUpgradeCost(weapon));
   return Math.max(100, Math.round(base * (multipliers[category] || 1)));
+}
+
+function getForgeMinimumRequiredCoins(type) {
+  if (!isSpecialShop(type)) return 0;
+
+  const slot = getForgeSmithSlot(type);
+  const weapon = gameState.equipment?.[slot];
+  if (!weapon) return Number.POSITIVE_INFINITY;
+
+  // A técnica é sempre a opção mais barata da visita.
+  // O ferreiro só entra no sorteio quando pelo menos uma escolha puder ser comprada.
+  return getForgeOfferCost(weapon, 'technique');
+}
+
+function canAffordForgeMerchant(type) {
+  const minimumCost = getForgeMinimumRequiredCoins(type);
+  return Number.isFinite(minimumCost)
+    && (Number(gameState.player?.coins) || 0) >= minimumCost;
+}
+
+function hasAffordableForgeOffer(items = gameState.shop?.items) {
+  return Array.isArray(items)
+    && items.some((offer) => offer?.type === 'forgeOffer'
+      && (Number(gameState.player?.coins) || 0) >= (Number(offer.cost) || 0));
+}
+
+function closeLoadedUnaffordableForgeShop() {
+  if (!gameState.shop?.active || !isSpecialShop(gameState.shop.type)) return;
+  if (hasAffordableForgeOffer()) return;
+
+  const required = getForgeMinimumRequiredCoins(gameState.shop.type);
+  const requiredText = Number.isFinite(required)
+    ? formatMoney(required)
+    : 'mais moedas';
+
+  closeShop(`O ferreiro adiou a visita. Ele voltará quando você tiver ao menos ${requiredText} para uma melhoria.`);
 }
 
 function buildForgeOffer(template, weapon, shopType, category) {
@@ -1194,11 +1245,11 @@ const shopCatalog = [
   },
   {
     id: 'stonePotion',
-    name: 'Poção de Pedra',
-    shopName: 'Pedra',
+    name: 'Poção da Resistência',
+    shopName: 'Resistência',
     description: '+25% defesa por 5 lutas.',
-    image: `${itemImageBasePath}pocaoPedra.png`,
-    icon: '🪨',
+    image: `${itemImageBasePath}pocaoResistencia.png`,
+    icon: '🛡️',
     cost: 190,
     type: 'buff',
     buff: 'stone',
@@ -1206,11 +1257,11 @@ const shopCatalog = [
   },
   {
     id: 'windPotion',
-    name: 'Poção do Vento',
-    shopName: 'Vento',
+    name: 'Poção do Ímpeto',
+    shopName: 'Ímpeto',
     description: '+25% agilidade por 5 lutas.',
-    image: `${itemImageBasePath}pocaoVento.png`,
-    icon: '💨',
+    image: `${itemImageBasePath}pocaoImpeto.png`,
+    icon: '⚡',
     cost: 195,
     type: 'buff',
     buff: 'wind',
@@ -1227,6 +1278,18 @@ const shopCatalog = [
     type: 'buff',
     buff: 'arcane',
     duration: 5,
+  },
+  {
+    id: 'fortuneIncense',
+    name: 'Incenso da Fortuna',
+    shopName: 'Fortuna',
+    description: '+40% moedas por 8 lutas. Contra bosses, o bônus sobe para +80%.',
+    image: `${itemImageBasePath}incensoFortuna.png`,
+    icon: '🪙',
+    cost: 185,
+    type: 'buff',
+    buff: 'fortune',
+    duration: 8,
   },
   {
     id: 'arcaneBomb',
@@ -1568,6 +1631,7 @@ const initialState = {
       stone: 0,
       wind: 0,
       arcane: 0,
+      fortune: 0,
     },
   },
   prestige: {
@@ -1642,12 +1706,18 @@ const initialState = {
     spell: null,
   },
   prestigeRush: {
+    version: 2,
     active: false,
+    recordStage: 1,
     targetStage: 1,
     totalBosses: 0,
     bossesRemaining: 0,
     bossesDefeated: 0,
     startStage: 1,
+    starterKitGranted: false,
+    gearRewards: 0,
+    consumableRewards: 0,
+    milestoneCrates: 0,
   },
   autoAttack: false,
   autoInterval: null,
@@ -1966,8 +2036,38 @@ function getXpReward(amount) {
   return Math.max(1, Math.floor(amount * getTotalXpMultiplier()));
 }
 
-function getCoinReward(amount) {
-  return Math.max(0, Math.floor(amount * getTotalCoinMultiplier()));
+function getFortuneCoinBonus(monster = null) {
+  if ((Number(gameState.player?.buffs?.fortune) || 0) <= 0) return 0;
+  if (!monster) return 0;
+  return monster.isBoss ? 0.80 : 0.40;
+}
+
+function getFortuneCoinBonusPercent(monster = null) {
+  return Math.round(getFortuneCoinBonus(monster) * 100);
+}
+
+function getCoinReward(amount, monster = null) {
+  const totalMultiplier = getTotalCoinMultiplier() * (1 + getFortuneCoinBonus(monster));
+  return Math.max(0, Math.floor(amount * totalMultiplier));
+}
+
+function getDisplayedMonsterCoinReward(monster = gameState.monster) {
+  if (!monster) return 0;
+  return getCoinReward(monster.coinReward || 0, monster);
+}
+
+function renderMonsterCoinReward(monster = gameState.monster) {
+  const reward = getDisplayedMonsterCoinReward(monster);
+  const fortunePercent = getFortuneCoinBonusPercent(monster);
+
+  if (fortunePercent > 0) {
+    return `
+      <span class="monster-coin-reward is-fortune">+ ${formatCompactNumber(reward)}</span>
+      <small class="monster-coin-reward-bonus">Incenso da Fortuna: +${fortunePercent}% moedas</small>
+    `;
+  }
+
+  return `<span class="monster-coin-reward">+ ${formatCompactNumber(reward)}</span>`;
 }
 
 function getNextLevelXpForLevel(level) {
@@ -2056,24 +2156,24 @@ function advanceStage(amount = 1) {
   return player.stage > previousStage;
 }
 
-function ensurePrestigeRushState() {
-  gameState.prestigeRush = {
-    ...structuredCloneSafe(initialState.prestigeRush),
-    ...(gameState.prestigeRush || {}),
-  };
+function calculatePrestigeRushTarget(recordStage) {
+  const record = Math.max(1, Math.floor(Number(recordStage) || 1));
+  if (record <= 2) return 1;
 
-  const rush = gameState.prestigeRush;
-  rush.targetStage = Math.max(1, Number(rush.targetStage) || 1);
-  rush.totalBosses = Math.max(0, Number(rush.totalBosses) || 0);
-  rush.bossesRemaining = clamp(Number(rush.bossesRemaining) || 0, 0, rush.totalBosses || 0);
-  rush.bossesDefeated = clamp(Number(rush.bossesDefeated) || 0, 0, rush.totalBosses || 0);
-  rush.active = Boolean(rush.active && rush.bossesRemaining > 0 && gameState.player.stage < rush.targetStage);
+  const ratio = clamp(Number(gameConfig.prestigeRushReturnRatio) || 0.75, 0.55, 0.90);
+  const roundTo = record >= 100 ? 10 : 5;
+  const rawTarget = Math.floor((record * ratio) / roundTo) * roundTo;
+  const minimumGap = Math.min(
+    Math.max(5, Math.floor(record * 0.10)),
+    Math.max(5, Number(gameConfig.prestigeRushMinimumGap) || 20)
+  );
+  const maximumTarget = Math.max(1, record - minimumGap);
 
-  return rush;
+  return clamp(Math.max(1, rawTarget), 1, maximumTarget);
 }
 
-function calculatePrestigeRushBossCount(targetStage) {
-  const distance = Math.max(0, Number(targetStage) - 1);
+function calculatePrestigeRushBossCount(targetStage, startStage = 1) {
+  const distance = Math.max(0, Number(targetStage) - Number(startStage || 1));
   if (distance <= 0) return 0;
 
   return clamp(
@@ -2083,17 +2183,284 @@ function calculatePrestigeRushBossCount(targetStage) {
   );
 }
 
-function startPrestigeBossRush(targetStage = gameState.prestige.highestStage || 1) {
-  const safeTarget = Math.max(1, Math.floor(Number(targetStage) || 1));
-  const totalBosses = calculatePrestigeRushBossCount(safeTarget);
+function addPrestigeRushGear(item) {
+  if (!item) return false;
+
+  gameState.inventory.gear.unshift(item);
+  const current = gameState.equipment[item.slot];
+
+  if (!current || getGearScore(item) > getGearScore(current)) {
+    gameState.equipment[item.slot] = item;
+  }
+
+  return true;
+}
+
+function getPrestigeRushRewardSlot() {
+  const slots = Object.keys(gearSlots);
+  const missing = slots.find((slot) => !gameState.equipment?.[slot]);
+  if (missing) return missing;
+
+  return slots
+    .slice()
+    .sort((a, b) => {
+      const itemA = gameState.equipment?.[a];
+      const itemB = gameState.equipment?.[b];
+      const levelA = Number(itemA?.level) || 0;
+      const levelB = Number(itemB?.level) || 0;
+      if (levelA !== levelB) return levelA - levelB;
+      return getGearScore(itemA) - getGearScore(itemB);
+    })[0] || 'physicalWeapon';
+}
+
+function createPrestigeRushGear(slot, rarityId = 'rare', levelReference = gameState.player.stage) {
+  const targetLevel = Math.max(
+    6,
+    Number(levelReference) || 1,
+    Math.round((gameState.player.stage || 1) * 0.92)
+  );
+
+  return createGear(targetLevel, true, { slot, rarityId });
+}
+
+function grantPrestigeRushStarterKit(targetStage, { silent = false } = {}) {
+  const rush = gameState.prestigeRush || {};
+  if (rush.starterKitGranted) return { gear: 0, consumables: 0 };
+
+  const kitLevel = Math.max(8, Math.round((Number(targetStage) || 1) * 0.18));
+  const importantSlots = new Set(['physicalWeapon', 'magicWeapon', 'chest']);
+  let gearCount = 0;
+
+  Object.keys(gearSlots).forEach((slot) => {
+    const rarityId = importantSlots.has(slot) ? 'rare' : 'uncommon';
+    const item = createPrestigeRushGear(slot, rarityId, kitLevel);
+    if (addPrestigeRushGear(item)) gearCount += 1;
+  });
+
+  const supplies = {
+    potion: 6,
+    superPotion: 3,
+    elixir: 1,
+    furyPotion: 1,
+    stonePotion: 1,
+    windPotion: 1,
+    arcanePotion: 1,
+    fortuneIncense: 1,
+    arcaneBomb: 2,
+  };
+
+  let consumableCount = 0;
+  Object.entries(supplies).forEach(([itemId, quantity]) => {
+    if (!shopCatalog.some((item) => item.id === itemId)) return;
+    addConsumable(itemId, quantity);
+    consumableCount += quantity;
+  });
+
+  rush.starterKitGranted = true;
+  rush.gearRewards = (Number(rush.gearRewards) || 0) + gearCount;
+  rush.consumableRewards = (Number(rush.consumableRewards) || 0) + consumableCount;
+  normalizePlayerHp();
+
+  if (!silent) {
+    showAchievementNotice({
+      title: 'Kit de Retorno recebido',
+      subtitle: `Preparação para o Andar ${formatCompactNumber(targetStage)}`,
+      message: `${gearCount} equipamentos preencheram seus slots e ${consumableCount} consumíveis foram enviados ao inventário.`,
+      type: 'rush',
+    });
+
+    log(
+      `Kit de Retorno: ${gearCount} equipamentos e ${consumableCount} consumíveis recebidos antes da Marcha dos Bosses.`,
+      'system-important',
+      true
+    );
+  }
+
+  return { gear: gearCount, consumables: consumableCount };
+}
+
+function grantPrestigeRushBossRewards(monster, { silent = false, orderOverride = null } = {}) {
+  if (!monster?.prestigeRushBoss) return { gear: 0, consumables: 0, crate: 0 };
+
+  const rush = ensurePrestigeRushState();
+  const order = Math.max(1, Number(orderOverride) || Number(rush.bossesDefeated) || 1);
+  const milestoneEvery = Math.max(2, Number(gameConfig.prestigeRushMilestoneEvery) || 5);
+  const isMilestone = order % milestoneEvery === 0;
+  const buffCycle = ['furyPotion', 'stonePotion', 'windPotion', 'arcanePotion', 'fortuneIncense'];
+  let consumableCount = 0;
+  let gearCount = 0;
+
+  const addSupply = (itemId, quantity) => {
+    if (!quantity || !shopCatalog.some((item) => item.id === itemId)) return;
+    addConsumable(itemId, quantity);
+    consumableCount += quantity;
+  };
+
+  addSupply('potion', 2);
+  if (order % 2 === 0) addSupply('superPotion', 1);
+  if (order % 3 === 0) addSupply(buffCycle[(Math.floor(order / 3) - 1) % buffCycle.length], 1);
+
+  const hasMissingSlot = Object.keys(gearSlots).some((slot) => !gameState.equipment?.[slot]);
+  if (hasMissingSlot || order % 3 === 0 || isMilestone) {
+    const slot = getPrestigeRushRewardSlot();
+    const rarityId = order % 10 === 0 ? 'epic' : isMilestone ? 'rare' : 'uncommon';
+    const gear = createPrestigeRushGear(slot, rarityId, Math.max(monster.level || 1, gameState.player.stage));
+    if (addPrestigeRushGear(gear)) gearCount += 1;
+  }
+
+  if (isMilestone) {
+    addSupply('elixir', 1);
+    addSupply('fortuneIncense', 1);
+    addSupply('superPotion', 1);
+    rush.milestoneCrates = (Number(rush.milestoneCrates) || 0) + 1;
+  }
+
+  rush.gearRewards = (Number(rush.gearRewards) || 0) + gearCount;
+  rush.consumableRewards = (Number(rush.consumableRewards) || 0) + consumableCount;
+  normalizePlayerHp();
+
+  if (!silent) {
+    const parts = [];
+    if (gearCount) parts.push(`${gearCount} equipamento direcionado`);
+    if (consumableCount) parts.push(`${consumableCount} consumível(is)`);
+
+    log(
+      `Suprimentos da Marcha — Boss ${order}/${rush.totalBosses}: ${parts.join(' e ') || 'recompensa registrada'}.`,
+      isMilestone ? 'system-important' : 'reward',
+      isMilestone
+    );
+
+    if (isMilestone) {
+      showAchievementNotice({
+        title: 'Baú de Suprimentos',
+        subtitle: `Marco ${order}/${rush.totalBosses}`,
+        message: `Você recebeu ${gearCount} equipamento e ${consumableCount} consumíveis para continuar a marcha.`,
+        type: 'rush',
+      });
+    }
+  }
+
+  return { gear: gearCount, consumables: consumableCount, crate: isMilestone ? 1 : 0 };
+}
+
+function grantPrestigeRushCompletionCache({ silent = false } = {}) {
+  const rush = gameState.prestigeRush || {};
+  const supplies = {
+    superPotion: 3,
+    elixir: 2,
+    furyPotion: 1,
+    stonePotion: 1,
+    windPotion: 1,
+    arcanePotion: 1,
+    fortuneIncense: 2,
+    arcaneBomb: 2,
+  };
+  let consumableCount = 0;
+  let gearCount = 0;
+
+  Object.entries(supplies).forEach(([itemId, quantity]) => {
+    if (!shopCatalog.some((item) => item.id === itemId)) return;
+    addConsumable(itemId, quantity);
+    consumableCount += quantity;
+  });
+
+  for (let index = 0; index < 2; index += 1) {
+    const slot = getPrestigeRushRewardSlot();
+    const gear = createPrestigeRushGear(slot, 'epic', gameState.player.stage + 8 + index * 2);
+    if (addPrestigeRushGear(gear)) gearCount += 1;
+  }
+
+  rush.gearRewards = (Number(rush.gearRewards) || 0) + gearCount;
+  rush.consumableRewards = (Number(rush.consumableRewards) || 0) + consumableCount;
+  rush.milestoneCrates = (Number(rush.milestoneCrates) || 0) + 1;
+  normalizePlayerHp();
+
+  if (!silent) {
+    showAchievementNotice({
+      title: 'Marcha concluída',
+      subtitle: `Ponto de retorno: Andar ${formatCompactNumber(gameState.player.stage)}`,
+      message: `Baú final: ${gearCount} equipamentos épicos e ${consumableCount} consumíveis. Seu antigo recorde continua no Andar ${formatCompactNumber(rush.recordStage || gameState.prestige.highestStage)}.`,
+      type: 'rush',
+    });
+  }
+
+  return { gear: gearCount, consumables: consumableCount };
+}
+
+function ensurePrestigeRushState() {
+  const savedRushState = gameState.prestigeRush || {};
+  const previousVersion = Math.max(1, Number(savedRushState.version) || 1);
 
   gameState.prestigeRush = {
+    ...structuredCloneSafe(initialState.prestigeRush),
+    ...savedRushState,
+  };
+
+  const rush = gameState.prestigeRush;
+  rush.recordStage = Math.max(
+    1,
+    Number(rush.recordStage) || 1,
+    Number(gameState.prestige?.highestStage) || 1,
+    Number(rush.targetStage) || 1
+  );
+
+  if (previousVersion < 2) {
+    const oldTarget = Math.max(1, Number(rush.targetStage) || rush.recordStage);
+    const balancedTarget = calculatePrestigeRushTarget(rush.recordStage);
+    const oldExactReturn = oldTarget >= Math.floor(rush.recordStage * 0.95);
+
+    if (oldExactReturn) {
+      rush.targetStage = balancedTarget;
+
+      if (gameState.player.stage >= balancedTarget) {
+        gameState.player.stage = balancedTarget;
+        rush.active = false;
+        rush.bossesRemaining = 0;
+      } else if (rush.active) {
+        const remaining = calculatePrestigeRushBossCount(balancedTarget, gameState.player.stage);
+        rush.totalBosses = Math.max(Number(rush.bossesDefeated) || 0, 0) + remaining;
+        rush.bossesRemaining = remaining;
+      }
+
+      const equippedCount = Object.values(gameState.equipment || {}).filter(Boolean).length;
+      if (equippedCount < 5 && (rush.totalBosses > 0 || gameState.player.stage >= balancedTarget)) {
+        grantPrestigeRushStarterKit(balancedTarget, { silent: true });
+      }
+    }
+
+    rush.version = 2;
+  }
+
+  rush.targetStage = Math.max(1, Number(rush.targetStage) || calculatePrestigeRushTarget(rush.recordStage));
+  rush.totalBosses = Math.max(0, Number(rush.totalBosses) || 0);
+  rush.bossesRemaining = clamp(Number(rush.bossesRemaining) || 0, 0, rush.totalBosses || 0);
+  rush.bossesDefeated = clamp(Number(rush.bossesDefeated) || 0, 0, rush.totalBosses || 0);
+  rush.gearRewards = Math.max(0, Number(rush.gearRewards) || 0);
+  rush.consumableRewards = Math.max(0, Number(rush.consumableRewards) || 0);
+  rush.milestoneCrates = Math.max(0, Number(rush.milestoneCrates) || 0);
+  rush.active = Boolean(rush.active && rush.bossesRemaining > 0 && gameState.player.stage < rush.targetStage);
+
+  return rush;
+}
+
+function startPrestigeBossRush(recordStage = gameState.prestige.highestStage || 1) {
+  const safeRecord = Math.max(1, Math.floor(Number(recordStage) || 1));
+  const safeTarget = calculatePrestigeRushTarget(safeRecord);
+  const totalBosses = calculatePrestigeRushBossCount(safeTarget, gameState.player.stage);
+
+  gameState.prestigeRush = {
+    version: 2,
     active: totalBosses > 0 && safeTarget > gameState.player.stage,
+    recordStage: safeRecord,
     targetStage: safeTarget,
     totalBosses,
     bossesRemaining: totalBosses,
     bossesDefeated: 0,
     startStage: gameState.player.stage,
+    starterKitGranted: false,
+    gearRewards: 0,
+    consumableRewards: 0,
+    milestoneCrates: 0,
   };
 
   return gameState.prestigeRush;
@@ -2129,7 +2496,7 @@ function resolvePrestigeRushBossVictory(monster) {
     gameState.player.monstersSinceBoss = 0;
 
     log(
-      `Marcha concluída! Você retornou ao Andar ${gameState.player.stage}. Os encontros normais voltaram a aparecer.`,
+      `Marcha concluída! Você alcançou o ponto de retorno no Andar ${gameState.player.stage}. O antigo recorde permanece no Andar ${rush.recordStage}; agora os encontros normais voltaram.`,
       'system-important',
       true
     );
@@ -2137,7 +2504,7 @@ function resolvePrestigeRushBossVictory(monster) {
   }
 
   log(
-    `Marcha dos Bosses: ${rush.bossesDefeated}/${rush.totalBosses} vencidos. Próximo salto rumo ao Andar ${rush.targetStage}.`,
+    `Marcha dos Bosses: ${rush.bossesDefeated}/${rush.totalBosses} vencidos. Próximo salto rumo ao ponto de retorno no Andar ${rush.targetStage}.`,
     'boss',
     true
   );
@@ -3036,6 +3403,10 @@ function getShopItemPool() {
     allowedIds.push('arcaneBomb');
   }
 
+  if (stage >= 18 || prestige >= 1) {
+    allowedIds.push('fortuneIncense');
+  }
+
   if (stage >= 25 || prestige >= 1) {
     allowedIds.push('elixir');
   }
@@ -3063,6 +3434,7 @@ function getShopItemWeight(item) {
     stonePotion: 8,
     windPotion: 8,
     arcanePotion: 8,
+    fortuneIncense: 5,
     arcaneBomb: 5,
     bossScroll: 1,
   };
@@ -3080,6 +3452,7 @@ function getShopItemCostMultiplier(item) {
     stonePotion: 0.9,
     windPotion: 0.9,
     arcanePotion: 0.95,
+    fortuneIncense: 1.08,
     arcaneBomb: 1.05,
     bossScroll: 2.4,
   };
@@ -3242,12 +3615,12 @@ function tickShopDurationAfterBattle() {
 }
 
 function rollMerchantType(force = false) {
-  const hasPhysical = Boolean(gameState.equipment?.physicalWeapon);
-  const hasMagic = Boolean(gameState.equipment?.magicWeapon);
+  const physicalSmithAvailable = canAffordForgeMerchant('blacksmith');
+  const arcaneSmithAvailable = canAffordForgeMerchant('arcaneSmith');
   const choices = [
     { type: 'consumables', weight: force ? 45 : 58 },
-    ...(hasPhysical ? [{ type: 'blacksmith', weight: force ? 35 : 27 }] : []),
-    ...(hasMagic ? [{ type: 'arcaneSmith', weight: force ? 20 : 15 }] : []),
+    ...(physicalSmithAvailable ? [{ type: 'blacksmith', weight: force ? 35 : 27 }] : []),
+    ...(arcaneSmithAvailable ? [{ type: 'arcaneSmith', weight: force ? 20 : 15 }] : []),
   ];
   const total = choices.reduce((sum, entry) => sum + entry.weight, 0);
   let roll = Math.random() * total;
@@ -3289,8 +3662,10 @@ function maybeOpenShop(force = false) {
 
   const type = rollMerchantType(force);
   const items = type === 'consumables' ? createShopItems() : createForgeOffers(type);
+  const specialShopIsUseful = !isSpecialShop(type)
+    || items.some((offer) => (Number(gameState.player?.coins) || 0) >= (Number(offer.cost) || 0));
 
-  if (!items.length) {
+  if (!items.length || !specialShopIsUseful) {
     gameState.shop.type = 'consumables';
     gameState.shop.items = createShopItems();
   } else {
@@ -4371,12 +4746,17 @@ async function applyHeroSupportConsumableNow(itemId, source = 'manual') {
         gameState.player.buffs[item.buff] || 0,
         item.duration || 3
       );
+      updateStats();
     });
 
     log(
-      source === 'auto'
-        ? `Automação: ${item.name} usada por ${item.duration || 5} lutas.`
-        : `${item.name} ativada por ${item.duration || 3} lutas.`,
+      item.buff === 'fortune'
+        ? (source === 'auto'
+            ? `Automação: ${item.name} ativado por ${item.duration || 8} lutas. Ganho de moedas aumentado em +40% e em bosses +80%.`
+            : `${item.name} ativado por ${item.duration || 8} lutas. Ganho de moedas aumentado em +40% e em bosses +80%.`)
+        : (source === 'auto'
+            ? `Automação: ${item.name} usada por ${item.duration || 5} lutas.`
+            : `${item.name} ativada por ${item.duration || 3} lutas.`),
       'shop',
       true
     );
@@ -4465,6 +4845,7 @@ function getConsumableVisualColor(item) {
     stonePotion: 'rgba(180, 170, 150, 0.96)',
     windPotion: 'rgba(110, 225, 255, 0.96)',
     arcanePotion: 'rgba(155, 119, 255, 0.98)',
+    fortuneIncense: 'rgba(255, 216, 107, 0.98)',
     arcaneBomb: 'rgba(255, 93, 103, 0.98)',
   };
 
@@ -5179,8 +5560,9 @@ function loadGame() {
       ...initialState.player.recoveryGrace,
       ...(gameState.player.recoveryGrace || {}),
     };
-    gameState.player.buffs ??= { fury: 0, stone: 0, wind: 0, arcane: 0 };
+    gameState.player.buffs ??= { fury: 0, stone: 0, wind: 0, arcane: 0, fortune: 0 };
     gameState.player.buffs.arcane ??= 0;
+    gameState.player.buffs.fortune ??= 0;
 
     gameState.prestige = structuredCloneSafe(initialState.prestige);
 
@@ -5210,11 +5592,53 @@ function loadGame() {
       ...(saved.mythicRift || {}),
     };
     gameState.inventory = saved.inventory || structuredCloneSafe(initialState.inventory);
+
+    // Compatibilidade com a tentativa de renomear também os IDs internos.
+    // Os nomes visíveis mudaram, mas stonePotion/windPotion e stone/wind
+    // precisam continuar estáveis para loja, drops, automação e saves antigos.
+    gameState.player.buffs.stone = Math.max(
+      Number(gameState.player.buffs.stone) || 0,
+      Number(gameState.player.buffs.resistance) || 0
+    );
+    gameState.player.buffs.wind = Math.max(
+      Number(gameState.player.buffs.wind) || 0,
+      Number(gameState.player.buffs.haste) || 0
+    );
+    delete gameState.player.buffs.resistance;
+    delete gameState.player.buffs.haste;
+
+    const renamedPotionIds = {
+      resistancePotion: 'stonePotion',
+      hastePotion: 'windPotion',
+    };
+
+    const normalizedConsumables = [];
+    (gameState.inventory.items || []).forEach((entry) => {
+      const normalizedId = renamedPotionIds[entry?.id] || entry?.id;
+      const existing = normalizedConsumables.find((item) => item.id === normalizedId);
+
+      if (existing) {
+        existing.quantity += Math.max(0, Number(entry?.quantity) || 0);
+      } else if (normalizedId) {
+        normalizedConsumables.push({
+          ...entry,
+          id: normalizedId,
+          quantity: Math.max(0, Number(entry?.quantity) || 0),
+        });
+      }
+    });
+    gameState.inventory.items = normalizedConsumables;
+
+    (gameState.shop.items || []).forEach((item) => {
+      if (renamedPotionIds[item?.id]) item.id = renamedPotionIds[item.id];
+      if (item?.buff === 'resistance') item.buff = 'stone';
+      if (item?.buff === 'haste') item.buff = 'wind';
+    });
+
     gameState.prestigeRush = {
       ...structuredCloneSafe(initialState.prestigeRush),
       ...(saved.prestigeRush || {}),
     };
-    ensurePrestigeRushState();
     ensureMonsterCombatRules(gameState.monster);
     const savedEquipment = saved.equipment || {};
     gameState.ui = {
@@ -5243,6 +5667,11 @@ function loadGame() {
       gameState.equipment.chest = savedEquipment.armor || null;
       gameState.equipment.ring = savedEquipment.ring || null;
     }
+
+    // A migração da Marcha precisa acontecer depois que os equipamentos do save
+    // forem restaurados, para o Kit de Retorno equipar os slots corretamente.
+    ensurePrestigeRushState();
+
     gameState.currentTurn = saved.currentTurn || 'player';
     gameState.activeInventoryTab = saved.activeInventoryTab || 'items';
     gameState.lastSaveAt = saved.lastSaveAt || Date.now();
@@ -5301,6 +5730,9 @@ function applyOfflineProgress(lastSaveAt) {
   gameState.player.bossesDefeated += report.bossesDefeated;
 
   const rush = ensurePrestigeRushState();
+  const rushWasActive = rush.active;
+  const rushBossesBefore = Number(rush.bossesDefeated) || 0;
+  let rushCompletedOffline = false;
   const stageBeforeOffline = gameState.player.stage;
   const maxOfflineStageGain = Math.max(0, getMaxStageForPlayer() - stageBeforeOffline);
   const actualStagesGained = Math.min(report.stagesGained, maxOfflineStageGain);
@@ -5316,6 +5748,7 @@ function applyOfflineProgress(lastSaveAt) {
       gameState.player.stage = Math.min(getMaxStageForPlayer(), rush.targetStage);
       rush.active = false;
       rush.bossesRemaining = 0;
+      rushCompletedOffline = true;
     }
   } else {
     gameState.player.monstersSinceBoss = report.monstersDefeated % getMandatoryBossTarget();
@@ -5338,6 +5771,30 @@ function applyOfflineProgress(lastSaveAt) {
 
   if (report.potionsFound > 0) {
     addConsumable('potion', report.potionsFound);
+  }
+
+  if (rushWasActive && report.bossesDefeated > 0) {
+    const finalOrder = rushBossesBefore + report.bossesDefeated;
+    addConsumable('potion', report.bossesDefeated * 2);
+    addConsumable('superPotion', Math.floor(report.bossesDefeated / 2));
+    addConsumable('elixir', Math.floor(report.bossesDefeated / 5));
+    addConsumable('fortuneIncense', Math.floor(report.bossesDefeated / 5));
+
+    const extraGearCount = Math.min(12, Math.max(1, report.bossesDefeated));
+    for (let index = 0; index < extraGearCount; index += 1) {
+      const slot = getPrestigeRushRewardSlot();
+      const order = rushBossesBefore + index + 1;
+      const rarityId = order % 10 === 0 ? 'epic' : order % 5 === 0 ? 'rare' : 'uncommon';
+      addPrestigeRushGear(createPrestigeRushGear(slot, rarityId, gameState.player.stage));
+    }
+
+    rush.gearRewards += extraGearCount;
+    rush.consumableRewards += report.bossesDefeated * 2 + Math.floor(report.bossesDefeated / 2) + Math.floor(report.bossesDefeated / 5) * 2;
+    rush.milestoneCrates += Math.floor(finalOrder / 5) - Math.floor(rushBossesBefore / 5);
+
+    if (rushCompletedOffline) {
+      grantPrestigeRushCompletionCache({ silent: true });
+    }
   }
 
   normalizePlayerHp();
@@ -6029,8 +6486,8 @@ function getAutoUseLabel(key) {
   const labels = {
     heal: 'Cura',
     fury: 'Fúria',
-    stone: 'Pedra',
-    wind: 'Vento',
+    stone: 'Resistência',
+    wind: 'Ímpeto',
     arcane: 'Magia',
   };
 
@@ -6497,7 +6954,7 @@ function renderMonsterStats() {
     { key: 'agility', icon: '⚡', label: 'Agilidade', numericValue: getEffectiveMonsterAgility(monster), reactionBonus: reactionBonuses.agility, bonusSuffix: '%' },
     ...(monster.isBoss ? [{ key: 'crit', icon: '🎯', label: 'Crítico', numericValue: getEffectiveMonsterCritChance(monster), suffix: '%', reactionBonus: reactionBonuses.crit, bonusSuffix: ' pts' }] : []),
     { key: 'xp', icon: '✨', label: 'XP', numericValue: monster.xpReward },
-    { key: 'coins', icon: coinIconHtml(), label: 'Recompensa', valueHtml: formatSignedMoney(monster.coinReward), title: `+${formatCompactNumber(monster.coinReward)}` },
+    { key: 'coins', icon: coinIconHtml(), label: 'Recompensa', valueHtml: renderMonsterCoinReward(monster), title: `+${formatCompactNumber(getDisplayedMonsterCoinReward(monster))}` },
     { key: 'family', icon: '👥', label: 'Família', value: monster.type },
   ];
 
@@ -6513,8 +6970,9 @@ function renderMonsterStats() {
     const displayValue = valueHtml || (isNumeric ? `${formatCompactNumber(numericValue)}${suffix}` : escapeAttr(value ?? '-'));
     const safeTitle = escapeAttr(title || displayValue || '-');
     const hasReactionBonus = monster.isBoss && Number(reactionBonus) > 0 && ['attack', 'defense', 'agility', 'crit'].includes(key);
+    const hasFortuneBonus = key === 'coins' && getFortuneCoinBonusPercent(monster) > 0;
 
-    card.className = `stat-card monster-stat-card monster-stat-${key}${hasReactionBonus ? ' has-reaction-bonus' : ''}`;
+    card.className = `stat-card monster-stat-card monster-stat-${key}${hasReactionBonus ? ' has-reaction-bonus' : ''}${hasFortuneBonus ? ' has-fortune-bonus' : ''}`;
     card.innerHTML = `
       <div class="monster-stat-main">
         <span class="stat-icon">${icon}</span>
@@ -7019,10 +7477,13 @@ function renderPrestigeRushStatus() {
   const nextJump = getPrestigeRushStageGain();
 
   elements.prestigeRushTitle.textContent = 'Marcha dos Bosses';
-  elements.prestigeRushText.textContent = `Somente bosses aparecerão. A próxima vitória avança cerca de ${nextJump} andar${nextJump === 1 ? '' : 'es'}.`;
+  elements.prestigeRushText.textContent = `Cada boss entrega suprimentos. A próxima vitória avança cerca de ${nextJump} andar${nextJump === 1 ? '' : 'es'} rumo a aproximadamente 75% do antigo recorde.`;
   elements.prestigeRushProgress.style.width = `${progress}%`;
   elements.prestigeRushCount.textContent = `${rush.bossesRemaining} / ${rush.totalBosses}`;
-  elements.prestigeRushTarget.textContent = `Destino: Andar ${rush.targetStage}`;
+  elements.prestigeRushTarget.textContent = `Retorno: Andar ${rush.targetStage} • Recorde: ${rush.recordStage}`;
+  if (elements.prestigeRushGear) elements.prestigeRushGear.textContent = formatCompactNumber(rush.gearRewards || 0);
+  if (elements.prestigeRushConsumables) elements.prestigeRushConsumables.textContent = formatCompactNumber(rush.consumableRewards || 0);
+  if (elements.prestigeRushCrates) elements.prestigeRushCrates.textContent = formatCompactNumber(rush.milestoneCrates || 0);
 }
 
 function updateTurnDisplay() {
@@ -7862,7 +8323,7 @@ async function winBattle(monster) {
   const xpRewardBase = monster.xpReward;
   const coinRewardBase = monster.coinReward;
   const xpGained = getXpReward(xpRewardBase);
-  const coinsGained = getCoinReward(coinRewardBase);
+  const coinsGained = getCoinReward(coinRewardBase, monster);
 
   player.coins += coinsGained;
   player.victories += 1;
@@ -7870,6 +8331,7 @@ async function winBattle(monster) {
   let triedToAdvanceStage = false;
   let didAdvanceStage = false;
   let stagesAdvanced = 0;
+  let prestigeRushCompleted = false;
 
   if (monster.isBoss) {
     player.bossesDefeated += 1;
@@ -7883,7 +8345,7 @@ async function winBattle(monster) {
     stagesAdvanced = Math.max(0, player.stage - stageBeforeBoss);
 
     if (monster.prestigeRushBoss) {
-      resolvePrestigeRushBossVictory(monster);
+      prestigeRushCompleted = resolvePrestigeRushBossVictory(monster);
     } else if (didAdvanceStage && stagesAdvanced > 0) {
       log(`O boss abriu o caminho para o Andar ${player.stage}.`, 'boss', true);
     }
@@ -7914,6 +8376,13 @@ async function winBattle(monster) {
     addGear(createGear(monster.level, monster.isBoss));
   }
 
+  if (monster.prestigeRushBoss) {
+    grantPrestigeRushBossRewards(monster);
+    if (prestigeRushCompleted) {
+      grantPrestigeRushCompletionCache();
+    }
+  }
+
   maybeAwardSpecialBossRewards(monster);
   if (!monster.prestigeRushBoss) {
     maybeSpawnMythicRiftAfterBoss(monster);
@@ -7934,7 +8403,7 @@ async function winBattle(monster) {
   if (gameState.monster.prestigeRushBoss) {
     const rush = ensurePrestigeRushState();
     log(
-      `Marcha dos Bosses: ${gameState.monster.name} bloqueia o caminho. ${rush.bossesRemaining} boss(es) até o Andar ${rush.targetStage}.`,
+      `Marcha dos Bosses: ${gameState.monster.name} bloqueia o caminho. ${rush.bossesRemaining} boss(es) até o ponto de retorno no Andar ${rush.targetStage}.`,
       'boss',
       true
     );
@@ -8475,9 +8944,9 @@ function renderPrestigeModal() {
     </section>
 
     <section class="prestige-reward-card">
-      <span class="prestige-summary-label">Novo começo</span>
-      <strong>+${formatCompactNumber(reward.skillPointsReward)}</strong>
-      <small>pontos de habilidade iniciais</small>
+      <span class="prestige-summary-label">Novo começo preparado</span>
+      <strong>+${formatCompactNumber(reward.skillPointsReward)} pontos</strong>
+      <small>Kit completo de equipamentos e consumíveis • retorno aproximado ao Andar ${formatCompactNumber(calculatePrestigeRushTarget(reward.stage))}</small>
     </section>
 
     <section class="prestige-run-card">
@@ -8705,7 +9174,7 @@ function confirmPrestige() {
 
 function resetRunAfterPrestige(startSkillPoints = 0) {
   const preservedPrestige = structuredCloneSafe(gameState.prestige);
-  const returnTarget = Math.max(1, preservedPrestige.highestStage || 1);
+  const recordStage = Math.max(1, preservedPrestige.highestStage || 1);
 
   stopAutoAttack();
   Object.assign(gameState, structuredCloneSafe(initialState));
@@ -8716,12 +9185,13 @@ function resetRunAfterPrestige(startSkillPoints = 0) {
   gameState.player.skillPoints = startSkillPoints;
 
   addStarterItemsIfNeeded(false);
-  const rush = startPrestigeBossRush(returnTarget);
+  const rush = startPrestigeBossRush(recordStage);
+  grantPrestigeRushStarterKit(rush.targetStage);
   gameState.monster = createNextEncounter();
 
   if (rush.active) {
     log(
-      `Marcha dos Bosses iniciada: ${rush.totalBosses} bosses separam você do antigo recorde no Andar ${rush.targetStage}.`,
+      `Marcha dos Bosses iniciada: ${rush.totalBosses} bosses levarão você ao ponto de retorno no Andar ${rush.targetStage}, antes do antigo recorde no Andar ${rush.recordStage}.`,
       'system-important',
       true
     );
@@ -8739,7 +9209,7 @@ function findNextMonster() {
   if (gameState.shop.active && gameState.shop.items.length) {
     updateShopMessage(gameState.monster.prestigeRushBoss ? 'Loja aberta durante a Marcha dos Bosses' : gameState.monster.mandatoryBoss ? 'Loja ainda aberta durante o boss obrigatório' : 'Loja ainda aberta');
   } else if (gameState.monster.prestigeRushBoss) {
-    elements.shopMessage.textContent = 'Marcha dos Bosses ativa. Somente bosses aparecerão até o seu antigo recorde.';
+    elements.shopMessage.textContent = 'Marcha dos Bosses ativa. Somente bosses aparecerão até o ponto de retorno da jornada.';
   } else if (gameState.monster.mandatoryBoss) {
     elements.shopMessage.textContent = 'Boss obrigatório em combate. Vença para avançar na masmorra.';
   } else {
@@ -8848,7 +9318,7 @@ function showAchievementNotice({ title = 'Aviso', subtitle = '', message = '', t
   notice.className = `achievement-notice ${type}`;
 
   notice.innerHTML = `
-    <div class="achievement-notice-icon">${type === 'mythic' ? '🌌' : type === 'fragment' ? '💠' : '✨'}</div>
+    <div class="achievement-notice-icon">${type === 'mythic' ? '🌌' : type === 'fragment' ? '💠' : type === 'rush' ? '🎒' : '✨'}</div>
     <div class="achievement-notice-body">
       <strong>${escapeAttr(title)}</strong>
       ${subtitle ? `<span>${escapeAttr(subtitle)}</span>` : ''}
@@ -9312,11 +9782,13 @@ function initializeGame() {
   gameState.player.magic ??= 14;
   gameState.player.magicChance ??= 18;
   gameState.player.activeWeaponSlot ??= 'physicalWeapon';
-  gameState.player.buffs ??= { fury: 0, stone: 0, wind: 0, arcane: 0 };
+  gameState.player.buffs ??= { fury: 0, stone: 0, wind: 0, arcane: 0, fortune: 0 };
   gameState.player.buffs.arcane ??= 0;
+  gameState.player.buffs.fortune ??= 0;
   ensureMonsterCombatRules(gameState.monster);
 
   addStarterItemsIfNeeded(loaded);
+  closeLoadedUnaffordableForgeShop();
   updateStats();
 
   if (!loaded) {

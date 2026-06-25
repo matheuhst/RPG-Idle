@@ -9865,3 +9865,105 @@ body.biome-mechanicArcane::after {
     width: 100%;
   }
 }
+
+/* =====================================================
+   INCENSO DA FORTUNA — FEEDBACK VISUAL
+   ===================================================== */
+
+.active-buff-card.buff-fortune {
+  background:
+    linear-gradient(135deg, rgba(255,216,107,.18), transparent 68%),
+    rgba(255,255,255,.035);
+}
+
+.active-buff-card.buff-fortune .active-buff-icon {
+  box-shadow: 0 0 22px rgba(255,216,107,.28);
+}
+
+.monster-stat-card.has-fortune-bonus {
+  border-color: rgba(255, 216, 107, .44);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(255,216,107,.15), transparent 55%),
+    color-mix(in srgb, var(--biome-card) 77%, rgba(255,215,90,.045));
+}
+
+.monster-stat-card.has-fortune-bonus .monster-stat-main .stat-icon,
+.monster-stat-card.has-fortune-bonus .monster-stat-label {
+  filter: drop-shadow(0 0 10px rgba(255,216,107,.12));
+}
+
+.monster-coin-reward {
+  color: rgba(255,255,255,.96);
+  font-weight: 900;
+  letter-spacing: .01em;
+  white-space: nowrap;
+}
+
+.monster-coin-reward.is-fortune {
+  color: #ffd86b;
+  text-shadow: 0 0 16px rgba(255,216,107,.28);
+}
+
+.monster-coin-reward-bonus {
+  color: #ffd86b;
+  font-size: .64rem;
+  font-weight: 950;
+  line-height: 1.1;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* =====================================================
+   MARCHA DOS BOSSES — RETORNO PARCIAL E SUPRIMENTOS
+   ===================================================== */
+
+.prestige-rush-banner {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.prestige-rush-loot {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.prestige-rush-loot > span {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 13px;
+  color: rgba(248,245,255,.78);
+  background: rgba(255,255,255,.055);
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: .72rem;
+  text-align: center;
+}
+
+.prestige-rush-loot strong {
+  color: #ffd86b;
+  font-size: .86rem;
+  text-shadow: 0 0 12px rgba(255,216,107,.24);
+}
+
+.achievement-notice.rush {
+  border-color: rgba(255,216,107,.42);
+  background:
+    radial-gradient(circle at top left, rgba(255,216,107,.18), transparent 46%),
+    rgba(20,15,28,.98);
+}
+
+.achievement-notice.rush .achievement-notice-icon {
+  background: rgba(255,216,107,.14);
+  box-shadow: 0 0 22px rgba(255,216,107,.18);
+}
+
+@media (max-width: 720px) {
+  .prestige-rush-loot {
+    grid-template-columns: 1fr;
+  }
+}
